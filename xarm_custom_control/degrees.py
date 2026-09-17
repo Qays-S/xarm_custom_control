@@ -1,0 +1,22 @@
+SEQUENCE = [
+    ("gripper", GRIPPER_OPEN_REAL),                                        # ensure known starting state
+    ("arm", [0, -84, 0, 10, 0, 95, 0]),                                  # stop 1 (degrees)
+    
+    ("arm", [-89, -84, 0, 10, 0, 95, 0]),                                # stop 2 (degrees)
+    
+    ("arm", [-89, -32, 0, 10, 0, 42, 0]),                                # stop 3 (degrees)
+    
+    ("gripper", GRIPPER_GRAB_BOX_REAL),                                    # grip the box here
+    
+    ("arm", [-89, -45, 0, 42, 0, 87, 0]),                                  # stop 4 (degrees)
+    
+    ("arm", [-89, 12, 0, 94, 0, 82, 0]),                                   # new position (drop) (degrees)
+    
+    ("arm", [-89, 21, 0, 70, 0, 48, 0]),                                  # drop position (degrees)
+    
+    ("gripper", GRIPPER_OPEN_REAL),                                        # release object
+    
+    ("arm", [-89, -45, 0, 42, 0, 87, 0]),                                  # back through stop 4 (degrees)
+    
+    ("arm", [0, 0, 0, 0, 0, 0, 0]),                                        # home (degrees)
+]
