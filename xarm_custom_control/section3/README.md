@@ -1,0 +1,119 @@
+# Section III tools: experimental geometry and perception
+
+These scripts produce every Section III requirement of the blueprint. **None of them moves
+the arm.** Where the arm is involved, you jog it yourself (UFactory Studio, teach mode or your
+own scripts) and the tool only *reads* its position. The perception recordings are done with
+the robot parked.
+
+| Blueprint step / required output | Tool | What you get |
+|---|---|---|
+| 12. Camera rigidly mounted, not moved during a session | `s3_check_drift.py` | OK / MOVED check against the calibration's reference frame (run at start and end of every session) |
+| 13. 12–20 planar fiducials, several held out | `s3_collect.py calib` | point list + reference frame |
+| 14. Robust H_CB, held-out metric error → **calibration-error distribution** | `s3_calib_analyze.py` | held-out, leave-one-out and in-sample errors, ECDF plot, error map, `camera_calibration_s3.json` |
+| 16. Markers at known heights → **height/parallax sensitivity** | `s3_collect.py parallax` + `s3_parallax_analyze.py` | error vs height table and plots, height at which parallax exceeds calibration error |
+| 15. Elbow/wrist/hand (+shoulder), raw frames, pixels, confidence, missingness | `s3_perception_logger.py` | `frames/`, `frames.csv`, `events.csv`, `meta.json` |
+| 17. Frame rate, dropped frames, detection failures, jitter → **visibility/missingness statistics** | `s3_perception_analyze.py` | `summary.json`, per-frame visibility CSV, plots |
+| 17. End-to-end perception latency → **latency distribution** | `s3_latency_test.py` (+ analyze `--latency`) | camera latency distribution + detection time = end-to-end estimate |
+| **Manually annotated keypoint subset** | `s3_annotate.py` | your clicks on ~100 frames, pixel error, PCK, missed-when-visible rates |
+
+Install (same pins as `arm_mimic.py`):
+```
+pip install --user "mediapipe==0.10.21" "numpy<2" opencv-python matplotlib xarm-python-sdk
+```
+Run everything from this folder. Keep the camera resolution the same for every step
+(pass the same `--width/--height`).
+
+## Order of work (your steps on the robot)
+
+**A. Latency test: do this FIRST, before calibrating.** After calibration the camera must not
+move. Put the laptop screen in front of the camera, then:
+```
+python3 s3_latency_test.py --out logs/latency01 --flips 40
+```
+Aim the camera so the window fills much of the image, press SPACE, and keep everything still.
+The result includes the screen's refresh delay, so it slightly overestimates the camera's latency.
+
+**B. Mount the camera rigidly** in its final reach-view position. Do not touch it again this session.
+
+**C. Calibration points (12–20).**
+```
+python3 s3_collect.py calib --out calib/calib_session.json        # add --arm manual if the SDK can't connect
+```
+- Keep the gripper pointing straight down (roll 180, pitch 0) so the tip is directly below the TCP.
+- For each point: jog the tip until it **touches the table**, click the tip in the image (use the
+  zoom inset), then press `r`. The script reads the arm's X/Y/Z. It warns if Z drifts more than
+  3 mm from the other points, which means the tip isn't on the table.
+- Cover the **whole area people reach into**: corners, edges and interior, spread evenly. Now that
+  the arm can move, avoid the dead space of the 9-point session.
+- Collect 16 if you can. 12 is the minimum.
+
+Then:
+```
+python3 s3_calib_analyze.py calib/calib_session.json --holdout 4
+```
+The 4 held-out points are chosen at random with `--seed 0` before fitting and written to
+`summary.json`. Report the **held-out** numbers as the headline, and leave-one-out as secondary.
+To use the new calibration in your other scripts, copy
+`calib_session_analysis/camera_calibration_s3.json` over `camera_calibration.json`. It has the same keys.
+
+**D. Drift check at the start and end of every recording session:**
+```
+python3 s3_check_drift.py calib/calib_session_reference_frame.png --calib calib/calib_session_analysis/camera_calibration_s3.json
+```
+If it says MOVED, recalibrate before using that session's data.
+
+**E. Parallax (known heights).**
+```
+python3 s3_collect.py parallax --out calib/parallax_session.json
+```
+- Pick at least 3 table spots spread over the workspace (near, middle, far from the camera).
+- At each spot, first touch the table and record (`r`). Then raise the tip **straight up**,
+  changing Z only, to e.g. 50, 100, 150, 200, 250 mm, recording at each height. Cover the
+  heights where elbows, wrists and hands actually are during reaches.
+- Press `n` before moving to the next spot.
+
+Then:
+```
+python3 s3_parallax_analyze.py calib/parallax_session.json --calib calib/calib_session_analysis/camera_calibration_s3.json
+```
+
+**F. Perception recordings (robot parked).**
+```
+python3 s3_perception_logger.py --out logs/session01 --duration 300
+```
+- Do normal reaches with the arm you'll study (the right arm unless you choose otherwise).
+- Include at least 3 **static holds** of 5–10 s with the arm still: press `s` to start and `s`
+  to stop. These measure keypoint jitter.
+- Do a few deliberate **occlusions** (`o` to start and stop), and press `m` at any cue you want
+  marked.
+- Pose smoothing is OFF on purpose, so the jitter and latency numbers are honest.
+
+**G. Manual annotation (~100 frames):**
+```
+python3 s3_annotate.py annotate logs/session01 --n 100 --side R
+python3 s3_annotate.py evaluate logs/session01
+```
+Frames are sampled evenly over the recording with a fixed seed, and the sample is saved before
+you start. Click shoulder, elbow, wrist, then hand (centre of the knuckles). Press `n` if a
+keypoint isn't visible.
+
+**H. Statistics:**
+```
+python3 s3_perception_analyze.py logs/session01 [logs/session02 ...] --side R --latency logs/latency01
+```
+
+## What goes in the paper (Section III outputs)
+- **Calibration-error distribution:** held-out mean/median/max, LOO, the ECDF figure, and the
+  number and spread of fiducials.
+- **Height/parallax sensitivity:** error-vs-height table and figure, plus the height above which
+  planar projection error exceeds the calibration error. This justifies treating elevated arm
+  points as image-space only.
+- **Manually annotated subset:** frame count, per-keypoint pixel error, PCK@10 px, and
+  missed-when-visible rate.
+- **Visibility/missingness:** missing fraction per keypoint (overall and during occlusion),
+  detection-failure fraction, dropped frames, fps.
+- **Latency:** camera latency distribution, detection time, and their sum as an end-to-end
+  estimate (median, p95).
+
+All tools were tested on simulated data (a synthetic camera with known geometry and a
+synthetic video of a person). Real values come only from your recordings.
