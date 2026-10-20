@@ -1,0 +1,13 @@
+{
+  "mode": "parallax",
+  "created": "20261019_152503",
+  "camera_index": 2,
+  "image_size": [
+    640,
+    480
+  ],
+  "arm_source": "manual",
+  "points": [],
+  "current_location": 0,
+  "reference_frame": "parallax_session_reference_frame.png"
+}
