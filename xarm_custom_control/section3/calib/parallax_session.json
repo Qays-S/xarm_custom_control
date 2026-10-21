@@ -1,13 +1,34 @@
 {
   "mode": "parallax",
-  "created": "20261019_152503",
-  "camera_index": 2,
+  "created": "20261020_162554",
+  "camera_index": 0,
   "image_size": [
     640,
     480
   ],
   "arm_source": "manual",
-  "points": [],
+  "points": [
+    {
+      "id": 1,
+      "u": 265.0,
+      "v": 180.0,
+      "X": 430.26,
+      "Y": -187.34,
+      "Z": 4.37,
+      "t": "20261020_163017",
+      "location": 0
+    },
+    {
+      "id": 2,
+      "u": 534.0,
+      "v": 479.0,
+      "X": 430.23,
+      "Y": -187.37,
+      "Z": 54.41,
+      "t": "20261020_163322",
+      "location": 0
+    }
+  ],
   "current_location": 0,
   "reference_frame": "parallax_session_reference_frame.png"
 }
