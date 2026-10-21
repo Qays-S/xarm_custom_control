@@ -41,7 +41,9 @@ def main():
     rows = []
     for loc in sorted({p["location"] for p in s["points"]}):
         pts = [p for p in s["points"] if p["location"] == loc]
-        z_table = min(p["Z"] for p in pts)
+        # a spot's table Z is its touch reading; a session may override it per spot
+        # (e.g. when the touch point itself was excluded) via "z_table": {"<location>": Z}
+        z_table = s.get("z_table", {}).get(str(loc), min(p["Z"] for p in pts))
         for p in pts:
             proj = apply_h(hm, [[p["u"], p["v"]]])[0]
             d = proj - np.array([p["X"], p["Y"]])
