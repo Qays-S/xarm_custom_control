@@ -1,0 +1,148 @@
+{
+  "sessions": [
+    {
+      "session": "logs/E1_test2",
+      "participant": "P01",
+      "condition": "E1",
+      "duration_s": 23.4,
+      "frames": 246,
+      "fps": 10.5,
+      "read_failures": 0,
+      "reaches_cued": 5,
+      "reaches_valid": 5,
+      "arrivals_manual": 0,
+      "timeouts": 0,
+      "reaction_s_median": 1.294,
+      "movement_s_median": 0.425,
+      "e3_resolve_after_depart_s_median": null,
+      "side": "R",
+      "missing_rate": {
+        "shoulder": {
+          "all": 0.8374,
+          "occlusion": null
+        },
+        "elbow": {
+          "all": 0.8618,
+          "occlusion": null
+        },
+        "wrist": {
+          "all": 0.8618,
+          "occlusion": null
+        },
+        "hand": {
+          "all": 0.1585,
+          "occlusion": null
+        },
+        "tip": {
+          "all": 0.1585,
+          "occlusion": null
+        }
+      },
+      "robot_logged": true
+    }
+  ],
+  "schema": {
+    "frames.csv": [
+      "frame",
+      "t_read_start",
+      "t_read_end",
+      "t_detect_end",
+      "cam_ms",
+      "pose_found",
+      "L_shoulder_u",
+      "L_shoulder_v",
+      "L_shoulder_conf",
+      "L_shoulder_missing",
+      "L_elbow_u",
+      "L_elbow_v",
+      "L_elbow_conf",
+      "L_elbow_missing",
+      "L_wrist_u",
+      "L_wrist_v",
+      "L_wrist_conf",
+      "L_wrist_missing",
+      "L_hand_u",
+      "L_hand_v",
+      "L_hand_conf",
+      "L_hand_missing",
+      "L_tip_u",
+      "L_tip_v",
+      "L_tip_conf",
+      "L_tip_missing",
+      "R_shoulder_u",
+      "R_shoulder_v",
+      "R_shoulder_conf",
+      "R_shoulder_missing",
+      "R_elbow_u",
+      "R_elbow_v",
+      "R_elbow_conf",
+      "R_elbow_missing",
+      "R_wrist_u",
+      "R_wrist_v",
+      "R_wrist_conf",
+      "R_wrist_missing",
+      "R_hand_u",
+      "R_hand_v",
+      "R_hand_conf",
+      "R_hand_missing",
+      "R_tip_u",
+      "R_tip_v",
+      "R_tip_conf",
+      "R_tip_missing",
+      "goal",
+      "phase"
+    ],
+    "events.csv": [
+      "frame",
+      "t",
+      "event",
+      "reach",
+      "target",
+      "detail"
+    ],
+    "reaches.csv": [
+      "reach",
+      "mode",
+      "start",
+      "goal_cued",
+      "decoy",
+      "instruction",
+      "t_cue",
+      "t_depart",
+      "t_resolve",
+      "switch_to",
+      "t_switch_cue",
+      "goal_final",
+      "t_arrive",
+      "arrival",
+      "valid",
+      "note"
+    ],
+    "robot.csv": [
+      "t",
+      "source",
+      "q1",
+      "q2",
+      "q3",
+      "q4",
+      "q5",
+      "q6",
+      "q7",
+      "v1",
+      "v2",
+      "v3",
+      "v4",
+      "v5",
+      "v6",
+      "v7",
+      "x",
+      "y",
+      "z",
+      "roll",
+      "pitch",
+      "yaw",
+      "state",
+      "err"
+    ]
+  }
+}

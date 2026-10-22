@@ -1,0 +1,86 @@
+{
+  "started_wall": "2026-10-22 16:48:17",
+  "mode": "E1",
+  "participant": "P01",
+  "side": "R",
+  "seed": 2096,
+  "targets": {
+    "1": {
+      "px": [
+        790.0,
+        230.0
+      ],
+      "robot_mm": [
+        666.81,
+        89.7,
+        7.21
+      ]
+    },
+    "4": {
+      "px": [
+        771.0,
+        430.0
+      ],
+      "robot_mm": [
+        665.04,
+        -186.75,
+        8.0
+      ]
+    },
+    "9": {
+      "px": [
+        638.0,
+        219.0
+      ],
+      "robot_mm": [
+        444.68,
+        100.32,
+        2.97
+      ]
+    },
+    "12": {
+      "px": [
+        605.0,
+        414.0
+      ],
+      "robot_mm": [
+        434.82,
+        -186.95,
+        3.12
+      ]
+    }
+  },
+  "calib_session": "calib/calib_cam2.json",
+  "radius_px": 60.0,
+  "dwell_s": 0.2,
+  "timeout_s": 6.0,
+  "switch_prob": null,
+  "robot": "parked; read-only logging",
+  "gripper_state": "closed",
+  "sim": false,
+  "conf_threshold": 0.5,
+  "keypoint_source": "MediaPipe Pose 11-16, Hands landmark 9 (hand) and 8 (index tip); smoothing off",
+  "clock": "time.monotonic (s)",
+  "frame_format": ".jpg",
+  "frames": 246,
+  "detect_width": 640,
+  "duration_s": 23.428,
+  "valid_reaches": 5,
+  "reaches_cued": 5,
+  "actual_size": [
+    1280,
+    720
+  ],
+  "robot_rows": 3522,
+  "robot_last": {
+    "q": [
+      5.752428114647046e-05,
+      8.820389484753832e-05,
+      2.876214057323523e-05,
+      8.820389484753832e-05,
+      -3.067961733904667e-05,
+      -1.1504856047395151e-05,
+      -9.012137161334977e-05
+    ]
+  }
+}

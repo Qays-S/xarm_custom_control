@@ -1,0 +1,18 @@
+frame,t,event,reach,target,detail
+52,7505.653145,setup_touch,,1,
+63,7506.659129,cue,1,4,comfortable speed
+77,7507.953441,depart,1,1,
+81,7508.378685,arrive,1,4,auto
+99,7510.186447,cue,2,12,comfortable speed
+116,7511.889201,depart,2,4,
+119,7512.164527,arrive,2,12,auto
+138,7513.895127,cue,3,9,comfortable speed
+152,7515.175097,depart,3,12,
+157,7515.637995,arrive,3,9,auto
+176,7517.442951,cue,4,1,comfortable speed
+191,7518.580601,depart,4,9,
+195,7518.897259,arrive,4,1,auto
+210,7520.222725,cue,5,12,comfortable speed
+227,7521.768856,depart,5,1,
+232,7522.229195,arrive,5,12,auto
+246,7523.516078,session_complete,,,
