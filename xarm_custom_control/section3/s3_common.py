@@ -12,6 +12,28 @@ import numpy as np
 
 ARM_IP_DEFAULT = "192.168.1.210"
 
+# Capture size for every tool. The USB webcam supports 1280x720 in MJPG at full frame
+# rate; at 640x480 the fiducial dots are too small to click once the camera is far
+# enough back to see the participant's shoulder and elbow.
+CAM_W, CAM_H = 1280, 720
+
+
+def open_camera(src, width=CAM_W, height=CAM_H, warmup=10):
+    """Open a camera index (or a video file) at the requested size, MJPG, and let
+    auto-exposure settle. Returns the cv2.VideoCapture."""
+    import cv2
+    is_index = str(src).isdigit()
+    cap = cv2.VideoCapture(int(src) if is_index else src)
+    if is_index:
+        cap.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc(*"MJPG"))
+        if width:
+            cap.set(cv2.CAP_PROP_FRAME_WIDTH, width)
+        if height:
+            cap.set(cv2.CAP_PROP_FRAME_HEIGHT, height)
+        for _ in range(warmup):
+            cap.read()
+    return cap
+
 
 # ----------------------------------------------------------------- arm (read-only)
 class ArmReader:

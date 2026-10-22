@@ -30,6 +30,8 @@ import time
 import cv2
 import numpy as np
 
+from s3_common import CAM_H, CAM_W, open_camera
+
 
 class Grabber(threading.Thread):
     """Reads frames as fast as the camera delivers them and timestamps each one."""
@@ -54,17 +56,13 @@ def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--out", required=True)
     ap.add_argument("--camera", type=int, default=0)
-    ap.add_argument("--width", type=int, default=0)
-    ap.add_argument("--height", type=int, default=0)
+    ap.add_argument("--width", type=int, default=CAM_W)
+    ap.add_argument("--height", type=int, default=CAM_H)
     ap.add_argument("--flips", type=int, default=40)
     a = ap.parse_args()
     os.makedirs(a.out, exist_ok=True)
 
-    cap = cv2.VideoCapture(a.camera)
-    if a.width:
-        cap.set(cv2.CAP_PROP_FRAME_WIDTH, a.width)
-    if a.height:
-        cap.set(cv2.CAP_PROP_FRAME_HEIGHT, a.height)
+    cap = open_camera(a.camera, a.width, a.height)
     g = Grabber(cap)
     g.start()
 

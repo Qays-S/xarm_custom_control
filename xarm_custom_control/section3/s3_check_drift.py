@@ -19,6 +19,8 @@ import sys
 import cv2
 import numpy as np
 
+from s3_common import CAM_H, CAM_W, open_camera
+
 
 def shift(ref, cur):
     orb = cv2.ORB_create(3000)
@@ -44,6 +46,8 @@ def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("reference")
     ap.add_argument("--camera", type=int, default=0)
+    ap.add_argument("--width", type=int, default=CAM_W)
+    ap.add_argument("--height", type=int, default=CAM_H)
     ap.add_argument("--image")
     ap.add_argument("--calib")
     ap.add_argument("--max-px", type=float, default=1.0)
@@ -52,12 +56,13 @@ def main():
     if a.image:
         cur = cv2.imread(a.image)
     else:
-        cap = cv2.VideoCapture(a.camera)
-        for _ in range(10):  # let auto-exposure settle
-            ok, cur = cap.read()
+        cap = open_camera(a.camera, a.width, a.height)  # also lets auto-exposure settle
+        ok, cur = cap.read()
         cap.release()
     if ref is None or cur is None or ref.shape != cur.shape:
-        sys.exit("Could not read both images at the same resolution.")
+        sys.exit("Could not read both images at the same resolution "
+                 f"(reference {None if ref is None else ref.shape[1::-1]}, camera "
+                 f"{None if cur is None else cur.shape[1::-1]}). Use --width/--height to match the reference.")
     r = shift(ref, cur)
     if r is None:
         print("UNDECIDED: too few matching features (is the scene lit and unobstructed?)")

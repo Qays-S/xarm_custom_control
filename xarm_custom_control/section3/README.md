@@ -125,7 +125,7 @@ taped calibration dots (default #1, #4, #9, #12), so each target is known in pix
 robot millimetres. Run from `section3`, with the xArm driver running and the workspace sourced
 (`source ~/ros2_ws/install/setup.bash`) so the robot's joint states are logged.
 
-**Before every session:** `python3 s3_check_drift.py calib/calib_session_touch_day2_reference_frame.png --camera 0` must say OK.
+**Before every session:** `python3 s3_check_drift.py calib/calib_cam2_reference_frame.png --camera 2` must say OK.
 
 | Set | Command | What you do |
 |---|---|---|

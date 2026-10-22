@@ -51,6 +51,8 @@ import time
 import cv2
 import numpy as np
 
+from s3_common import CAM_H, CAM_W, open_camera
+
 POSE_IDS = {"L_shoulder": 11, "R_shoulder": 12, "L_elbow": 13, "R_elbow": 14, "L_wrist": 15, "R_wrist": 16}
 KEYPOINTS = ["L_shoulder", "L_elbow", "L_wrist", "L_hand", "L_tip",
              "R_shoulder", "R_elbow", "R_wrist", "R_hand", "R_tip"]
@@ -202,12 +204,15 @@ def main():
     ap.add_argument("--mode", required=True, choices=["E1", "E2", "E3", "E4"])
     ap.add_argument("--out", required=True)
     ap.add_argument("--targets", type=int, nargs="+", default=[1, 4, 9, 12])
-    ap.add_argument("--calib-session", default="calib/calib_session_touch_day2.json")
+    ap.add_argument("--calib-session", default="calib/calib_cam2.json")
     ap.add_argument("--reaches", type=int, default=40, help="valid reaches to record, then stop")
     ap.add_argument("--side", default="R", choices=["L", "R"], help="the arm you reach with")
     ap.add_argument("--participant", default="P01")
     ap.add_argument("--camera", default="0")
-    ap.add_argument("--radius", type=float, default=30, help="arrival radius around a dot (px)")
+    ap.add_argument("--width", type=int, default=CAM_W)
+    ap.add_argument("--height", type=int, default=CAM_H)
+    ap.add_argument("--radius", type=float, default=None,
+                    help="arrival radius around a dot in px (default: 30 px per 640 px of image width)")
     ap.add_argument("--dwell", type=float, default=0.2, help="seconds inside the radius to count as arrived")
     ap.add_argument("--timeout", type=float, default=6.0, help="seconds before an unfinished reach is re-cued")
     ap.add_argument("--switch-prob", type=float, default=0.5, help="E4: share of reaches with a switch")
@@ -245,12 +250,15 @@ def main():
                                       min_detection_confidence=0.5, min_tracking_confidence=0.5)
         hands = mp.solutions.hands.Hands(max_num_hands=2, model_complexity=1,
                                          min_detection_confidence=0.5, min_tracking_confidence=0.5)
-        cap = cv2.VideoCapture(int(a.camera) if a.camera.isdigit() else a.camera)
+        cap = open_camera(a.camera, a.width, a.height)
         if not cap.isOpened():
             raise SystemExit(f"Could not open camera {a.camera}")
+        W = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH)) or 640
 
     if os.path.exists(os.path.join(a.out, "frames.csv")):
         raise SystemExit(f"{a.out} already has a recording; use a new --out (e.g. ..._s02)")
+    if a.radius is None:
+        a.radius = 30.0 * W / 640
     os.makedirs(os.path.join(a.out, "frames"), exist_ok=True)
     robot = None
     if a.arm == "ros" and not a.sim:

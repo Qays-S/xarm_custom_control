@@ -28,7 +28,7 @@ import os
 import cv2
 import numpy as np
 
-from s3_common import ARM_IP_DEFAULT, ArmReader, load_json, save_json, stamp
+from s3_common import ARM_IP_DEFAULT, CAM_H, CAM_W, ArmReader, load_json, open_camera, save_json, stamp
 
 click = {"pt": None, "mouse": (0, 0)}
 
@@ -71,17 +71,13 @@ def main():
     ap.add_argument("mode", choices=["calib", "parallax"])
     ap.add_argument("--out", required=True)
     ap.add_argument("--camera", type=int, default=0)
-    ap.add_argument("--width", type=int, default=0, help="request a capture width (0 = camera default)")
-    ap.add_argument("--height", type=int, default=0)
+    ap.add_argument("--width", type=int, default=CAM_W, help="capture width (0 = camera default)")
+    ap.add_argument("--height", type=int, default=CAM_H)
     ap.add_argument("--arm", choices=["sdk", "manual"], default="sdk")
     ap.add_argument("--ip", default=ARM_IP_DEFAULT)
     a = ap.parse_args()
 
-    cap = cv2.VideoCapture(a.camera)
-    if a.width:
-        cap.set(cv2.CAP_PROP_FRAME_WIDTH, a.width)
-    if a.height:
-        cap.set(cv2.CAP_PROP_FRAME_HEIGHT, a.height)
+    cap = open_camera(a.camera, a.width, a.height)
     ok, frame = cap.read()
     if not ok:
         raise SystemExit(f"Could not read camera {a.camera}")

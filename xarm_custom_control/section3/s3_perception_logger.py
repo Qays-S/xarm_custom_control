@@ -36,6 +36,8 @@ import time
 
 import cv2
 
+from s3_common import CAM_H, CAM_W, open_camera
+
 POSE_IDS = {"L_shoulder": 11, "R_shoulder": 12, "L_elbow": 13, "R_elbow": 14, "L_wrist": 15, "R_wrist": 16}
 KEYPOINTS = ["L_shoulder", "L_elbow", "L_wrist", "L_hand", "R_shoulder", "R_elbow", "R_wrist", "R_hand"]
 HAND_CENTER = 9
@@ -70,8 +72,8 @@ def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--out", required=True)
     ap.add_argument("--camera", default="0", help="camera index, or a video file to replay")
-    ap.add_argument("--width", type=int, default=0)
-    ap.add_argument("--height", type=int, default=0)
+    ap.add_argument("--width", type=int, default=CAM_W)
+    ap.add_argument("--height", type=int, default=CAM_H)
     ap.add_argument("--duration", type=float, default=0, help="seconds (0 = until q)")
     ap.add_argument("--lossless", action="store_true", help="save PNG instead of JPEG (quality 95)")
     ap.add_argument("--no-frames", action="store_true", help="do not save frames (NOT for paper data)")
@@ -92,11 +94,7 @@ def main():
                                                              min_tracking_confidence=0.5)
 
     src = int(a.camera) if a.camera.isdigit() else a.camera
-    cap = cv2.VideoCapture(src)
-    if a.width:
-        cap.set(cv2.CAP_PROP_FRAME_WIDTH, a.width)
-    if a.height:
-        cap.set(cv2.CAP_PROP_FRAME_HEIGHT, a.height)
+    cap = open_camera(a.camera, a.width, a.height)
     if not cap.isOpened():
         raise SystemExit(f"Could not open camera {a.camera}")
 
