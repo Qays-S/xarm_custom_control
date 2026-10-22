@@ -224,6 +224,9 @@ def main():
     ap.add_argument("--state-topic", default="/xarm/robot_states")
     ap.add_argument("--gripper", default="closed", help="gripper state while parked (written to meta.json)")
     ap.add_argument("--lossless", action="store_true")
+    ap.add_argument("--detect-width", type=int, default=640,
+                    help="run the detectors on a copy this wide (full-size frames are still saved); "
+                         "keeps the frame rate up on a laptop CPU. 0 = detect on the full frame")
     ap.add_argument("--sim", action="store_true", help="no camera: a simulated hand follows the cues")
     a = ap.parse_args()
 
@@ -269,6 +272,17 @@ def main():
             raise SystemExit("rclpy not found: run `source ~/ros2_ws/install/setup.bash` first, or use --arm none")
 
     ext = ".png" if a.lossless else ".jpg"
+    import queue
+    saveq = queue.Queue(maxsize=240)  # frames are written by a background thread
+
+    def _writer():
+        while True:
+            item = saveq.get()
+            if item is None:
+                break
+            cv2.imwrite(item[0], item[1], [cv2.IMWRITE_JPEG_QUALITY, 95] if ext == ".jpg" else [])
+    writer = threading.Thread(target=_writer, daemon=True)
+    writer.start()
     fcsv, ecsv, rcsv = (open(os.path.join(a.out, n), "w", newline="") for n in ("frames.csv", "events.csv", "reaches.csv"))
     fw, ew, rw = csv.writer(fcsv), csv.writer(ecsv), csv.writer(rcsv)
     cols = ["frame", "t_read_start", "t_read_end", "t_detect_end", "cam_ms", "pose_found"]
@@ -348,7 +362,10 @@ def main():
                 miss = {k: int(kp[k][2] < a.conf) for k in KEYPOINTS}
                 found = True
             else:
-                kp, miss, found = detect(pose, hands, cv2.cvtColor(frame, cv2.COLOR_BGR2RGB), w, h, a.conf)
+                small = frame if not a.detect_width or w <= a.detect_width else \
+                    cv2.resize(frame, (a.detect_width, round(h * a.detect_width / w)), interpolation=cv2.INTER_AREA)
+                # landmarks are normalised, so scaling by the full w, h gives full-resolution pixels
+                kp, miss, found = detect(pose, hands, cv2.cvtColor(small, cv2.COLOR_BGR2RGB), w, h, a.conf)
             t = time.monotonic()
 
             # effector point: fingertip, else hand point
@@ -409,8 +426,7 @@ def main():
                         inside_since = None
 
             # ---- save
-            cv2.imwrite(os.path.join(a.out, "frames", f"{n:06d}{ext}"), frame,
-                        [cv2.IMWRITE_JPEG_QUALITY, 95] if ext == ".jpg" else [])
+            saveq.put((os.path.join(a.out, "frames", f"{n:06d}{ext}"), frame))
             row = [n, round(t_rs, 6), round(t_re, 6), round(t, 6), round(cam_ms, 3), int(found)]
             for k in KEYPOINTS:
                 u, v, c = kp[k]
@@ -443,7 +459,7 @@ def main():
             cv2.rectangle(view, (0, h - 70), (w, h), (0, 0, 0), -1)
             cv2.putText(view, big, (12, h - 18), cv2.FONT_HERSHEY_SIMPLEX, 1.6, (0, 255, 255), 3)
             sub = (R["instruction"] if R is not None and a.mode == "E2" else "") + \
-                  f"   reaches {valid_n}/{a.reaches}" + ("   OCCLUSION" if occl else "")
+                  f"   reaches {valid_n}/{a.reaches}   {n / max(t - t0, 1e-6):.0f} fps" + ("   OCCLUSION" if occl else "")
             cv2.putText(view, sub, (12, h - 80), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 255), 2)
             cv2.imshow(win, view)
             key = cv2.waitKey(1) & 0xFF
@@ -477,7 +493,9 @@ def main():
             R.update({"valid": 0, "note": (R["note"] + "; " if R["note"] else "") + "session ended mid-reach",
                       "goal_final": goal})
             rw.writerow([R[k] for k in RCOLS])
-        meta.update({"frames": n, "duration_s": round(time.monotonic() - t0, 3), "valid_reaches": valid_n,
+        saveq.put(None)
+        writer.join()
+        meta.update({"frames": n, "detect_width": a.detect_width, "duration_s": round(time.monotonic() - t0, 3), "valid_reaches": valid_n,
                      "reaches_cued": rid, "actual_size": [w, h] if n else None})
         if robot:
             meta["robot_rows"] = robot.n
