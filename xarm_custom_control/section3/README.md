@@ -117,3 +117,31 @@ python3 s3_perception_analyze.py logs/session01 [logs/session02 ...] --side R --
 
 All tools were tested on simulated data (a synthetic camera with known geometry and a
 synthetic video of a person). Real values come only from your recordings.
+
+## Section IV recordings (E1–E4): moving between targets
+
+The robot stays **parked** for all of these; the tools only read its state. The targets are
+taped calibration dots (default #1, #4, #9, #12), so each target is known in pixels and in
+robot millimetres. Run from `section3`, with the xArm driver running and the workspace sourced
+(`source ~/ros2_ws/install/setup.bash`) so the robot's joint states are logged.
+
+**Before every session:** `python3 s3_check_drift.py calib/calib_session_touch_day2_reference_frame.png --camera 0` must say OK.
+
+| Set | Command | What you do |
+|---|---|---|
+| E1 | `python3 s4_record_targets.py --mode E1 --out logs/E1_s01` | Touch the dot shown ("GO TO 9") at a comfortable speed, hold until the next cue |
+| E2 | `python3 s4_record_targets.py --mode E2 --out logs/E2_s01` | Keep moving: the next dot appears the moment you arrive. Follow the speed/path hint at the bottom |
+| E3 | `python3 s4_record_targets.py --mode E3 --out logs/E3_s01` | Two dots light up ("4 OR 12 ?"). Start moving toward both; the real one is revealed once you are moving |
+| E4 | `python3 s4_record_targets.py --mode E4 --out logs/E4_s01` | Go to the dot shown; on about half the reaches the goal changes just after you start moving. Follow the new one |
+
+- Each session stops after 40 valid reaches (`--reaches`), about 2–4 minutes.
+- Start: the screen says "TOUCH 1 TO START". Touch it with your index fingertip.
+- Arrival is detected from the fingertip. If a touch isn't picked up, press SPACE.
+- Press `x` if a reach went wrong (it stays in the data, flagged invalid), `o` to mark an
+  occlusion, `p` to pause, `q` to stop. A new session needs a new `--out` folder (`_s02`, ...).
+- Dry run without the camera: add `--sim`.
+
+**Summary (counts, durations, missing keypoints, timing, E4 switch onsets):**
+```
+python3 s4_dataset_summary.py logs/E1_s01 logs/E2_s01 logs/E3_s01 logs/E4_s01
+```
