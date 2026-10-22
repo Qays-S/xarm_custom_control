@@ -1,18 +1,18 @@
 frame,t,event,reach,target,detail
-134,613.815283,setup_touch,,1,
-154,614.820315,cue,1,12,comfortable speed
-182,616.286381,depart,1,1,
-194,616.905117,arrive,1,12,auto
-233,618.926088,cue,2,9,comfortable speed
-259,620.282892,depart,2,12,
-270,620.796691,arrive,2,9,auto
-301,622.278945,cue,3,12,comfortable speed
-336,623.923171,depart,3,9,
-351,624.600939,arrive,3,12,auto
-375,625.697748,cue,4,9,comfortable speed
-409,627.274797,depart,4,12,
-433,628.463462,arrive,4,9,auto
-466,630.019064,cue,5,4,comfortable speed
-497,631.462481,depart,5,9,
-512,632.140741,arrive,5,4,auto
-537,633.282218,session_complete,,,
+106,7017.86222,setup_touch,,1,
+118,7018.914723,cue,1,12,comfortable speed
+138,7021.010318,depart,1,1,
+145,7021.826169,arrive,1,12,auto
+164,7023.681811,cue,2,9,comfortable speed
+179,7025.036816,depart,2,12,
+205,7027.688425,arrive,2,9,auto
+219,7029.303031,cue,3,1,comfortable speed
+231,7030.838102,depart,3,9,
+234,7031.086259,arrive,3,1,auto
+253,7032.858276,cue,4,4,comfortable speed
+275,7035.135066,depart,4,1,
+277,7035.335798,arrive,4,4,auto
+289,7036.457703,cue,5,1,comfortable speed
+305,7037.971331,depart,5,4,
+308,7038.248903,arrive,5,1,auto
+325,7040.092584,session_complete,,,

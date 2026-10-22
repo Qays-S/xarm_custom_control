@@ -4,37 +4,37 @@
       "session": "logs/E1_test",
       "participant": "P01",
       "condition": "E1",
-      "duration_s": 24.7,
-      "frames": 537,
-      "fps": 21.75,
+      "duration_s": 32.4,
+      "frames": 325,
+      "fps": 10.02,
       "read_failures": 0,
       "reaches_cued": 5,
       "reaches_valid": 5,
       "arrivals_manual": 0,
       "timeouts": 0,
-      "reaction_s_median": 1.466,
-      "movement_s_median": 0.678,
+      "reaction_s_median": 1.535,
+      "movement_s_median": 0.278,
       "e3_resolve_after_depart_s_median": null,
       "side": "R",
       "missing_rate": {
         "shoulder": {
-          "all": 0.7542,
+          "all": 0.6338,
           "occlusion": null
         },
         "elbow": {
-          "all": 0.7635,
+          "all": 0.8954,
           "occlusion": null
         },
         "wrist": {
-          "all": 0.7728,
+          "all": 0.7692,
           "occlusion": null
         },
         "hand": {
-          "all": 0.257,
+          "all": 0.5754,
           "occlusion": null
         },
         "tip": {
-          "all": 0.257,
+          "all": 0.5754,
           "occlusion": null
         }
       },
