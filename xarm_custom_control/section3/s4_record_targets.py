@@ -204,7 +204,7 @@ def main():
     ap.add_argument("--mode", required=True, choices=["E1", "E2", "E3", "E4"])
     ap.add_argument("--out", required=True)
     ap.add_argument("--targets", type=int, nargs="+", default=[1, 4, 9, 12])
-    ap.add_argument("--calib-session", default="calib/calib_cam2.json")
+    ap.add_argument("--calib-session", default="calib/calib_cam3_orig_ids.json")
     ap.add_argument("--reaches", type=int, default=40, help="valid reaches to record, then stop")
     ap.add_argument("--side", default="R", choices=["L", "R"], help="the arm you reach with")
     ap.add_argument("--participant", default="P01")

@@ -1,0 +1,135 @@
+{
+  "mode": "calib",
+  "created": "20261023_153739",
+  "camera_index": 2,
+  "image_size": [
+    1280,
+    720
+  ],
+  "arm_source": "manual",
+  "points": [
+    {
+      "id": 1,
+      "u": 639.0,
+      "v": 491.0,
+      "X": 668.37,
+      "Y": 91.81,
+      "Z": 7.59,
+      "t": "20261026_143154",
+      "id_as_recorded": 3
+    },
+    {
+      "id": 2,
+      "u": 633.0,
+      "v": 554.0,
+      "X": 667.25,
+      "Y": -3.97,
+      "Z": 3.93,
+      "t": "20261026_143446",
+      "id_as_recorded": 4
+    },
+    {
+      "id": 3,
+      "u": 626.0,
+      "v": 609.0,
+      "X": 663.48,
+      "Y": -82.22,
+      "Z": 5.0,
+      "t": "20261026_144832",
+      "id_as_recorded": 9
+    },
+    {
+      "id": 4,
+      "u": 623.0,
+      "v": 688.0,
+      "X": 667.19,
+      "Y": -191.84,
+      "Z": 3.87,
+      "t": "20261026_145112",
+      "id_as_recorded": 10
+    },
+    {
+      "id": 5,
+      "u": 543.0,
+      "v": 684.0,
+      "X": 559.02,
+      "Y": -191.73,
+      "Z": 4.83,
+      "t": "20261026_145321",
+      "id_as_recorded": 11
+    },
+    {
+      "id": 6,
+      "u": 541.0,
+      "v": 609.0,
+      "X": 545.79,
+      "Y": -87.88,
+      "Z": 3.66,
+      "t": "20261026_144603",
+      "id_as_recorded": 8
+    },
+    {
+      "id": 7,
+      "u": 546.0,
+      "v": 548.0,
+      "X": 542.3,
+      "Y": 2.93,
+      "Z": 3.89,
+      "t": "20261026_143759",
+      "id_as_recorded": 5
+    },
+    {
+      "id": 8,
+      "u": 554.0,
+      "v": 483.0,
+      "X": 546.5,
+      "Y": 104.24,
+      "Z": 4.78,
+      "t": "20261026_142911",
+      "id_as_recorded": 2
+    },
+    {
+      "id": 9,
+      "u": 488.0,
+      "v": 481.0,
+      "X": 446.38,
+      "Y": 104.45,
+      "Z": 3.45,
+      "t": "20261026_142617",
+      "id_as_recorded": 1
+    },
+    {
+      "id": 10,
+      "u": 477.0,
+      "v": 548.0,
+      "X": 441.14,
+      "Y": -1.99,
+      "Z": 3.63,
+      "t": "20261026_144042",
+      "id_as_recorded": 6
+    },
+    {
+      "id": 11,
+      "u": 469.0,
+      "v": 606.0,
+      "X": 441.0,
+      "Y": -87.74,
+      "Z": 3.68,
+      "t": "20261026_144237",
+      "id_as_recorded": 7
+    },
+    {
+      "id": 12,
+      "u": 457.0,
+      "v": 674.0,
+      "X": 434.29,
+      "Y": -189.54,
+      "Z": 3.14,
+      "t": "20261026_145732",
+      "id_as_recorded": 12
+    }
+  ],
+  "current_location": 0,
+  "reference_frame": "parallax_cam3_reference_frame.png",
+  "note": "Dot ids renumbered to the original fiducial numbering (same physical post-its as calib_cam2 / day-2); id_as_recorded keeps the order clicked on 2026-10-26. reference_frame points to the parallax session photo, because the photo saved when this file was first created (2026-10-23) came from a different camera."
+}
