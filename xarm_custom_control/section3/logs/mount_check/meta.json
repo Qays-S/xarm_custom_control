@@ -1,0 +1,25 @@
+{
+  "started_wall": "2026-10-26 14:11:49",
+  "camera": "2",
+  "requested_size": [
+    1280,
+    720
+  ],
+  "reported_fps": 30.0,
+  "mediapipe": "0.10.21",
+  "opencv": "4.11.0",
+  "pose_smoothing": false,
+  "model_complexity": 1,
+  "hands": true,
+  "conf_threshold": 0.5,
+  "frames_saved": false,
+  "frame_format": ".jpg",
+  "clock": "time.monotonic (s)",
+  "hand_point": "MediaPipe Hands landmark 9 (middle-finger MCP)",
+  "actual_size": [
+    1280,
+    720
+  ],
+  "frames": 253,
+  "duration_s": 11.486
+}
