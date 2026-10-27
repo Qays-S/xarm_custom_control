@@ -1,0 +1,163 @@
+frame,t,event,reach,target,detail
+32,3683.560556,setup_touch,,1,
+50,3684.568985,cue,1,12,"one of the two lit dots: start moving, the real one appears; decoy 4"
+87,3686.714633,depart,1,1,
+90,3686.880907,resolve,1,12,decoy 4 dropped
+126,3688.918739,arrive,1,12,auto
+157,3690.639438,cue,2,1,"one of the two lit dots: start moving, the real one appears; decoy 9"
+193,3692.633198,depart,2,12,
+197,3692.854968,resolve,2,1,decoy 9 dropped
+230,3694.703513,arrive,2,1,auto
+256,3696.142051,cue,3,12,"one of the two lit dots: start moving, the real one appears; decoy 4"
+293,3698.191764,depart,3,1,
+295,3698.303061,resolve,3,12,decoy 4 dropped
+323,3699.862967,arrive,3,12,auto
+343,3700.972356,cue,4,9,"one of the two lit dots: start moving, the real one appears; decoy 1"
+371,3702.68921,depart,4,12,
+374,3702.875602,resolve,4,9,decoy 1 dropped
+398,3704.377591,arrive,4,9,auto
+420,3705.741245,cue,5,12,"one of the two lit dots: start moving, the real one appears; decoy 4"
+457,3708.075155,depart,5,9,
+462,3708.385485,resolve,5,12,decoy 4 dropped
+491,3710.186396,arrive,5,12,auto
+519,3711.921355,cue,6,9,"one of the two lit dots: start moving, the real one appears; decoy 1"
+538,3713.102655,depart,6,12,
+541,3713.293561,resolve,6,9,decoy 1 dropped
+566,3714.854558,arrive,6,9,auto
+592,3716.479699,cue,7,12,"one of the two lit dots: start moving, the real one appears; decoy 4"
+613,3717.79916,depart,7,9,
+618,3718.113463,resolve,7,12,decoy 4 dropped
+645,3719.786711,arrive,7,12,auto
+674,3721.578355,cue,8,4,"one of the two lit dots: start moving, the real one appears; decoy 1"
+692,3722.724795,depart,8,12,
+696,3722.966539,resolve,8,4,decoy 1 dropped
+723,3724.635521,arrive,8,4,auto
+749,3726.260609,cue,9,12,"one of the two lit dots: start moving, the real one appears; decoy 9"
+770,3727.562386,depart,9,4,
+774,3727.806412,resolve,9,12,decoy 9 dropped
+810,3730.143535,arrive,9,12,auto
+842,3732.124634,cue,10,9,"one of the two lit dots: start moving, the real one appears; decoy 1"
+859,3733.179431,depart,10,12,
+864,3733.490349,resolve,10,9,decoy 1 dropped
+906,3736.165879,arrive,10,9,auto
+937,3738.126169,cue,11,4,"one of the two lit dots: start moving, the real one appears; decoy 12"
+958,3739.578208,depart,11,9,
+961,3739.782593,resolve,11,4,decoy 12 dropped
+990,3741.781615,arrive,11,4,auto
+1015,3743.403375,cue,12,9,"one of the two lit dots: start moving, the real one appears; decoy 1"
+1032,3744.460685,depart,12,4,
+1036,3744.716162,resolve,12,9,decoy 1 dropped
+1063,3746.443757,arrive,12,9,auto
+1094,3748.385677,cue,13,4,"one of the two lit dots: start moving, the real one appears; decoy 12"
+1120,3750.065119,depart,13,9,
+1125,3750.375788,resolve,13,4,decoy 12 dropped
+1152,3752.03504,arrive,13,4,auto
+1185,3754.073896,cue,14,12,"one of the two lit dots: start moving, the real one appears; decoy 9"
+1203,3755.178533,depart,14,4,
+1207,3755.425485,resolve,14,12,decoy 9 dropped
+1241,3757.57469,arrive,14,12,auto
+1265,3759.062919,cue,15,4,"one of the two lit dots: start moving, the real one appears; decoy 1"
+1287,3760.425913,depart,15,12,
+1290,3760.61223,resolve,15,4,decoy 1 dropped
+1321,3762.743467,arrive,15,4,auto
+1343,3764.121517,cue,16,12,"one of the two lit dots: start moving, the real one appears; decoy 9"
+1362,3765.295506,depart,16,4,
+1364,3765.419998,resolve,16,12,decoy 9 dropped
+1409,3768.334083,arrive,16,12,auto
+1432,3769.762193,cue,17,9,"one of the two lit dots: start moving, the real one appears; decoy 1"
+1449,3770.812634,depart,17,12,
+1454,3771.118564,resolve,17,9,decoy 1 dropped
+1481,3772.882541,arrive,17,9,auto
+1503,3774.276368,cue,18,1,"one of the two lit dots: start moving, the real one appears; decoy 4"
+1521,3775.414566,depart,18,9,
+1525,3775.687247,resolve,18,1,decoy 4 dropped
+1547,3777.045404,arrive,18,1,auto
+1564,3778.091691,cue,19,9,"one of the two lit dots: start moving, the real one appears; decoy 12"
+1589,3779.700682,depart,19,1,
+1592,3779.900791,resolve,19,9,decoy 12 dropped
+1621,3781.727295,arrive,19,9,auto
+1647,3783.380522,cue,20,12,"one of the two lit dots: start moving, the real one appears; decoy 4"
+1679,3785.377449,depart,20,9,
+1683,3785.623647,resolve,20,12,decoy 4 dropped
+1705,3786.9799,arrive,20,12,auto
+1732,3788.64458,cue,21,9,"one of the two lit dots: start moving, the real one appears; decoy 1"
+1755,3790.069518,depart,21,12,
+1759,3790.318078,resolve,21,9,decoy 1 dropped
+1781,3791.720158,arrive,21,9,auto
+1807,3793.325619,cue,22,1,"one of the two lit dots: start moving, the real one appears; decoy 4"
+1840,3795.404854,depart,22,9,
+1844,3795.657705,resolve,22,1,decoy 4 dropped
+1865,3796.956914,arrive,22,1,auto
+1887,3798.36883,cue,23,4,"one of the two lit dots: start moving, the real one appears; decoy 12"
+1918,3800.468578,depart,23,1,
+1921,3800.654565,resolve,23,4,decoy 12 dropped
+1946,3802.193492,arrive,23,4,auto
+1977,3804.123196,cue,24,1,"one of the two lit dots: start moving, the real one appears; decoy 9"
+1996,3805.294648,depart,24,4,
+1999,3805.480836,resolve,24,1,decoy 9 dropped
+2020,3806.793679,arrive,24,1,auto
+2051,3808.718026,cue,25,12,"one of the two lit dots: start moving, the real one appears; decoy 4"
+2090,3811.233694,depart,25,1,
+2093,3811.429244,resolve,25,12,decoy 4 dropped
+2118,3812.967473,arrive,25,12,auto
+2135,3814.028627,cue,26,1,"one of the two lit dots: start moving, the real one appears; decoy 9"
+2160,3815.57864,depart,26,12,
+2164,3815.827931,resolve,26,1,decoy 9 dropped
+2185,3817.121552,arrive,26,1,auto
+2214,3818.948629,cue,27,12,"one of the two lit dots: start moving, the real one appears; decoy 4"
+2242,3820.704234,depart,27,1,
+2245,3820.889743,resolve,27,12,decoy 4 dropped
+2269,3822.372513,arrive,27,12,auto
+2295,3823.985205,cue,28,9,"one of the two lit dots: start moving, the real one appears; decoy 1"
+2316,3825.283306,depart,28,12,
+2319,3825.470985,resolve,28,9,decoy 1 dropped
+2341,3826.900374,arrive,28,9,auto
+2373,3828.877544,cue,29,4,"one of the two lit dots: start moving, the real one appears; decoy 12"
+2397,3830.373303,depart,29,9,
+2401,3830.615578,resolve,29,4,decoy 12 dropped
+2430,3832.408669,arrive,29,4,auto
+2456,3834.047929,cue,30,12,"one of the two lit dots: start moving, the real one appears; decoy 9"
+2476,3835.288882,depart,30,4,
+2480,3835.536764,resolve,30,12,decoy 9 dropped
+2508,3837.26518,arrive,30,12,auto
+2538,3839.12056,cue,31,9,"one of the two lit dots: start moving, the real one appears; decoy 1"
+2556,3840.232899,depart,31,12,
+2560,3840.48079,resolve,31,9,decoy 1 dropped
+2578,3841.72493,arrive,31,9,auto
+2601,3843.170872,cue,32,12,"one of the two lit dots: start moving, the real one appears; decoy 4"
+2626,3844.7316,depart,32,9,
+2630,3844.98288,resolve,32,12,decoy 4 dropped
+2651,3846.285855,arrive,32,12,auto
+2676,3847.82357,cue,33,9,"one of the two lit dots: start moving, the real one appears; decoy 1"
+2695,3849.001766,depart,33,12,
+2700,3849.310012,resolve,33,9,decoy 1 dropped
+2734,3851.451666,arrive,33,9,auto
+2758,3852.948987,cue,34,1,"one of the two lit dots: start moving, the real one appears; decoy 4"
+2780,3854.306432,depart,34,9,
+2784,3854.554052,resolve,34,1,decoy 4 dropped
+2803,3855.728204,arrive,34,1,auto
+2828,3857.272409,cue,35,4,"one of the two lit dots: start moving, the real one appears; decoy 12"
+2852,3858.793185,depart,35,1,
+2856,3859.049651,resolve,35,4,decoy 12 dropped
+2878,3860.42252,arrive,35,4,auto
+2911,3862.456768,cue,36,9,"one of the two lit dots: start moving, the real one appears; decoy 1"
+2930,3863.639614,depart,36,4,
+2933,3863.825872,resolve,36,9,decoy 1 dropped
+2951,3865.087706,arrive,36,9,auto
+2983,3867.077199,cue,37,1,"one of the two lit dots: start moving, the real one appears; decoy 4"
+3003,3868.336032,depart,37,9,
+3008,3868.647222,resolve,37,1,decoy 4 dropped
+3029,3869.943062,arrive,37,1,auto
+3046,3871.034799,cue,38,12,"one of the two lit dots: start moving, the real one appears; decoy 4"
+3066,3872.278491,depart,38,1,
+3069,3872.462219,resolve,38,12,decoy 4 dropped
+3091,3873.824958,arrive,38,12,auto
+3111,3875.061076,cue,39,4,"one of the two lit dots: start moving, the real one appears; decoy 1"
+3128,3876.111629,depart,39,12,
+3131,3876.299276,resolve,39,4,decoy 1 dropped
+3165,3878.497138,arrive,39,4,auto
+3182,3879.548911,cue,40,12,"one of the two lit dots: start moving, the real one appears; decoy 9"
+3198,3880.546079,depart,40,4,
+3202,3880.793191,resolve,40,12,decoy 9 dropped
+3229,3882.465104,arrive,40,12,auto
+3255,3884.070625,session_complete,,,
