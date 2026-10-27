@@ -1,0 +1,123 @@
+frame,t,event,reach,target,detail
+143,707.88369,setup_touch,,1,
+161,708.892456,cue,1,4,"slow, curved"
+185,710.239217,depart,1,1,
+192,710.614326,arrive,1,4,auto
+193,710.668517,cue,2,12,"normal, curved"
+230,712.656571,depart,2,4,
+237,713.033196,arrive,2,12,auto
+238,713.086038,cue,3,1,"fast, curved"
+278,715.261063,depart,3,12,
+286,715.711135,arrive,3,1,auto
+287,715.76476,cue,4,4,"slow, curved"
+316,717.348504,depart,4,1,
+322,717.658203,arrive,4,4,auto
+323,717.713456,cue,5,9,"normal, curved"
+353,719.325815,depart,5,4,
+361,719.790163,arrive,5,9,auto
+362,719.842804,cue,6,1,"fast, curved"
+385,721.113455,depart,6,9,
+389,721.323945,arrive,6,1,auto
+390,721.375861,cue,7,9,"fast, curved"
+421,723.028219,depart,7,1,
+435,723.762676,arrive,7,9,auto
+436,723.815122,cue,8,12,"fast, straight"
+464,725.323411,depart,8,9,
+471,725.70802,arrive,8,12,auto
+472,725.763571,cue,9,4,"fast, straight"
+498,727.199223,depart,9,12,
+504,727.532448,arrive,9,4,auto
+505,727.58847,cue,10,12,"fast, straight"
+538,729.412357,depart,10,4,
+543,729.689115,arrive,10,12,auto
+544,729.744073,cue,11,9,"normal, curved"
+568,731.066899,depart,11,12,
+574,731.39981,arrive,11,9,auto
+575,731.455567,cue,12,12,"slow, straight"
+602,732.993468,depart,12,9,
+609,733.377826,arrive,12,12,auto
+610,733.432494,cue,13,9,"fast, curved"
+635,734.797154,depart,13,12,
+641,735.120213,arrive,13,9,auto
+642,735.174888,cue,14,4,"normal, curved"
+669,736.650668,depart,14,9,
+681,737.30552,arrive,14,4,auto
+682,737.359349,cue,15,12,"fast, curved"
+716,739.266947,depart,15,4,
+720,739.490955,arrive,15,12,auto
+721,739.550096,cue,16,1,"fast, straight"
+745,740.877922,depart,16,12,
+755,741.427023,arrive,16,1,auto
+756,741.478794,cue,17,12,"fast, curved"
+784,742.983407,depart,17,1,
+791,743.350476,arrive,17,12,auto
+792,743.406152,cue,18,1,"slow, straight"
+814,744.615876,depart,18,12,
+823,745.103829,arrive,18,1,auto
+824,745.157792,cue,19,4,"slow, straight"
+857,746.95743,depart,19,1,
+863,747.287024,arrive,19,4,auto
+864,747.342823,cue,20,1,"normal, straight"
+887,748.608107,depart,20,4,
+893,748.921024,arrive,20,1,auto
+894,748.976196,cue,21,9,"normal, curved"
+922,750.545923,depart,21,1,
+926,750.761553,arrive,21,9,auto
+927,750.814648,cue,22,1,"normal, straight"
+945,751.818311,depart,22,9,
+951,752.148277,arrive,22,1,auto
+952,752.202463,cue,23,4,"normal, straight"
+978,753.652353,depart,23,1,
+984,753.969429,arrive,23,4,auto
+985,754.024827,cue,24,12,"normal, straight"
+1012,755.522223,depart,24,4,
+1016,755.74114,arrive,24,12,auto
+1017,755.796035,cue,25,9,"slow, curved"
+1050,757.614522,depart,25,12,
+1056,757.938125,arrive,25,9,auto
+1057,757.993271,cue,26,4,"normal, curved"
+1083,759.425259,depart,26,9,
+1091,759.862699,arrive,26,4,auto
+1092,759.916517,cue,27,9,"fast, straight"
+1121,761.505391,depart,27,4,
+1129,761.943664,arrive,27,9,auto
+1130,761.998139,cue,28,1,"slow, straight"
+1155,763.385231,depart,28,9,
+1159,763.623214,arrive,28,1,auto
+1160,763.674759,cue,29,9,"fast, curved"
+1201,765.972201,depart,29,1,
+1205,766.191337,arrive,29,9,auto
+1206,766.247169,cue,30,12,"slow, straight"
+1231,767.617097,depart,30,9,
+1237,767.944964,arrive,30,12,auto
+1238,767.999342,cue,31,9,"normal, curved"
+1267,769.59478,depart,31,12,
+1273,769.924839,arrive,31,9,auto
+1274,769.978539,cue,32,12,"fast, curved"
+1301,771.464458,depart,32,9,
+1307,771.798411,arrive,32,12,auto
+1308,771.853981,cue,33,9,"normal, curved"
+1331,773.134333,depart,33,12,
+1339,773.575369,arrive,33,9,auto
+1340,773.630806,cue,34,1,"fast, straight"
+1359,774.702657,depart,34,9,
+1364,774.985959,arrive,34,1,auto
+1365,775.041921,cue,35,12,"fast, curved"
+1388,776.349873,depart,35,1,
+1395,776.719813,arrive,35,12,auto
+1396,776.774659,cue,36,4,"normal, curved"
+1425,778.380183,depart,36,12,
+1430,778.658579,arrive,36,4,auto
+1431,778.713674,cue,37,12,"fast, curved"
+1465,780.60496,depart,37,4,
+1470,780.881551,arrive,37,12,auto
+1471,780.937507,cue,38,4,"normal, curved"
+1496,782.326516,depart,38,12,
+1500,782.548389,arrive,38,4,auto
+1501,782.604495,cue,39,9,"slow, curved"
+1528,784.100108,depart,39,4,
+1537,784.600673,arrive,39,9,auto
+1538,784.655915,cue,40,12,"slow, curved"
+1559,785.820547,depart,40,9,
+1564,786.098466,arrive,40,12,auto
+1565,786.154108,session_complete,,,

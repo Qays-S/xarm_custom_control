@@ -140,12 +140,13 @@ class RosRobotLog(threading.Thread):
             self.n += 1
 
     def _joints(self, m):
-        self.last["q"] = list(m.position)
-        self._row("joint_states", m.position, m.velocity)
+        self.last["q"] = [float(v) for v in m.position]
+        self._row("joint_states", [float(v) for v in m.position], [float(v) for v in m.velocity])
 
     def _state(self, m):
-        self.last["pose"] = list(m.pose)
-        self._row("robot_states", m.angle, (), m.pose, m.state, m.err)
+        pose = [float(v) for v in m.pose]  # ROS arrays arrive as numpy float32
+        self.last["pose"] = pose
+        self._row("robot_states", [float(v) for v in m.angle], (), pose, int(m.state), int(m.err))
 
     def run(self):
         while self.rclpy.ok():
@@ -502,7 +503,7 @@ def main():
             meta["robot_last"] = robot.last
             robot.close()
         with open(os.path.join(a.out, "meta.json"), "w") as f:
-            json.dump(meta, f, indent=2)
+            json.dump(meta, f, indent=2, default=float)  # default: never lose meta over a numpy number
         for f in (fcsv, ecsv, rcsv):
             f.close()
         if cap is not None:

@@ -107,9 +107,11 @@ def main():
                 start = None
         miss = {}
         for k in ("shoulder", "elbow", "wrist", "hand", "tip"):
-            col = np.array([f[f"{side}_{k}_missing"] == "1" for f in frames])
+            # only frames after the first touch: before it the participant may still be walking to the seat
+            col = np.array([f[f"{side}_{k}_missing"] == "1" for f in frames if f.get("phase", "") != "setup"])
             miss[k] = {"all": round(float(col.mean()), 4) if len(col) else None,
-                       "occlusion": round(float(col[occ].mean()), 4) if occ.any() else None}
+                       "occlusion": round(float(np.array([f[f"{side}_{k}_missing"] == "1" for f in frames])[occ].mean()), 4)
+                       if occ.any() else None}
         valid = [r for r in reaches if r["valid"] == "1"]
         rt = [fnum(r["t_depart"]) - fnum(r["t_cue"]) for r in valid]
         mt = [fnum(r["t_arrive"]) - fnum(r["t_depart"]) for r in valid]

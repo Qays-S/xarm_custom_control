@@ -1,0 +1,123 @@
+frame,t,event,reach,target,detail
+369,462.495126,setup_touch,,1,
+388,463.511302,cue,1,12,comfortable speed
+421,465.268165,depart,1,1,
+430,465.74881,arrive,1,12,auto
+464,467.580834,cue,2,1,comfortable speed
+487,468.817403,depart,2,12,
+499,469.406598,arrive,2,1,auto
+535,471.353388,cue,3,12,comfortable speed
+560,472.680788,depart,3,1,
+567,473.064107,arrive,3,12,auto
+593,474.467301,cue,4,4,comfortable speed
+625,476.193681,depart,4,12,
+633,476.623439,arrive,4,4,auto
+665,478.350085,cue,5,9,comfortable speed
+693,479.895923,depart,5,4,
+701,480.368344,arrive,5,9,auto
+728,481.833751,cue,6,12,comfortable speed
+768,484.011222,depart,6,9,
+777,484.504124,arrive,6,12,auto
+799,485.702046,cue,7,9,comfortable speed
+826,487.171829,depart,7,12,
+832,487.494132,arrive,7,9,auto
+867,489.398611,cue,8,12,comfortable speed
+889,490.586149,depart,8,9,
+896,490.960861,arrive,8,12,auto
+932,492.905444,cue,9,9,comfortable speed
+958,494.316019,depart,9,12,
+964,494.641941,arrive,9,9,auto
+998,496.48333,cue,10,4,comfortable speed
+1032,498.362058,depart,10,9,
+1043,498.974019,arrive,10,4,auto
+1065,500.196319,cue,11,1,comfortable speed
+1087,501.422382,depart,11,4,
+1094,501.808927,arrive,11,1,auto
+1125,503.539137,cue,12,9,comfortable speed
+1154,505.168611,depart,12,1,
+1204,507.919015,arrive,12,9,auto
+1233,509.502547,cue,13,4,comfortable speed
+1264,511.18391,depart,13,9,
+1276,511.831861,arrive,13,4,auto
+1311,513.734418,cue,14,1,comfortable speed
+1332,514.884111,depart,14,4,
+1339,515.271124,arrive,14,1,auto
+1359,516.374985,cue,15,12,comfortable speed
+1389,518.020443,depart,15,1,
+1398,518.512062,arrive,15,12,auto
+1426,520.062072,cue,16,1,comfortable speed
+1446,521.167127,depart,16,12,
+1460,521.871053,arrive,16,1,auto
+1482,523.090759,cue,17,12,comfortable speed
+1509,524.613941,depart,17,1,
+1516,524.985717,arrive,17,12,auto
+1539,526.253197,cue,18,4,comfortable speed
+1569,527.913326,depart,18,12,
+1574,528.19078,arrive,18,4,auto
+1610,530.186077,cue,19,9,comfortable speed
+1653,532.563301,depart,19,4,
+1701,535.23612,arrive,19,9,auto
+1730,536.834448,cue,20,4,comfortable speed
+1768,538.934157,depart,20,9,
+1776,539.375556,arrive,20,4,auto
+1795,540.425313,cue,21,9,comfortable speed
+1817,541.648392,depart,21,4,
+1825,542.090031,arrive,21,9,auto
+1851,543.517258,cue,22,12,comfortable speed
+1873,544.729962,depart,22,9,
+1883,545.283234,arrive,22,12,auto
+1908,546.663098,cue,23,9,comfortable speed
+1933,548.041496,depart,23,12,
+1940,548.430435,arrive,23,9,auto
+1975,550.348966,cue,24,1,comfortable speed
+1997,551.56167,depart,24,9,
+2002,551.837512,arrive,24,1,auto
+2029,553.332684,cue,25,12,comfortable speed
+2052,554.61989,depart,25,1,
+2059,554.987334,arrive,25,12,auto
+2095,556.918582,cue,26,9,comfortable speed
+2113,557.906302,depart,26,12,
+2120,558.290736,arrive,26,9,auto
+2139,559.337827,cue,27,4,comfortable speed
+2164,560.731008,depart,27,9,
+2173,561.224198,arrive,27,4,auto
+2203,562.888985,cue,28,1,comfortable speed
+2222,563.936911,depart,28,4,
+2229,564.32784,arrive,28,1,auto
+2265,566.312409,cue,29,9,comfortable speed
+2287,567.513554,depart,29,1,
+2304,568.44979,arrive,29,9,auto
+2334,570.113584,cue,30,1,comfortable speed
+2355,571.253446,depart,30,9,
+2360,571.53512,arrive,30,1,auto
+2389,573.135367,cue,31,12,comfortable speed
+2412,574.428935,depart,31,1,
+2420,574.874222,arrive,31,12,auto
+2454,576.774037,cue,32,1,comfortable speed
+2475,577.939163,depart,32,12,
+2485,578.466158,arrive,32,1,auto
+2509,579.787656,cue,33,4,comfortable speed
+2541,581.563078,depart,33,1,
+2548,581.951981,arrive,33,4,auto
+2583,583.925373,cue,34,9,comfortable speed
+2611,585.475028,depart,34,4,
+2618,585.862608,arrive,34,9,auto
+2645,587.387663,cue,35,4,comfortable speed
+2675,589.065201,depart,35,9,
+2683,589.506511,arrive,35,4,auto
+2709,590.956057,cue,36,9,comfortable speed
+2731,592.092189,depart,36,4,
+2799,596.02274,arrive,36,9,auto
+2821,597.254367,cue,37,1,comfortable speed
+2837,598.141885,depart,37,9,
+2844,598.542705,arrive,37,1,auto
+2876,600.32982,cue,38,12,comfortable speed
+2899,601.623218,depart,38,1,
+2906,602.002276,arrive,38,12,auto
+2934,603.56168,cue,39,4,comfortable speed
+2957,604.853123,depart,39,12,
+2962,605.131913,arrive,39,4,auto
+2981,606.197636,cue,40,9,comfortable speed
+3005,607.539091,depart,40,4,
+3013,607.984292,arrive,40,9,auto
+3038,609.380231,session_complete,,,
