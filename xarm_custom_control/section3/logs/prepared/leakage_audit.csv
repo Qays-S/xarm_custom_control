@@ -1,0 +1,13 @@
+session,set_a,set_b,shared_steps
+E1_s02,val,cal,0
+E1_s02,val,test,0
+E1_s02,cal,test,0
+E2_s02,val,cal,0
+E2_s02,val,test,0
+E2_s02,cal,test,0
+E3_s02,val,cal,0
+E3_s02,val,test,0
+E3_s02,cal,test,0
+E4_s02,val,cal,0
+E4_s02,val,test,0
+E4_s02,cal,test,0

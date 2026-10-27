@@ -145,3 +145,22 @@ robot millimetres. Run from `section3`, with the xArm driver running and the wor
 ```
 python3 s4_dataset_summary.py logs/E1_s01 logs/E2_s01 logs/E3_s01 logs/E4_s01
 ```
+
+## Section V: forecasting (runs on the laptop, no camera or arm needed)
+
+**1. Prepare the tracks and freeze the split** (once, after recording):
+```
+python3 s5_prepare.py logs/E1_s01 logs/E2_s01 logs/E3_s01 logs/E4_s01 logs/E1_s02 logs/E2_s02 logs/E3_s02 logs/E4_s02
+```
+Resamples every session to 16 Hz (0.0625 s steps), normalises pixels by the image size, and
+writes `logs/prepared/` with one `.npz` per session, `split_manifest.json` and
+`leakage_audit.csv`. Split: round 1 = train; each round 2 session is cut by reach into
+thirds = val, cal, test. A window is used only if it lies inside one block, so the audit
+must say PASS. Commit `logs/prepared/` so the split stays frozen.
+
+**2. Baselines on the validation set** (current pose and constant velocity):
+```
+python3 s5_baselines.py
+```
+ADE/FDE in pixels at 0.25, 0.5, 1.0 and 1.5 s, saved in `logs/forecast_results/`. The test
+set is not used.
