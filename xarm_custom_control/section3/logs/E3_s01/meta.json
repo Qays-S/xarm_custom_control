@@ -1,14 +1,14 @@
 {
-  "started_wall": "2026-10-27 15:16:28",
+  "started_wall": "2026-10-27 15:26:02",
   "mode": "E3",
   "participant": "P01",
   "side": "R",
-  "seed": 28587,
+  "seed": 29160,
   "targets": {
     "1": {
       "px": [
-        639.0,
-        491.0
+        679.82,
+        492.19
       ],
       "robot_mm": [
         668.37,
@@ -18,8 +18,8 @@
     },
     "4": {
       "px": [
-        623.0,
-        688.0
+        664.34,
+        689.31
       ],
       "robot_mm": [
         667.19,
@@ -29,8 +29,8 @@
     },
     "9": {
       "px": [
-        488.0,
-        481.0
+        528.42,
+        483.8
       ],
       "robot_mm": [
         446.38,
@@ -40,8 +40,8 @@
     },
     "12": {
       "px": [
-        457.0,
-        674.0
+        498.13,
+        676.63
       ],
       "robot_mm": [
         434.29,
@@ -50,7 +50,7 @@
       ]
     }
   },
-  "calib_session": "calib/calib_cam3_orig_ids.json",
+  "calib_session": "calib/calib_cam3b.json",
   "radius_px": 30.0,
   "dwell_s": 0.2,
   "timeout_s": 6.0,
@@ -62,11 +62,11 @@
   "keypoint_source": "MediaPipe Pose 11-16, Hands landmark 9 (hand) and 8 (index tip); smoothing off",
   "clock": "time.monotonic (s)",
   "frame_format": ".jpg",
-  "frames": 2251,
+  "frames": 5108,
   "detect_width": 640,
-  "duration_s": 128.441,
-  "valid_reaches": 0,
-  "reaches_cued": 0,
+  "duration_s": 305.354,
+  "valid_reaches": 40,
+  "reaches_cued": 41,
   "actual_size": [
     1280,
     720

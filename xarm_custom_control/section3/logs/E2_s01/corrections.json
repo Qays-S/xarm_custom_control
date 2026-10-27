@@ -1,0 +1,6 @@
+{
+  "invalid_reaches": [],
+  "reason": "",
+  "calib": "calib/calib_cam3b.json",
+  "camera_shift": "whole session recorded after the 41 px shift; use calib_cam3b.json"
+}

@@ -37,6 +37,14 @@ def load(d):
     frames = list(csv.DictReader(open(os.path.join(d, "frames.csv"))))
     events = list(csv.DictReader(open(os.path.join(d, "events.csv"))))
     reaches = list(csv.DictReader(open(os.path.join(d, "reaches.csv"))))
+    # optional corrections.json written after a session: {"invalid_reaches": [..], "reason": "..", "calib": ".."}
+    cp = os.path.join(d, "corrections.json")
+    if os.path.exists(cp):
+        corr = json.load(open(cp))
+        for r in reaches:
+            if int(r["reach"]) in corr.get("invalid_reaches", []):
+                r["valid"] = "0"
+                r["note"] = (r.get("note") or "") + "; corrected: " + corr.get("reason", "")
     return meta, frames, events, reaches
 
 

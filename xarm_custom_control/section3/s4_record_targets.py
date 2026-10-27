@@ -205,7 +205,7 @@ def main():
     ap.add_argument("--mode", required=True, choices=["E1", "E2", "E3", "E4"])
     ap.add_argument("--out", required=True)
     ap.add_argument("--targets", type=int, nargs="+", default=[1, 4, 9, 12])
-    ap.add_argument("--calib-session", default="calib/calib_cam3_orig_ids.json")
+    ap.add_argument("--calib-session", default="calib/calib_cam3b.json")
     ap.add_argument("--reaches", type=int, default=40, help="valid reaches to record, then stop")
     ap.add_argument("--side", default="R", choices=["L", "R"], help="the arm you reach with")
     ap.add_argument("--participant", default="P01")
@@ -213,7 +213,7 @@ def main():
     ap.add_argument("--width", type=int, default=CAM_W)
     ap.add_argument("--height", type=int, default=CAM_H)
     ap.add_argument("--radius", type=float, default=None,
-                    help="arrival radius around a dot in px (default: 30 px per 640 px of image width)")
+                    help="arrival radius around a dot in px (default: 30 px at 1280 px width; the dots are ~65 px apart)")
     ap.add_argument("--dwell", type=float, default=0.2, help="seconds inside the radius to count as arrived")
     ap.add_argument("--timeout", type=float, default=6.0, help="seconds before an unfinished reach is re-cued")
     ap.add_argument("--switch-prob", type=float, default=0.5, help="E4: share of reaches with a switch")
@@ -262,7 +262,7 @@ def main():
     if os.path.exists(os.path.join(a.out, "frames.csv")):
         raise SystemExit(f"{a.out} already has a recording; use a new --out (e.g. ..._s02)")
     if a.radius is None:
-        a.radius = 30.0 * W / 640
+        a.radius = 30.0 * W / 1280
     os.makedirs(os.path.join(a.out, "frames"), exist_ok=True)
     robot = None
     if a.arm == "ros" and not a.sim:
@@ -456,13 +456,13 @@ def main():
                 big = f"GO TO {goal}"
             if paused:
                 big = "PAUSED (p)"
-            # banner at the bottom: the top of the image has dots (e.g. #9) that must stay visible
-            cv2.rectangle(view, (0, h - 70), (w, h), (0, 0, 0), -1)
-            cv2.putText(view, big, (12, h - 18), cv2.FONT_HERSHEY_SIMPLEX, 1.6, (0, 255, 255), 3)
+            # banner in a strip BELOW the image, so no part of the camera view (or any dot) is covered
+            strip = np.zeros((110, w, 3), np.uint8)
+            cv2.putText(strip, big, (12, 58), cv2.FONT_HERSHEY_SIMPLEX, 1.6, (0, 255, 255), 3)
             sub = (R["instruction"] if R is not None and a.mode == "E2" else "") + \
                   f"   reaches {valid_n}/{a.reaches}   {n / max(t - t0, 1e-6):.0f} fps" + ("   OCCLUSION" if occl else "")
-            cv2.putText(view, sub, (12, h - 80), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 255), 2)
-            cv2.imshow(win, view)
+            cv2.putText(strip, sub, (12, 98), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 255), 2)
+            cv2.imshow(win, np.vstack([view, strip]))
             key = cv2.waitKey(1) & 0xFF
             if key == ord("q"):
                 log(n, time.monotonic(), "quit")

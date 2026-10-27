@@ -1,0 +1,6 @@
+{
+  "invalid_reaches": [4],
+  "reason": "reach 4 (goal dot 4) ended on dot 5: the camera had shifted 41 px before the session and dot 4 was hidden under the on-screen banner",
+  "calib": "calib/calib_cam3b.json",
+  "camera_shift_frame": 39
+}
