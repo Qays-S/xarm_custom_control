@@ -164,3 +164,10 @@ python3 s5_baselines.py
 ```
 ADE/FDE in pixels at 0.25, 0.5, 1.0 and 1.5 s, saved in `logs/forecast_results/`. The test
 set is not used.
+
+**3. Deterministic GRU** (needs `pip install torch`; about 5 min on a laptop CPU):
+```
+python3 s5_gru.py            # small grid search, chosen on val; --quick for one config
+```
+Saves the learning curves, the chosen model (`gru_best.pt`), val ADE/FDE (`gru_val.csv`) and
+the one-window inference time in `logs/forecast_results/gru/`. The test set is not used.

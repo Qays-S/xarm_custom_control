@@ -1,0 +1,5 @@
+set,model,horizon_s,n_windows,elbow_ade_px,wrist_ade_px,hand_ade_px,elbow_fde_px,wrist_fde_px,hand_fde_px,mean_ade_px,mean_fde_px
+val,GRU h64_l2_lr0.001,0.25,3378,4.32,6.0,6.29,6.42,9.35,10.03,5.54,8.6
+val,GRU h64_l2_lr0.001,0.5,3358,7.04,10.89,12.14,11.95,20.25,23.45,10.02,18.55
+val,GRU h64_l2_lr0.001,1.0,3318,13.24,22.6,26.09,25.06,44.63,52.18,20.64,40.62
+val,GRU h64_l2_lr0.001,1.5,3278,19.28,33.69,39.33,35.34,62.89,74.28,30.76,57.5

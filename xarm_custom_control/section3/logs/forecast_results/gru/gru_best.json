@@ -1,0 +1,21 @@
+{
+ "config": {
+  "hidden": 64,
+  "layers": 2,
+  "lr": 0.001,
+  "batch": 256
+ },
+ "name": "h64_l2_lr0.001",
+ "n_in": 18,
+ "K": 24,
+ "keypoints": [
+  "elbow",
+  "wrist",
+  "hand"
+ ],
+ "dt": 0.0625,
+ "history_steps": 16,
+ "seed": 0,
+ "chosen_on": "val",
+ "val_mean_ade_px": 16.74
+}
