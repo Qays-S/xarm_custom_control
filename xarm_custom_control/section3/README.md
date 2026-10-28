@@ -171,3 +171,14 @@ python3 s5_gru.py            # small grid search, chosen on val; --quick for one
 ```
 Saves the learning curves, the chosen model (`gru_best.pt`), val ADE/FDE (`gru_val.csv`) and
 the one-window inference time in `logs/forecast_results/gru/`. The test set is not used.
+
+**4. Pre-trained STS-GCN, fine-tuned (ManiCast recipe)** (needs the ManiCast repository, about 2 GB):
+```
+git clone https://github.com/portal-cornell/manicast ~/manicast
+python3 s5_stsgcn.py --manicast-dir ~/manicast      # 5 runs, roughly 45-75 min; --quick for 2 runs
+```
+Starts from ManiCast's released STS-GCN weights (pre-trained on AMASS), fine-tunes on round 1
+with their recipe (half the updates on transition windows, wrists weighted 5x), tunes the
+learning rate on val, and also trains the same network from scratch for comparison. Scored on
+the right elbow and wrist on the same validation windows as the GRU. Saves to
+`logs/forecast_results/stsgcn/`. Nothing from ManiCast is copied into this repository.

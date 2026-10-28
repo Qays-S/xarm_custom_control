@@ -1,0 +1,6 @@
+run,best_val_mean_ade_px,epochs
+finetune_lr0.0003,14.445,64
+finetune_lr0.001,13.315,63
+finetune_lr0.003,12.919,46
+scratch_lr0.001,17.302,100
+scratch_lr0.01,19.77,29

@@ -1,0 +1,10 @@
+set,model,horizon_s,n_windows,elbow_ade_px,wrist_ade_px,elbow_fde_px,wrist_fde_px
+val,STS-GCN zero-shot (AMASS weights),0.25,3378,9.67,15.27,13.26,21.54
+val,STS-GCN zero-shot (AMASS weights),0.5,3358,12.25,22.65,16.82,36.62
+val,STS-GCN zero-shot (AMASS weights),1.0,3318,19.8,40.76,35.11,73.04
+val,STS-GCN fine-tuned from AMASS,0.25,3378,5.72,7.82,7.62,11.76
+val,STS-GCN fine-tuned from AMASS,0.5,3358,8.66,13.42,14.19,23.72
+val,STS-GCN fine-tuned from AMASS,1.0,3318,15.68,26.22,29.19,50.15
+val,"STS-GCN same network, from scratch",0.25,3378,10.98,12.04,12.31,15.66
+val,"STS-GCN same network, from scratch",0.5,3358,13.69,17.61,18.23,28.62
+val,"STS-GCN same network, from scratch",1.0,3318,19.19,30.3,29.05,54.32
