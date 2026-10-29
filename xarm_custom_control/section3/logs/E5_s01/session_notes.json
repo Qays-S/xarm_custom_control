@@ -1,0 +1,6 @@
+{
+  "calib_session_corrected": "calib/calib_cam3d.json",
+  "recorded_with": "calib/calib_cam3c.json",
+  "reason": "dots shifted ~1 px before this session (see calib_cam3d.json note); meta.json left as recorded",
+  "lighting": "normal = room lights at half; dim = all room lights off (reaches 21-30)"
+}

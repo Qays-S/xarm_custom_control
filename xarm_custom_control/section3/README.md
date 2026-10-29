@@ -134,9 +134,9 @@ synthetic video of a person). Real values come only from your recordings.
 The robot stays **parked** for all of these; the tools only read its state. The targets are
 taped calibration dots (default #1, #4, #9, #12), so each target is known in pixels and in
 robot millimetres. Run from `section3`, with the xArm driver running and the workspace sourced
-(`source ~/ros2_ws/install/setup.bash`) so the robot's joint states are logged.
+(`source ~/ros2_ws/install/setup.bash`) so the robot's joint states are logged. The recorder checks this at the start: it prints "robot logging OK" or a WARNING listing the topics it can see, and the banner shows "ROBOT: NO DATA" if nothing arrives.
 
-**Before every session:** `python3 s3_check_drift.py calib/reference_cam3b.png --camera 0` must say OK.
+**Before and after every session:** `python3 s3_check_drift.py calib/now_E5_median.png --camera 2 --dots calib/calib_cam3d.json` must say OK. `--dots` decides on the post-it dots themselves; the whole-scene number is printed for information only, because the parked arm in a slightly different pose can make it look as if the camera moved (this happened on 2026-10-29).
 
 | Set | Command | What you do |
 |---|---|---|
@@ -144,6 +144,7 @@ robot millimetres. Run from `section3`, with the xArm driver running and the wor
 | E2 | `python3 s4_record_targets.py --mode E2 --out logs/E2_s01` | Keep moving: the next dot appears the moment you arrive. Follow the speed/path hint at the bottom |
 | E3 | `python3 s4_record_targets.py --mode E3 --out logs/E3_s01` | Two dots light up ("4 OR 12 ?"). Start moving toward both; the real one is revealed once you are moving |
 | E4 | `python3 s4_record_targets.py --mode E4 --out logs/E4_s01` | Go to the dot shown; on about half the reaches the goal changes just after you start moving. Follow the new one |
+| E5 | `python3 s4_record_targets.py --mode E5 --out logs/E5_s01 --calib-session calib/calib_cam3c.json` | Hold a sheet of paper in your left hand. "GO TO 4 - COVER": cover your right hand with the paper on the way and uncover it at the dot. "GO TO 4 - HEAD": hold the paper flat above your head like a roof on the way (you can still see the table), lower it at the dot. In E5 you mark each arrival yourself: uncover (or lower the paper), then press SPACE with your left hand; HOLD only appears after SPACE. Before reach 21 the screen asks you to dim the room lights (press p when done) and before reach 31 to turn them back on |
 
 - Each session stops after 40 valid reaches (`--reaches`), about 2–4 minutes.
 - Start: the screen says "TOUCH 1 TO START". Touch it with your index fingertip.
