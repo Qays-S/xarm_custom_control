@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Record target-to-target reaching for blueprint Section IV (E1-E4). The robot stays
+Record target-to-target reaching for blueprint Section IV (E1-E5). The robot stays
 PARKED the whole time; nothing here ever commands the arm.
 
 You reach between taped calibration dots (the targets). The screen tells you which
@@ -21,10 +21,21 @@ Modes (blueprint step numbers in brackets)
            you start moving (sometimes back to where you came from). The cue time is
            logged here; the physical change onset is measured afterwards from the
            keypoints (s4_dataset_summary.py), so the two are kept separate.
+  E5  [23] degraded viewing, robot parked: single reaches like E1, but most reaches ask you to
+           COVER your reaching hand with a sheet of paper (held in the other hand) on the way,
+           or to hold the paper flat ABOVE your HEAD like a roof on the way, so the camera cannot
+           see your head (the body detector finds a person from the face, so it then loses the
+           arm) while you can still see the table. Uncover / lower the paper at the dot so the
+           arrival is detected.
+           Partway through, the screen pauses and asks you to DIM the room lights, and later
+           to turn them back on (--dim-at, --bright-at). Each reach logs its 'perturb' and
+           'lighting'. Camera dropout is simulated later from these recordings, not here.
 
 Arrival is detected automatically: the fingertip (or the hand point, if the
 fingertip is missing) stays within --radius pixels of the goal dot for --dwell
 seconds. If detection misses a touch, press SPACE to mark the arrival yourself.
+In E5 arrival is automatic too, so HOLD can appear while the paper is still up: put the
+paper down as soon as HOLD shows. --manual-arrive switches to SPACE-only arrivals.
 
 Keys (camera window focused)
   SPACE  force "arrived" for the current goal
@@ -124,12 +135,31 @@ class RosRobotLog(threading.Thread):
         self.w.writerow(["t", "source"] + [f"q{i}" for i in range(1, 8)] + [f"v{i}" for i in range(1, 8)]
                         + ["x", "y", "z", "roll", "pitch", "yaw", "state", "err"])
         self.lock, self.n, self.last = threading.Lock(), 0, {}
-        self.node.create_subscription(JointState, joint_topic, self._joints, 10)
+        # sensor-data QoS (best effort) can receive from both reliable and best-effort publishers
+        from rclpy.qos import qos_profile_sensor_data
+        self.topics = (joint_topic, state_topic)
+        self.node.create_subscription(JointState, joint_topic, self._joints, qos_profile_sensor_data)
         try:
             from xarm_msgs.msg import RobotMsg
-            self.node.create_subscription(RobotMsg, state_topic, self._state, 10)
+            self.node.create_subscription(RobotMsg, state_topic, self._state, qos_profile_sensor_data)
         except ImportError:
             print("  xarm_msgs not importable (did you source the workspace?); logging joint states only")
+
+    def check(self, wait_s=4.0):
+        """Wait for the first messages; print a clear warning (and the topics that do exist) if none arrive."""
+        t_end = time.monotonic() + wait_s
+        while time.monotonic() < t_end and self.n == 0:
+            time.sleep(0.1)
+        if self.n:
+            print(f"  robot logging OK: {self.n} messages in the first {wait_s:.0f} s")
+            return True
+        names = sorted(t for t, _ in self.node.get_topic_names_and_types())
+        xarm = [t for t in names if "xarm" in t or "joint" in t]
+        print("\n  WARNING: no robot messages on " + " or ".join(self.topics) + ".")
+        print("  Is the xArm driver running (and the workspace sourced in this terminal)?")
+        print("  Topics visible now: " + (", ".join(xarm) if xarm else "none with 'xarm' or 'joint' in the name"))
+        print("  Recording continues; robot.csv will stay empty unless messages start arriving.\n")
+        return False
 
     def _row(self, src, q=(), v=(), pose=(), state="", err=""):
         q = list(q)[:7] + [""] * (7 - len(list(q)[:7]))
@@ -169,8 +199,8 @@ class Cuer:
         self.ids = list(targets)
 
     def pause_after_arrival(self):
-        return {"E1": self.rng.uniform(1.0, 2.0), "E2": 0.0,
-                "E3": self.rng.uniform(1.0, 2.0), "E4": self.rng.uniform(0.6, 1.2)}[self.mode]
+        return {"E1": self.rng.uniform(1.0, 2.0), "E2": 0.0, "E3": self.rng.uniform(1.0, 2.0),
+                "E4": self.rng.uniform(0.6, 1.2), "E5": self.rng.uniform(*self.a.hold)}[self.mode]
 
     def direction(self, a, b):
         (ua, va), (ub, vb) = self.T[a]["px"], self.T[b]["px"]
@@ -190,6 +220,11 @@ class Cuer:
             r["decoy"] = min(rest, key=lambda i: abs(math.remainder(self.direction(cur, i) - d0, 2 * math.pi)))
             r["resolve_delay"] = round(self.rng.uniform(0.10, 0.30), 3)
             r["instruction"] = "one of the two lit dots: start moving, the real one appears"
+        if self.mode == "E5":
+            r["perturb"] = self.rng.choices(["none", "cover", "head"], weights=[0.3, 0.4, 0.3])[0]
+            r["instruction"] = {"none": "normal reach",
+                                "cover": "COVER your hand with the paper on the way, uncover at the dot",
+                                "head": "hold the paper ABOVE your HEAD on the way, lower it at the dot"}[r["perturb"]]
         if self.mode == "E4" and self.rng.random() < self.a.switch_prob:
             if cur is not None and self.rng.random() < 0.5:
                 r["switch_to"] = cur  # reversal: back to where you came from
@@ -202,7 +237,7 @@ class Cuer:
 # --------------------------------------------------------------- main
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--mode", required=True, choices=["E1", "E2", "E3", "E4"])
+    ap.add_argument("--mode", required=True, choices=["E1", "E2", "E3", "E4", "E5"])
     ap.add_argument("--out", required=True)
     ap.add_argument("--targets", type=int, nargs="+", default=[1, 4, 9, 12])
     ap.add_argument("--calib-session", default="calib/calib_cam3b.json")
@@ -217,6 +252,13 @@ def main():
     ap.add_argument("--dwell", type=float, default=0.2, help="seconds inside the radius to count as arrived")
     ap.add_argument("--timeout", type=float, default=6.0, help="seconds before an unfinished reach is re-cued")
     ap.add_argument("--switch-prob", type=float, default=0.5, help="E4: share of reaches with a switch")
+    ap.add_argument("--hold", type=float, nargs=2, default=[3.5, 5.0], metavar=("MIN", "MAX"),
+                    help="E5: seconds to wait at each dot before the next cue (time to read it and get the paper ready)")
+    ap.add_argument("--dim-at", type=int, default=21, help="E5: before this reach, pause and ask to dim the lights")
+    ap.add_argument("--bright-at", type=int, default=31, help="E5: before this reach, pause and ask for normal lights")
+    ap.add_argument("--manual-arrive", action="store_true",
+                    help="E5: no automatic arrival; you press SPACE at each dot (needs a free hand). "
+                         "Default (used for E5_s01): automatic, as in E1-E4")
     ap.add_argument("--conf", type=float, default=0.5)
     ap.add_argument("--seed", type=int, default=None)
     ap.add_argument("--arm", default="ros", choices=["ros", "none"],
@@ -264,11 +306,17 @@ def main():
     if a.radius is None:
         a.radius = 30.0 * W / 1280
     os.makedirs(os.path.join(a.out, "frames"), exist_ok=True)
-    robot = None
+    robot, robot_ok = None, None
+    manual = a.mode == "E5" and a.manual_arrive
+    if manual and a.timeout < 15.0:
+        a.timeout = 15.0  # you mark arrivals yourself, so allow time to uncover and press SPACE
+    elif a.mode == "E5" and a.timeout < 8.0:
+        a.timeout = 8.0   # covered reaches can take longer
     if a.arm == "ros" and not a.sim:
         try:
             robot = RosRobotLog(os.path.join(a.out, "robot.csv"), a.joint_topic, a.state_topic)
             robot.start()
+            robot_ok = robot.check()
         except ImportError:
             raise SystemExit("rclpy not found: run `source ~/ros2_ws/install/setup.bash` first, or use --arm none")
 
@@ -292,13 +340,16 @@ def main():
     fw.writerow(cols + ["goal", "phase"])
     ew.writerow(["frame", "t", "event", "reach", "target", "detail"])
     RCOLS = ["reach", "mode", "start", "goal_cued", "decoy", "instruction", "t_cue", "t_depart",
-             "t_resolve", "switch_to", "t_switch_cue", "goal_final", "t_arrive", "arrival", "valid", "note"]
+             "t_resolve", "switch_to", "t_switch_cue", "goal_final", "t_arrive", "arrival", "valid", "note",
+             "perturb", "lighting"]
     rw.writerow(RCOLS)
 
     meta = {"started_wall": time.strftime("%Y-%m-%d %H:%M:%S"), "mode": a.mode, "participant": a.participant,
             "side": a.side, "seed": seed, "targets": {str(k): v for k, v in T.items()},
             "calib_session": a.calib_session, "radius_px": a.radius, "dwell_s": a.dwell,
             "timeout_s": a.timeout, "switch_prob": a.switch_prob if a.mode == "E4" else None,
+            "e5_lighting": {"dim_at_reach": a.dim_at, "bright_at_reach": a.bright_at} if a.mode == "E5" else None,
+            "arrival_marking": "manual (SPACE after uncovering; includes reaction time)" if manual else "auto",
             "robot": "parked; read-only logging" if robot else "parked; not logged",
             "gripper_state": a.gripper, "sim": a.sim, "conf_threshold": a.conf,
             "keypoint_source": "MediaPipe Pose 11-16, Hands landmark 9 (hand) and 8 (index tip); smoothing off",
@@ -312,17 +363,29 @@ def main():
     R, rid, valid_n = None, 0, 0     # current reach record
     phase, phase_until = "setup", 0.0
     inside_since, paused, occl = None, False, False
+    lighting, pause_msg = "normal", ""
+    nxt = {}                         # the next reach, drawn when the hold starts so it can be previewed
     goal = a.targets[0]
     t0, n = time.monotonic(), 0
     win = f"s4 {a.mode}  (SPACE=arrived  x=bad reach  o=occlusion  m=marker  p=pause  q=quit)"
 
     def new_reach(t):
-        nonlocal R, rid, goal, phase
+        nonlocal R, rid, goal, phase, lighting, paused, pause_msg, nxt
+        if a.mode == "E5" and pause_msg == "":
+            want = "dim" if a.dim_at <= rid + 1 < a.bright_at else "normal"
+            if want != lighting:
+                lighting, paused = want, True
+                pause_msg = "DIM THE LIGHTS" if want == "dim" else "LIGHTS BACK ON"
+                log(n, t, f"lighting_{want}", rid + 1)
+                return False
+        pause_msg = ""
         rid += 1
         R = {k: "" for k in RCOLS}
-        R.update(cuer.next_reach(cur))
+        R.update(nxt if nxt else cuer.next_reach(cur))
+        nxt = {}
         R.update({"reach": rid, "mode": a.mode, "start": cur, "goal_cued": R["goal"], "t_cue": round(t, 6),
-                  "valid": 1})
+                  "valid": 1, "lighting": lighting if a.mode == "E5" else ""})
+        R.setdefault("perturb", "")
         goal = R["goal"]
         phase = "cued"
         log(n, t, "cue", rid, goal, R["instruction"] + (f"; decoy {R['decoy']}" if R["decoy"] else ""))
@@ -331,7 +394,7 @@ def main():
                          ((np.array(T[goal]["px"]) + T[R["decoy"]]["px"]) / 2), t)
 
     def finish(t, how):
-        nonlocal cur, phase, phase_until, valid_n, R
+        nonlocal cur, phase, phase_until, valid_n, R, nxt
         R.update({"goal_final": goal, "t_arrive": round(t, 6), "arrival": how})
         rw.writerow([R[k] for k in RCOLS]); rcsv.flush()
         log(n, t, "arrive", R["reach"], goal, how)
@@ -339,6 +402,7 @@ def main():
             valid_n += 1
         cur = goal
         phase, phase_until, R = "hold", t + cuer.pause_after_arrival(), None
+        nxt = cuer.next_reach(cur)
 
     try:
         while True:
@@ -411,7 +475,7 @@ def main():
                         log(n, t, "timeout", R["reach"], goal)
                         R, phase, phase_until = None, "hold", t + 0.5
                 # arrival (also used for the setup touch)
-                if phase in ("setup", "cued", "moving"):
+                if phase == "setup" or (phase in ("cued", "moving") and not manual):
                     resolved = R is None or R["decoy"] == "" or R["t_resolve"] != ""
                     near = eff is not None and math.dist(eff, T[goal]["px"]) <= a.radius
                     if near and resolved and (phase != "cued" or cur is None or goal != cur):
@@ -450,17 +514,23 @@ def main():
                 big = f"TOUCH {goal} TO START"
             elif phase == "hold":
                 big = "HOLD"
+                if a.mode == "E5" and nxt.get("perturb") in ("cover", "head"):
+                    big = f"HOLD - next: {nxt['perturb'].upper()}"
             elif len(lit) == 2:
                 big = f"{min(lit)} OR {max(lit)} ?"
             else:
                 big = f"GO TO {goal}"
+                if a.mode == "E5" and R is not None and R.get("perturb") in ("cover", "head"):
+                    big += f"  - {R['perturb'].upper()}"
             if paused:
-                big = "PAUSED (p)"
+                big = (pause_msg + ", then p") if pause_msg else "PAUSED (p)"
             # banner in a strip BELOW the image, so no part of the camera view (or any dot) is covered
             strip = np.zeros((110, w, 3), np.uint8)
             cv2.putText(strip, big, (12, 58), cv2.FONT_HERSHEY_SIMPLEX, 1.6, (0, 255, 255), 3)
-            sub = (R["instruction"] if R is not None and a.mode == "E2" else "") + \
-                  f"   reaches {valid_n}/{a.reaches}   {n / max(t - t0, 1e-6):.0f} fps" + ("   OCCLUSION" if occl else "")
+            sub = (R["instruction"] if R is not None and a.mode in ("E2", "E5") else "") + \
+                  ("   (SPACE when you're there)" if manual and phase in ("cued", "moving") else "") + \
+                  f"   reaches {valid_n}/{a.reaches}   {n / max(t - t0, 1e-6):.0f} fps" + ("   OCCLUSION" if occl else "") + \
+                  ("" if robot is None else f"   robot {robot.n}" if robot.n else "   ROBOT: NO DATA")
             cv2.putText(strip, sub, (12, 98), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 255), 2)
             cv2.imshow(win, np.vstack([view, strip]))
             key = cv2.waitKey(1) & 0xFF
