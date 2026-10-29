@@ -1,0 +1,74 @@
+frame,t,event,reach,target,detail
+47,7668.728082,setup_touch,,1,
+63,7669.78211,lighting_dim,1,,
+105,7672.588915,resume,,,
+106,7672.65826,cue,1,12,normal reach
+118,7673.468517,depart,1,1,
+134,7674.522675,arrive,1,12,auto
+190,7678.25711,cue,2,9,"hold the paper ABOVE your HEAD on the way, lower it at the dot"
+223,7680.461789,depart,2,12,
+231,7680.99891,arrive,2,9,auto
+298,7685.470411,cue,3,4,"hold the paper ABOVE your HEAD on the way, lower it at the dot"
+345,7688.607917,depart,3,9,
+380,7690.959752,arrive,3,4,auto
+449,7695.546574,cue,4,12,normal reach
+475,7697.307617,depart,4,4,
+483,7697.820783,arrive,4,12,auto
+544,7701.895379,cue,5,4,"COVER your hand with the paper on the way, uncover at the dot"
+566,7703.357659,depart,5,12,
+594,7705.229813,arrive,5,4,auto
+653,7709.161417,cue,6,12,"hold the paper ABOVE your HEAD on the way, lower it at the dot"
+697,7712.127738,depart,6,4,
+710,7712.971428,arrive,6,12,auto
+771,7717.042096,cue,7,4,"hold the paper ABOVE your HEAD on the way, lower it at the dot"
+811,7719.711859,depart,7,12,
+878,7724.181208,arrive,7,4,auto
+932,7727.786869,cue,8,12,"hold the paper ABOVE your HEAD on the way, lower it at the dot"
+968,7730.205259,depart,8,4,
+1012,7733.129113,arrive,8,12,auto
+1072,7737.129885,cue,9,9,"hold the paper ABOVE your HEAD on the way, lower it at the dot"
+1102,7739.134099,depart,9,12,
+1192,7745.141608,timeout,9,9,
+1200,7745.674652,cue,10,4,"COVER your hand with the paper on the way, uncover at the dot"
+1210,7746.360369,depart,10,12,
+1282,7751.148946,arrive,10,4,auto
+1354,7755.953728,cue,11,12,normal reach
+1384,7757.958444,depart,11,4,
+1392,7758.489673,arrive,11,12,auto
+1461,7763.097978,cue,12,1,"hold the paper ABOVE your HEAD on the way, lower it at the dot"
+1519,7766.980312,depart,12,12,
+1523,7767.233836,arrive,12,1,auto
+1584,7771.306137,cue,13,4,normal reach
+1616,7773.444715,depart,13,1,
+1626,7774.110662,arrive,13,4,auto
+1695,7778.714832,cue,14,9,"hold the paper ABOVE your HEAD on the way, lower it at the dot"
+1713,7779.927844,depart,14,4,
+1747,7782.210782,arrive,14,9,auto
+1805,7786.053362,cue,15,1,normal reach
+1833,7787.939771,depart,15,9,
+1837,7788.190784,arrive,15,1,auto
+1905,7792.729218,cue,16,9,"COVER your hand with the paper on the way, uncover at the dot"
+1939,7795.004461,depart,16,1,
+2025,7800.745605,timeout,16,9,
+2033,7801.27684,cue,17,12,"COVER your hand with the paper on the way, uncover at the dot"
+2062,7803.213094,depart,17,1,
+2119,7807.017856,arrive,17,12,auto
+2174,7810.686578,cue,18,1,"COVER your hand with the paper on the way, uncover at the dot"
+2196,7812.159294,depart,18,12,
+2228,7814.310064,arrive,18,1,auto
+2293,7818.630362,cue,19,12,"hold the paper ABOVE your HEAD on the way, lower it at the dot"
+2334,7821.366785,depart,19,1,
+2413,7826.641953,timeout,19,12,
+2421,7827.205539,cue,20,9,"hold the paper ABOVE your HEAD on the way, lower it at the dot"
+2428,7827.657019,depart,20,1,
+2485,7831.448936,arrive,20,9,auto
+2540,7835.119319,cue,21,1,"COVER your hand with the paper on the way, uncover at the dot"
+2569,7837.082542,depart,21,9,
+2620,7840.459348,arrive,21,1,auto
+2673,7843.99443,cue,22,12,"COVER your hand with the paper on the way, uncover at the dot"
+2697,7845.597768,depart,22,1,
+2743,7848.699008,arrive,22,12,auto
+2802,7852.613377,cue,23,9,normal reach
+2842,7855.283256,depart,23,12,
+2851,7855.883653,arrive,23,9,auto
+2918,7860.397338,session_complete,,,
