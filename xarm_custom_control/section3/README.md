@@ -88,14 +88,18 @@ python3 s3_perception_logger.py --out logs/session01 --duration 300
   marked.
 - Pose smoothing is OFF on purpose, so the jitter and latency numbers are honest.
 
-**G. Manual annotation (~100 frames):**
+**G. Manual annotation (15 frames from each E1-E4 session, about 130 frames in total):**
 ```
-python3 s3_annotate.py annotate logs/session01 --n 100 --side R
-python3 s3_annotate.py evaluate logs/session01
+S="logs/E1_s01 logs/E2_s01 logs/E3_s01 logs/E4_s01 logs/E1_s02 logs/E2_s02 logs/E3_s02 logs/E4_s02"
+python3 s3_annotate.py annotate $S        # q saves and quits; run it again to continue
+python3 s3_annotate.py evaluate $S
 ```
-Frames are sampled evenly over the recording with a fixed seed, and the sample is saved before
-you start. Click shoulder, elbow, wrist, then hand (centre of the knuckles). Press `n` if a
-keypoint isn't visible.
+Frames are sampled evenly over each recording with a fixed seed (pre-start frames left out),
+and the sample is saved before you start, in `logs/keypoint_eval/`. On the reaching arm click:
+shoulder (centre of the joint), elbow (centre of the joint), wrist (centre, where it bends),
+hand (base knuckle of the middle finger) and index fingertip. A zoom box follows the mouse.
+Press `n` if a point isn't visible, `s` to skip a blurry frame. About 10% of frames are shown
+twice to measure your own click consistency. MediaPipe's points are never shown while you click.
 
 **H. Statistics:**
 ```

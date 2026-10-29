@@ -1,0 +1,1441 @@
+{
+  "side": "R",
+  "n_frames": 120,
+  "n_skipped": 0,
+  "image_diag_px": 1468.6047800548656,
+  "all": {
+    "shoulder": {
+      "n_scored": 118,
+      "pixel_error": {
+        "median": 35.78936385933938,
+        "mean": 37.23853307715732,
+        "p90": 58.052433446547454,
+        "max": 75.3215513647986
+      },
+      "PCK": {
+        "5px": 0.00847457627118644,
+        "10px": 0.00847457627118644,
+        "20px": 0.0847457627118644,
+        "5pct_diag": 0.9915254237288136
+      },
+      "visibility": {
+        "vis_det": 118,
+        "vis_missed": 0,
+        "invis_det": 2,
+        "invis_ok": 0
+      },
+      "miss_rate_when_visible": 0.0,
+      "false_detection_rate_when_not_visible": 1.0
+    },
+    "elbow": {
+      "n_scored": 118,
+      "pixel_error": {
+        "median": 10.880372387875042,
+        "mean": 11.955225071899491,
+        "p90": 20.816523528040776,
+        "max": 41.36516529641822
+      },
+      "PCK": {
+        "5px": 0.13559322033898305,
+        "10px": 0.4661016949152542,
+        "20px": 0.8728813559322034,
+        "5pct_diag": 1.0
+      },
+      "visibility": {
+        "vis_det": 118,
+        "vis_missed": 0,
+        "invis_det": 2,
+        "invis_ok": 0
+      },
+      "miss_rate_when_visible": 0.0,
+      "false_detection_rate_when_not_visible": 1.0
+    },
+    "wrist": {
+      "n_scored": 118,
+      "pixel_error": {
+        "median": 11.288099182698776,
+        "mean": 13.167423876305723,
+        "p90": 22.052492544729084,
+        "max": 118.18570556543628
+      },
+      "PCK": {
+        "5px": 0.15254237288135594,
+        "10px": 0.4152542372881356,
+        "20px": 0.8305084745762712,
+        "5pct_diag": 0.9915254237288136
+      },
+      "visibility": {
+        "vis_det": 118,
+        "vis_missed": 0,
+        "invis_det": 2,
+        "invis_ok": 0
+      },
+      "miss_rate_when_visible": 0.0,
+      "false_detection_rate_when_not_visible": 1.0
+    },
+    "hand": {
+      "n_scored": 118,
+      "pixel_error": {
+        "median": 3.194542176401507,
+        "mean": 3.607562617631525,
+        "p90": 5.685530251907328,
+        "max": 48.252968820581366
+      },
+      "PCK": {
+        "5px": 0.8220338983050848,
+        "10px": 0.9915254237288136,
+        "20px": 0.9915254237288136,
+        "5pct_diag": 1.0
+      },
+      "visibility": {
+        "vis_det": 118,
+        "vis_missed": 0,
+        "invis_det": 1,
+        "invis_ok": 1
+      },
+      "miss_rate_when_visible": 0.0,
+      "false_detection_rate_when_not_visible": 0.5
+    },
+    "tip": {
+      "n_scored": 118,
+      "pixel_error": {
+        "median": 2.2570810393007603,
+        "mean": 3.2108006515956107,
+        "p90": 4.1859266692302235,
+        "max": 73.7751299558327
+      },
+      "PCK": {
+        "5px": 0.940677966101695,
+        "10px": 0.9830508474576272,
+        "20px": 0.9915254237288136,
+        "5pct_diag": 0.9915254237288136
+      },
+      "visibility": {
+        "vis_det": 118,
+        "vis_missed": 0,
+        "invis_det": 1,
+        "invis_ok": 1
+      },
+      "miss_rate_when_visible": 0.0,
+      "false_detection_rate_when_not_visible": 0.5
+    }
+  },
+  "by_phase": {
+    "cued": {
+      "shoulder": {
+        "n_scored": 53,
+        "pixel_error": {
+          "median": 30.4921301322161,
+          "mean": 31.148065933240833,
+          "p90": 45.37071052077515,
+          "max": 68.36865144201694
+        },
+        "PCK": {
+          "5px": 0.018867924528301886,
+          "10px": 0.018867924528301886,
+          "20px": 0.11320754716981132,
+          "5pct_diag": 1.0
+        },
+        "visibility": {
+          "vis_det": 53,
+          "vis_missed": 0,
+          "invis_det": 0,
+          "invis_ok": 0
+        },
+        "miss_rate_when_visible": 0.0,
+        "false_detection_rate_when_not_visible": 0.0
+      },
+      "elbow": {
+        "n_scored": 53,
+        "pixel_error": {
+          "median": 9.253242674868144,
+          "mean": 10.212694902185435,
+          "p90": 17.679477585883774,
+          "max": 26.7912560362518
+        },
+        "PCK": {
+          "5px": 0.16981132075471697,
+          "10px": 0.5660377358490566,
+          "20px": 0.9056603773584906,
+          "5pct_diag": 1.0
+        },
+        "visibility": {
+          "vis_det": 53,
+          "vis_missed": 0,
+          "invis_det": 0,
+          "invis_ok": 0
+        },
+        "miss_rate_when_visible": 0.0,
+        "false_detection_rate_when_not_visible": 0.0
+      },
+      "wrist": {
+        "n_scored": 53,
+        "pixel_error": {
+          "median": 12.853050221640002,
+          "mean": 14.977364787667337,
+          "p90": 22.797297125904624,
+          "max": 118.18570556543628
+        },
+        "PCK": {
+          "5px": 0.11320754716981132,
+          "10px": 0.33962264150943394,
+          "20px": 0.7924528301886793,
+          "5pct_diag": 0.9811320754716981
+        },
+        "visibility": {
+          "vis_det": 53,
+          "vis_missed": 0,
+          "invis_det": 0,
+          "invis_ok": 0
+        },
+        "miss_rate_when_visible": 0.0,
+        "false_detection_rate_when_not_visible": 0.0
+      },
+      "hand": {
+        "n_scored": 53,
+        "pixel_error": {
+          "median": 2.949796603157542,
+          "mean": 3.81217129915121,
+          "p90": 5.681689633383407,
+          "max": 48.252968820581366
+        },
+        "PCK": {
+          "5px": 0.8113207547169812,
+          "10px": 0.9811320754716981,
+          "20px": 0.9811320754716981,
+          "5pct_diag": 1.0
+        },
+        "visibility": {
+          "vis_det": 53,
+          "vis_missed": 0,
+          "invis_det": 0,
+          "invis_ok": 0
+        },
+        "miss_rate_when_visible": 0.0,
+        "false_detection_rate_when_not_visible": 0.0
+      },
+      "tip": {
+        "n_scored": 53,
+        "pixel_error": {
+          "median": 2.460508077613276,
+          "mean": 3.9384668865819434,
+          "p90": 4.153570738173991,
+          "max": 73.7751299558327
+        },
+        "PCK": {
+          "5px": 0.9622641509433962,
+          "10px": 0.9811320754716981,
+          "20px": 0.9811320754716981,
+          "5pct_diag": 0.9811320754716981
+        },
+        "visibility": {
+          "vis_det": 53,
+          "vis_missed": 0,
+          "invis_det": 0,
+          "invis_ok": 0
+        },
+        "miss_rate_when_visible": 0.0,
+        "false_detection_rate_when_not_visible": 0.0
+      }
+    },
+    "moving": {
+      "shoulder": {
+        "n_scored": 33,
+        "pixel_error": {
+          "median": 43.64232005748551,
+          "mean": 43.313144872122926,
+          "p90": 57.412517919141834,
+          "max": 62.80977073672534
+        },
+        "PCK": {
+          "5px": 0.0,
+          "10px": 0.0,
+          "20px": 0.030303030303030304,
+          "5pct_diag": 1.0
+        },
+        "visibility": {
+          "vis_det": 33,
+          "vis_missed": 0,
+          "invis_det": 2,
+          "invis_ok": 0
+        },
+        "miss_rate_when_visible": 0.0,
+        "false_detection_rate_when_not_visible": 1.0
+      },
+      "elbow": {
+        "n_scored": 33,
+        "pixel_error": {
+          "median": 12.656855849696656,
+          "mean": 13.015121501831796,
+          "p90": 21.012287954117813,
+          "max": 25.443836188751092
+        },
+        "PCK": {
+          "5px": 0.12121212121212122,
+          "10px": 0.36363636363636365,
+          "20px": 0.8484848484848485,
+          "5pct_diag": 1.0
+        },
+        "visibility": {
+          "vis_det": 33,
+          "vis_missed": 0,
+          "invis_det": 2,
+          "invis_ok": 0
+        },
+        "miss_rate_when_visible": 0.0,
+        "false_detection_rate_when_not_visible": 1.0
+      },
+      "wrist": {
+        "n_scored": 33,
+        "pixel_error": {
+          "median": 9.658705917461177,
+          "mean": 9.576734491534221,
+          "p90": 17.87753593936424,
+          "max": 23.13249878417808
+        },
+        "PCK": {
+          "5px": 0.24242424242424243,
+          "10px": 0.6060606060606061,
+          "20px": 0.9393939393939394,
+          "5pct_diag": 1.0
+        },
+        "visibility": {
+          "vis_det": 33,
+          "vis_missed": 0,
+          "invis_det": 2,
+          "invis_ok": 0
+        },
+        "miss_rate_when_visible": 0.0,
+        "false_detection_rate_when_not_visible": 1.0
+      },
+      "hand": {
+        "n_scored": 33,
+        "pixel_error": {
+          "median": 3.7146870662277442,
+          "mean": 3.5077937554552827,
+          "p90": 5.265041354503613,
+          "max": 7.659569178485185
+        },
+        "PCK": {
+          "5px": 0.8484848484848485,
+          "10px": 1.0,
+          "20px": 1.0,
+          "5pct_diag": 1.0
+        },
+        "visibility": {
+          "vis_det": 33,
+          "vis_missed": 0,
+          "invis_det": 1,
+          "invis_ok": 1
+        },
+        "miss_rate_when_visible": 0.0,
+        "false_detection_rate_when_not_visible": 0.5
+      },
+      "tip": {
+        "n_scored": 33,
+        "pixel_error": {
+          "median": 2.010621794371089,
+          "mean": 2.581462497034443,
+          "p90": 3.191046309914059,
+          "max": 18.528729044378593
+        },
+        "PCK": {
+          "5px": 0.9393939393939394,
+          "10px": 0.9696969696969697,
+          "20px": 1.0,
+          "5pct_diag": 1.0
+        },
+        "visibility": {
+          "vis_det": 33,
+          "vis_missed": 0,
+          "invis_det": 1,
+          "invis_ok": 1
+        },
+        "miss_rate_when_visible": 0.0,
+        "false_detection_rate_when_not_visible": 0.5
+      }
+    },
+    "hold": {
+      "shoulder": {
+        "n_scored": 32,
+        "pixel_error": {
+          "median": 37.56977052997746,
+          "mean": 41.06142587071073,
+          "p90": 65.2784332473632,
+          "max": 75.3215513647986
+        },
+        "PCK": {
+          "5px": 0.0,
+          "10px": 0.0,
+          "20px": 0.09375,
+          "5pct_diag": 0.96875
+        },
+        "visibility": {
+          "vis_det": 32,
+          "vis_missed": 0,
+          "invis_det": 0,
+          "invis_ok": 0
+        },
+        "miss_rate_when_visible": 0.0,
+        "false_detection_rate_when_not_visible": 0.0
+      },
+      "elbow": {
+        "n_scored": 32,
+        "pixel_error": {
+          "median": 11.956464541095045,
+          "mean": 13.74827247212071,
+          "p90": 24.49833462977079,
+          "max": 41.36516529641822
+        },
+        "PCK": {
+          "5px": 0.09375,
+          "10px": 0.40625,
+          "20px": 0.84375,
+          "5pct_diag": 1.0
+        },
+        "visibility": {
+          "vis_det": 32,
+          "vis_missed": 0,
+          "invis_det": 0,
+          "invis_ok": 0
+        },
+        "miss_rate_when_visible": 0.0,
+        "false_detection_rate_when_not_visible": 0.0
+      },
+      "wrist": {
+        "n_scored": 32,
+        "pixel_error": {
+          "median": 14.327441681887045,
+          "mean": 13.872607669908668,
+          "p90": 21.770901743969546,
+          "max": 31.44081741939926
+        },
+        "PCK": {
+          "5px": 0.125,
+          "10px": 0.34375,
+          "20px": 0.78125,
+          "5pct_diag": 1.0
+        },
+        "visibility": {
+          "vis_det": 32,
+          "vis_missed": 0,
+          "invis_det": 0,
+          "invis_ok": 0
+        },
+        "miss_rate_when_visible": 0.0,
+        "false_detection_rate_when_not_visible": 0.0
+      },
+      "hand": {
+        "n_scored": 32,
+        "pixel_error": {
+          "median": 3.1883919213776224,
+          "mean": 3.3715661279837965,
+          "p90": 5.657919526375012,
+          "max": 6.240969475970861
+        },
+        "PCK": {
+          "5px": 0.8125,
+          "10px": 1.0,
+          "20px": 1.0,
+          "5pct_diag": 1.0
+        },
+        "visibility": {
+          "vis_det": 32,
+          "vis_missed": 0,
+          "invis_det": 0,
+          "invis_ok": 0
+        },
+        "miss_rate_when_visible": 0.0,
+        "false_detection_rate_when_not_visible": 0.0
+      },
+      "tip": {
+        "n_scored": 32,
+        "pixel_error": {
+          "median": 2.2740726214456277,
+          "mean": 2.6546084217907033,
+          "p90": 4.8694925248782654,
+          "max": 6.492064386618486
+        },
+        "PCK": {
+          "5px": 0.90625,
+          "10px": 1.0,
+          "20px": 1.0,
+          "5pct_diag": 1.0
+        },
+        "visibility": {
+          "vis_det": 32,
+          "vis_missed": 0,
+          "invis_det": 0,
+          "invis_ok": 0
+        },
+        "miss_rate_when_visible": 0.0,
+        "false_detection_rate_when_not_visible": 0.0
+      }
+    }
+  },
+  "by_session": {
+    "logs/E1_s01": {
+      "shoulder": {
+        "n_scored": 13,
+        "pixel_error": {
+          "median": 24.058782180318296,
+          "mean": 28.830387232988002,
+          "p90": 41.341369381663675,
+          "max": 47.77389454503369
+        },
+        "PCK": {
+          "5px": 0.0,
+          "10px": 0.0,
+          "20px": 0.07692307692307693,
+          "5pct_diag": 1.0
+        },
+        "visibility": {
+          "vis_det": 13,
+          "vis_missed": 0,
+          "invis_det": 2,
+          "invis_ok": 0
+        },
+        "miss_rate_when_visible": 0.0,
+        "false_detection_rate_when_not_visible": 1.0
+      },
+      "elbow": {
+        "n_scored": 13,
+        "pixel_error": {
+          "median": 18.278079767853026,
+          "mean": 19.620293797759796,
+          "p90": 35.69084700780785,
+          "max": 41.36516529641822
+        },
+        "PCK": {
+          "5px": 0.0,
+          "10px": 0.15384615384615385,
+          "20px": 0.6153846153846154,
+          "5pct_diag": 1.0
+        },
+        "visibility": {
+          "vis_det": 13,
+          "vis_missed": 0,
+          "invis_det": 2,
+          "invis_ok": 0
+        },
+        "miss_rate_when_visible": 0.0,
+        "false_detection_rate_when_not_visible": 1.0
+      },
+      "wrist": {
+        "n_scored": 13,
+        "pixel_error": {
+          "median": 12.976139641665354,
+          "mean": 12.515261250885269,
+          "p90": 19.27416818703247,
+          "max": 20.616102929506347
+        },
+        "PCK": {
+          "5px": 0.15384615384615385,
+          "10px": 0.3076923076923077,
+          "20px": 0.9230769230769231,
+          "5pct_diag": 1.0
+        },
+        "visibility": {
+          "vis_det": 13,
+          "vis_missed": 0,
+          "invis_det": 2,
+          "invis_ok": 0
+        },
+        "miss_rate_when_visible": 0.0,
+        "false_detection_rate_when_not_visible": 1.0
+      },
+      "hand": {
+        "n_scored": 13,
+        "pixel_error": {
+          "median": 3.7283374310810435,
+          "mean": 3.757816510544297,
+          "p90": 5.744007052287145,
+          "max": 7.659569178485185
+        },
+        "PCK": {
+          "5px": 0.7692307692307693,
+          "10px": 1.0,
+          "20px": 1.0,
+          "5pct_diag": 1.0
+        },
+        "visibility": {
+          "vis_det": 13,
+          "vis_missed": 0,
+          "invis_det": 1,
+          "invis_ok": 1
+        },
+        "miss_rate_when_visible": 0.0,
+        "false_detection_rate_when_not_visible": 0.5
+      },
+      "tip": {
+        "n_scored": 13,
+        "pixel_error": {
+          "median": 2.144434657432991,
+          "mean": 2.3004304344965663,
+          "p90": 4.007621200958678,
+          "max": 4.956288934273322
+        },
+        "PCK": {
+          "5px": 1.0,
+          "10px": 1.0,
+          "20px": 1.0,
+          "5pct_diag": 1.0
+        },
+        "visibility": {
+          "vis_det": 13,
+          "vis_missed": 0,
+          "invis_det": 1,
+          "invis_ok": 1
+        },
+        "miss_rate_when_visible": 0.0,
+        "false_detection_rate_when_not_visible": 0.5
+      }
+    },
+    "logs/E1_s02": {
+      "shoulder": {
+        "n_scored": 15,
+        "pixel_error": {
+          "median": 38.188053105650745,
+          "mean": 41.90405726636925,
+          "p90": 64.21385528754197,
+          "max": 69.50254815472593
+        },
+        "PCK": {
+          "5px": 0.0,
+          "10px": 0.0,
+          "20px": 0.06666666666666667,
+          "5pct_diag": 1.0
+        },
+        "visibility": {
+          "vis_det": 15,
+          "vis_missed": 0,
+          "invis_det": 0,
+          "invis_ok": 0
+        },
+        "miss_rate_when_visible": 0.0,
+        "false_detection_rate_when_not_visible": 0.0
+      },
+      "elbow": {
+        "n_scored": 15,
+        "pixel_error": {
+          "median": 10.260823553691948,
+          "mean": 11.790860895242472,
+          "p90": 17.645044636131313,
+          "max": 18.225764730183457
+        },
+        "PCK": {
+          "5px": 0.06666666666666667,
+          "10px": 0.4666666666666667,
+          "20px": 1.0,
+          "5pct_diag": 1.0
+        },
+        "visibility": {
+          "vis_det": 15,
+          "vis_missed": 0,
+          "invis_det": 0,
+          "invis_ok": 0
+        },
+        "miss_rate_when_visible": 0.0,
+        "false_detection_rate_when_not_visible": 0.0
+      },
+      "wrist": {
+        "n_scored": 15,
+        "pixel_error": {
+          "median": 12.094994832574292,
+          "mean": 12.706682379079158,
+          "p90": 19.641211280908394,
+          "max": 22.065504752894277
+        },
+        "PCK": {
+          "5px": 0.13333333333333333,
+          "10px": 0.3333333333333333,
+          "20px": 0.8666666666666667,
+          "5pct_diag": 1.0
+        },
+        "visibility": {
+          "vis_det": 15,
+          "vis_missed": 0,
+          "invis_det": 0,
+          "invis_ok": 0
+        },
+        "miss_rate_when_visible": 0.0,
+        "false_detection_rate_when_not_visible": 0.0
+      },
+      "hand": {
+        "n_scored": 15,
+        "pixel_error": {
+          "median": 3.0525071662487275,
+          "mean": 3.259668865592303,
+          "p90": 5.517269387483398,
+          "max": 6.240969475970861
+        },
+        "PCK": {
+          "5px": 0.8666666666666667,
+          "10px": 1.0,
+          "20px": 1.0,
+          "5pct_diag": 1.0
+        },
+        "visibility": {
+          "vis_det": 15,
+          "vis_missed": 0,
+          "invis_det": 0,
+          "invis_ok": 0
+        },
+        "miss_rate_when_visible": 0.0,
+        "false_detection_rate_when_not_visible": 0.0
+      },
+      "tip": {
+        "n_scored": 15,
+        "pixel_error": {
+          "median": 2.4075090861718964,
+          "mean": 2.8889833744385434,
+          "p90": 4.77650787179892,
+          "max": 5.320770620878108
+        },
+        "PCK": {
+          "5px": 0.8666666666666667,
+          "10px": 1.0,
+          "20px": 1.0,
+          "5pct_diag": 1.0
+        },
+        "visibility": {
+          "vis_det": 15,
+          "vis_missed": 0,
+          "invis_det": 0,
+          "invis_ok": 0
+        },
+        "miss_rate_when_visible": 0.0,
+        "false_detection_rate_when_not_visible": 0.0
+      }
+    },
+    "logs/E2_s01": {
+      "shoulder": {
+        "n_scored": 15,
+        "pixel_error": {
+          "median": 22.985623767912003,
+          "mean": 26.93158776631001,
+          "p90": 39.54883373563579,
+          "max": 61.17400264818384
+        },
+        "PCK": {
+          "5px": 0.06666666666666667,
+          "10px": 0.06666666666666667,
+          "20px": 0.3333333333333333,
+          "5pct_diag": 1.0
+        },
+        "visibility": {
+          "vis_det": 15,
+          "vis_missed": 0,
+          "invis_det": 0,
+          "invis_ok": 0
+        },
+        "miss_rate_when_visible": 0.0,
+        "false_detection_rate_when_not_visible": 0.0
+      },
+      "elbow": {
+        "n_scored": 15,
+        "pixel_error": {
+          "median": 13.269879426731812,
+          "mean": 12.729072099305464,
+          "p90": 17.566630016402026,
+          "max": 24.69778330134103
+        },
+        "PCK": {
+          "5px": 0.0,
+          "10px": 0.26666666666666666,
+          "20px": 0.9333333333333333,
+          "5pct_diag": 1.0
+        },
+        "visibility": {
+          "vis_det": 15,
+          "vis_missed": 0,
+          "invis_det": 0,
+          "invis_ok": 0
+        },
+        "miss_rate_when_visible": 0.0,
+        "false_detection_rate_when_not_visible": 0.0
+      },
+      "wrist": {
+        "n_scored": 15,
+        "pixel_error": {
+          "median": 13.038654071644082,
+          "mean": 13.263912557217209,
+          "p90": 22.646393481960104,
+          "max": 23.075348318064464
+        },
+        "PCK": {
+          "5px": 0.2,
+          "10px": 0.26666666666666666,
+          "20px": 0.7333333333333333,
+          "5pct_diag": 1.0
+        },
+        "visibility": {
+          "vis_det": 15,
+          "vis_missed": 0,
+          "invis_det": 0,
+          "invis_ok": 0
+        },
+        "miss_rate_when_visible": 0.0,
+        "false_detection_rate_when_not_visible": 0.0
+      },
+      "hand": {
+        "n_scored": 15,
+        "pixel_error": {
+          "median": 2.2496444163467757,
+          "mean": 2.59197814005056,
+          "p90": 4.272461243262292,
+          "max": 5.714411605756122
+        },
+        "PCK": {
+          "5px": 0.9333333333333333,
+          "10px": 1.0,
+          "20px": 1.0,
+          "5pct_diag": 1.0
+        },
+        "visibility": {
+          "vis_det": 15,
+          "vis_missed": 0,
+          "invis_det": 0,
+          "invis_ok": 0
+        },
+        "miss_rate_when_visible": 0.0,
+        "false_detection_rate_when_not_visible": 0.0
+      },
+      "tip": {
+        "n_scored": 15,
+        "pixel_error": {
+          "median": 2.2961053982777275,
+          "mean": 2.7505194788561207,
+          "p90": 4.43884861181157,
+          "max": 5.271631625976906
+        },
+        "PCK": {
+          "5px": 0.9333333333333333,
+          "10px": 1.0,
+          "20px": 1.0,
+          "5pct_diag": 1.0
+        },
+        "visibility": {
+          "vis_det": 15,
+          "vis_missed": 0,
+          "invis_det": 0,
+          "invis_ok": 0
+        },
+        "miss_rate_when_visible": 0.0,
+        "false_detection_rate_when_not_visible": 0.0
+      }
+    },
+    "logs/E2_s02": {
+      "shoulder": {
+        "n_scored": 15,
+        "pixel_error": {
+          "median": 28.664893162194044,
+          "mean": 31.236837427415274,
+          "p90": 43.48333532475503,
+          "max": 56.43446641902445
+        },
+        "PCK": {
+          "5px": 0.0,
+          "10px": 0.0,
+          "20px": 0.13333333333333333,
+          "5pct_diag": 1.0
+        },
+        "visibility": {
+          "vis_det": 15,
+          "vis_missed": 0,
+          "invis_det": 0,
+          "invis_ok": 0
+        },
+        "miss_rate_when_visible": 0.0,
+        "false_detection_rate_when_not_visible": 0.0
+      },
+      "elbow": {
+        "n_scored": 15,
+        "pixel_error": {
+          "median": 9.110795794001753,
+          "mean": 9.425678424869426,
+          "p90": 16.06229707319178,
+          "max": 23.53919709760722
+        },
+        "PCK": {
+          "5px": 0.2,
+          "10px": 0.6,
+          "20px": 0.9333333333333333,
+          "5pct_diag": 1.0
+        },
+        "visibility": {
+          "vis_det": 15,
+          "vis_missed": 0,
+          "invis_det": 0,
+          "invis_ok": 0
+        },
+        "miss_rate_when_visible": 0.0,
+        "false_detection_rate_when_not_visible": 0.0
+      },
+      "wrist": {
+        "n_scored": 15,
+        "pixel_error": {
+          "median": 10.609099867566517,
+          "mean": 19.702748852750357,
+          "p90": 23.968252141191922,
+          "max": 118.18570556543628
+        },
+        "PCK": {
+          "5px": 0.2,
+          "10px": 0.4666666666666667,
+          "20px": 0.6666666666666666,
+          "5pct_diag": 0.9333333333333333
+        },
+        "visibility": {
+          "vis_det": 15,
+          "vis_missed": 0,
+          "invis_det": 0,
+          "invis_ok": 0
+        },
+        "miss_rate_when_visible": 0.0,
+        "false_detection_rate_when_not_visible": 0.0
+      },
+      "hand": {
+        "n_scored": 15,
+        "pixel_error": {
+          "median": 2.644919658515175,
+          "mean": 5.870016281945585,
+          "p90": 5.727297729106372,
+          "max": 48.252968820581366
+        },
+        "PCK": {
+          "5px": 0.6666666666666666,
+          "10px": 0.9333333333333333,
+          "20px": 0.9333333333333333,
+          "5pct_diag": 1.0
+        },
+        "visibility": {
+          "vis_det": 15,
+          "vis_missed": 0,
+          "invis_det": 0,
+          "invis_ok": 0
+        },
+        "miss_rate_when_visible": 0.0,
+        "false_detection_rate_when_not_visible": 0.0
+      },
+      "tip": {
+        "n_scored": 15,
+        "pixel_error": {
+          "median": 2.189155088156108,
+          "mean": 7.235913361877815,
+          "p90": 4.688707393829407,
+          "max": 73.7751299558327
+        },
+        "PCK": {
+          "5px": 0.9333333333333333,
+          "10px": 0.9333333333333333,
+          "20px": 0.9333333333333333,
+          "5pct_diag": 0.9333333333333333
+        },
+        "visibility": {
+          "vis_det": 15,
+          "vis_missed": 0,
+          "invis_det": 0,
+          "invis_ok": 0
+        },
+        "miss_rate_when_visible": 0.0,
+        "false_detection_rate_when_not_visible": 0.0
+      }
+    },
+    "logs/E3_s01": {
+      "shoulder": {
+        "n_scored": 15,
+        "pixel_error": {
+          "median": 45.88354389102916,
+          "mean": 48.242328715223046,
+          "p90": 69.09188618769768,
+          "max": 75.3215513647986
+        },
+        "PCK": {
+          "5px": 0.0,
+          "10px": 0.0,
+          "20px": 0.06666666666666667,
+          "5pct_diag": 0.9333333333333333
+        },
+        "visibility": {
+          "vis_det": 15,
+          "vis_missed": 0,
+          "invis_det": 0,
+          "invis_ok": 0
+        },
+        "miss_rate_when_visible": 0.0,
+        "false_detection_rate_when_not_visible": 0.0
+      },
+      "elbow": {
+        "n_scored": 15,
+        "pixel_error": {
+          "median": 10.945921614921238,
+          "mean": 11.414575811714078,
+          "p90": 17.030135744564266,
+          "max": 18.8123629563115
+        },
+        "PCK": {
+          "5px": 0.13333333333333333,
+          "10px": 0.4666666666666667,
+          "20px": 1.0,
+          "5pct_diag": 1.0
+        },
+        "visibility": {
+          "vis_det": 15,
+          "vis_missed": 0,
+          "invis_det": 0,
+          "invis_ok": 0
+        },
+        "miss_rate_when_visible": 0.0,
+        "false_detection_rate_when_not_visible": 0.0
+      },
+      "wrist": {
+        "n_scored": 15,
+        "pixel_error": {
+          "median": 10.95573365868297,
+          "mean": 13.587868848098765,
+          "p90": 22.23142359966598,
+          "max": 31.44081741939926
+        },
+        "PCK": {
+          "5px": 0.13333333333333333,
+          "10px": 0.4,
+          "20px": 0.8,
+          "5pct_diag": 1.0
+        },
+        "visibility": {
+          "vis_det": 15,
+          "vis_missed": 0,
+          "invis_det": 0,
+          "invis_ok": 0
+        },
+        "miss_rate_when_visible": 0.0,
+        "false_detection_rate_when_not_visible": 0.0
+      },
+      "hand": {
+        "n_scored": 15,
+        "pixel_error": {
+          "median": 3.0920058214693236,
+          "mean": 2.8124832595954254,
+          "p90": 4.158502685062577,
+          "max": 4.418065187386856
+        },
+        "PCK": {
+          "5px": 1.0,
+          "10px": 1.0,
+          "20px": 1.0,
+          "5pct_diag": 1.0
+        },
+        "visibility": {
+          "vis_det": 15,
+          "vis_missed": 0,
+          "invis_det": 0,
+          "invis_ok": 0
+        },
+        "miss_rate_when_visible": 0.0,
+        "false_detection_rate_when_not_visible": 0.0
+      },
+      "tip": {
+        "n_scored": 15,
+        "pixel_error": {
+          "median": 1.951332877804328,
+          "mean": 2.1899370824768547,
+          "p90": 2.943879345506289,
+          "max": 6.492064386618486
+        },
+        "PCK": {
+          "5px": 0.9333333333333333,
+          "10px": 1.0,
+          "20px": 1.0,
+          "5pct_diag": 1.0
+        },
+        "visibility": {
+          "vis_det": 15,
+          "vis_missed": 0,
+          "invis_det": 0,
+          "invis_ok": 0
+        },
+        "miss_rate_when_visible": 0.0,
+        "false_detection_rate_when_not_visible": 0.0
+      }
+    },
+    "logs/E3_s02": {
+      "shoulder": {
+        "n_scored": 15,
+        "pixel_error": {
+          "median": 49.42417728197403,
+          "mean": 46.38310553300408,
+          "p90": 57.5828402504488,
+          "max": 68.36865144201694
+        },
+        "PCK": {
+          "5px": 0.0,
+          "10px": 0.0,
+          "20px": 0.0,
+          "5pct_diag": 1.0
+        },
+        "visibility": {
+          "vis_det": 15,
+          "vis_missed": 0,
+          "invis_det": 0,
+          "invis_ok": 0
+        },
+        "miss_rate_when_visible": 0.0,
+        "false_detection_rate_when_not_visible": 0.0
+      },
+      "elbow": {
+        "n_scored": 15,
+        "pixel_error": {
+          "median": 9.611409886171696,
+          "mean": 10.548657711921216,
+          "p90": 21.440407642486637,
+          "max": 22.74952526977211
+        },
+        "PCK": {
+          "5px": 0.26666666666666666,
+          "10px": 0.6,
+          "20px": 0.8,
+          "5pct_diag": 1.0
+        },
+        "visibility": {
+          "vis_det": 15,
+          "vis_missed": 0,
+          "invis_det": 0,
+          "invis_ok": 0
+        },
+        "miss_rate_when_visible": 0.0,
+        "false_detection_rate_when_not_visible": 0.0
+      },
+      "wrist": {
+        "n_scored": 15,
+        "pixel_error": {
+          "median": 8.967413227904732,
+          "mean": 10.681537072091803,
+          "p90": 21.413834824846294,
+          "max": 21.80762481335373
+        },
+        "PCK": {
+          "5px": 0.13333333333333333,
+          "10px": 0.6,
+          "20px": 0.8,
+          "5pct_diag": 1.0
+        },
+        "visibility": {
+          "vis_det": 15,
+          "vis_missed": 0,
+          "invis_det": 0,
+          "invis_ok": 0
+        },
+        "miss_rate_when_visible": 0.0,
+        "false_detection_rate_when_not_visible": 0.0
+      },
+      "hand": {
+        "n_scored": 15,
+        "pixel_error": {
+          "median": 3.2518610056397033,
+          "mean": 3.492606906543639,
+          "p90": 5.464934996311965,
+          "max": 5.905260366825471
+        },
+        "PCK": {
+          "5px": 0.8,
+          "10px": 1.0,
+          "20px": 1.0,
+          "5pct_diag": 1.0
+        },
+        "visibility": {
+          "vis_det": 15,
+          "vis_missed": 0,
+          "invis_det": 0,
+          "invis_ok": 0
+        },
+        "miss_rate_when_visible": 0.0,
+        "false_detection_rate_when_not_visible": 0.0
+      },
+      "tip": {
+        "n_scored": 15,
+        "pixel_error": {
+          "median": 2.360084744241203,
+          "mean": 2.3488302841197712,
+          "p90": 3.7223573938754217,
+          "max": 4.237227867368062
+        },
+        "PCK": {
+          "5px": 1.0,
+          "10px": 1.0,
+          "20px": 1.0,
+          "5pct_diag": 1.0
+        },
+        "visibility": {
+          "vis_det": 15,
+          "vis_missed": 0,
+          "invis_det": 0,
+          "invis_ok": 0
+        },
+        "miss_rate_when_visible": 0.0,
+        "false_detection_rate_when_not_visible": 0.0
+      }
+    },
+    "logs/E4_s01": {
+      "shoulder": {
+        "n_scored": 15,
+        "pixel_error": {
+          "median": 38.12813790365329,
+          "mean": 36.643366040818314,
+          "p90": 49.543183252562066,
+          "max": 53.640150074361266
+        },
+        "PCK": {
+          "5px": 0.0,
+          "10px": 0.0,
+          "20px": 0.0,
+          "5pct_diag": 1.0
+        },
+        "visibility": {
+          "vis_det": 15,
+          "vis_missed": 0,
+          "invis_det": 0,
+          "invis_ok": 0
+        },
+        "miss_rate_when_visible": 0.0,
+        "false_detection_rate_when_not_visible": 0.0
+      },
+      "elbow": {
+        "n_scored": 15,
+        "pixel_error": {
+          "median": 7.542002386634446,
+          "mean": 9.39203084033935,
+          "p90": 17.97444099392458,
+          "max": 22.123620860971247
+        },
+        "PCK": {
+          "5px": 0.2,
+          "10px": 0.6666666666666666,
+          "20px": 0.8666666666666667,
+          "5pct_diag": 1.0
+        },
+        "visibility": {
+          "vis_det": 15,
+          "vis_missed": 0,
+          "invis_det": 0,
+          "invis_ok": 0
+        },
+        "miss_rate_when_visible": 0.0,
+        "false_detection_rate_when_not_visible": 0.0
+      },
+      "wrist": {
+        "n_scored": 15,
+        "pixel_error": {
+          "median": 10.360926599489114,
+          "mean": 12.038582573127231,
+          "p90": 19.28209997144839,
+          "max": 23.7171098576534
+        },
+        "PCK": {
+          "5px": 0.13333333333333333,
+          "10px": 0.4666666666666667,
+          "20px": 0.9333333333333333,
+          "5pct_diag": 1.0
+        },
+        "visibility": {
+          "vis_det": 15,
+          "vis_missed": 0,
+          "invis_det": 0,
+          "invis_ok": 0
+        },
+        "miss_rate_when_visible": 0.0,
+        "false_detection_rate_when_not_visible": 0.0
+      },
+      "hand": {
+        "n_scored": 15,
+        "pixel_error": {
+          "median": 3.3217465285599377,
+          "mean": 3.503530933299263,
+          "p90": 5.9540614491357875,
+          "max": 6.901970733058796
+        },
+        "PCK": {
+          "5px": 0.8,
+          "10px": 1.0,
+          "20px": 1.0,
+          "5pct_diag": 1.0
+        },
+        "visibility": {
+          "vis_det": 15,
+          "vis_missed": 0,
+          "invis_det": 0,
+          "invis_ok": 0
+        },
+        "miss_rate_when_visible": 0.0,
+        "false_detection_rate_when_not_visible": 0.0
+      },
+      "tip": {
+        "n_scored": 15,
+        "pixel_error": {
+          "median": 1.9913814300630466,
+          "mean": 2.056063863185997,
+          "p90": 3.0491941338730073,
+          "max": 3.550014084479114
+        },
+        "PCK": {
+          "5px": 1.0,
+          "10px": 1.0,
+          "20px": 1.0,
+          "5pct_diag": 1.0
+        },
+        "visibility": {
+          "vis_det": 15,
+          "vis_missed": 0,
+          "invis_det": 0,
+          "invis_ok": 0
+        },
+        "miss_rate_when_visible": 0.0,
+        "false_detection_rate_when_not_visible": 0.0
+      }
+    },
+    "logs/E4_s02": {
+      "shoulder": {
+        "n_scored": 15,
+        "pixel_error": {
+          "median": 33.19456130151448,
+          "mean": 36.615508522574686,
+          "p90": 55.598021283994186,
+          "max": 65.10550283962175
+        },
+        "PCK": {
+          "5px": 0.0,
+          "10px": 0.0,
+          "20px": 0.0,
+          "5pct_diag": 1.0
+        },
+        "visibility": {
+          "vis_det": 15,
+          "vis_missed": 0,
+          "invis_det": 0,
+          "invis_ok": 0
+        },
+        "miss_rate_when_visible": 0.0,
+        "false_detection_rate_when_not_visible": 0.0
+      },
+      "elbow": {
+        "n_scored": 15,
+        "pixel_error": {
+          "median": 10.239257785601426,
+          "mean": 11.742640157492179,
+          "p90": 23.174601365031762,
+          "max": 25.443836188751092
+        },
+        "PCK": {
+          "5px": 0.2,
+          "10px": 0.4666666666666667,
+          "20px": 0.8,
+          "5pct_diag": 1.0
+        },
+        "visibility": {
+          "vis_det": 15,
+          "vis_missed": 0,
+          "invis_det": 0,
+          "invis_ok": 0
+        },
+        "miss_rate_when_visible": 0.0,
+        "false_detection_rate_when_not_visible": 0.0
+      },
+      "wrist": {
+        "n_scored": 15,
+        "pixel_error": {
+          "median": 11.740229980711604,
+          "mean": 10.755842460473271,
+          "p90": 15.169407391232784,
+          "max": 22.919243006696362
+        },
+        "PCK": {
+          "5px": 0.13333333333333333,
+          "10px": 0.4666666666666667,
+          "20px": 0.9333333333333333,
+          "5pct_diag": 1.0
+        },
+        "visibility": {
+          "vis_det": 15,
+          "vis_missed": 0,
+          "invis_det": 0,
+          "invis_ok": 0
+        },
+        "miss_rate_when_visible": 0.0,
+        "false_detection_rate_when_not_visible": 0.0
+      },
+      "hand": {
+        "n_scored": 15,
+        "pixel_error": {
+          "median": 3.621670885102626,
+          "mean": 3.5924338958694952,
+          "p90": 5.612402215663448,
+          "max": 6.757810296242447
+        },
+        "PCK": {
+          "5px": 0.7333333333333333,
+          "10px": 1.0,
+          "20px": 1.0,
+          "5pct_diag": 1.0
+        },
+        "visibility": {
+          "vis_det": 15,
+          "vis_missed": 0,
+          "invis_det": 0,
+          "invis_ok": 0
+        },
+        "miss_rate_when_visible": 0.0,
+        "false_detection_rate_when_not_visible": 0.0
+      },
+      "tip": {
+        "n_scored": 15,
+        "pixel_error": {
+          "median": 2.5644492586128838,
+          "mean": 3.794344637700016,
+          "p90": 5.396454700851073,
+          "max": 18.528729044378593
+        },
+        "PCK": {
+          "5px": 0.8666666666666667,
+          "10px": 0.9333333333333333,
+          "20px": 1.0,
+          "5pct_diag": 1.0
+        },
+        "visibility": {
+          "vis_det": 15,
+          "vis_missed": 0,
+          "invis_det": 0,
+          "invis_ok": 0
+        },
+        "miss_rate_when_visible": 0.0,
+        "false_detection_rate_when_not_visible": 0.0
+      }
+    }
+  },
+  "annotator_consistency_px": {
+    "shoulder": {
+      "n": 12,
+      "median": 17.102325267042627,
+      "p90": 22.980385039661876
+    },
+    "elbow": {
+      "n": 12,
+      "median": 3.3839144678161843,
+      "p90": 15.101519093113154
+    },
+    "wrist": {
+      "n": 12,
+      "median": 5.541381265149109,
+      "p90": 7.963138754655242
+    },
+    "hand": {
+      "n": 12,
+      "median": 2.118033988749895,
+      "p90": 4.385477487046021
+    },
+    "tip": {
+      "n": 12,
+      "median": 2.23606797749979,
+      "p90": 4.110795063055894
+    }
+  }
+}
