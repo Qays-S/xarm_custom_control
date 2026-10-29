@@ -151,7 +151,12 @@ class RosRobotLog(threading.Thread):
         while time.monotonic() < t_end and self.n == 0:
             time.sleep(0.1)
         if self.n:
-            print(f"  robot logging OK: {self.n} messages in the first {wait_s:.0f} s")
+            n0, t0 = self.n, time.monotonic()
+            time.sleep(2.0)
+            rate = (self.n - n0) / (time.monotonic() - t0)
+            print(f"  robot logging OK: {rate:.0f} messages/s (joint + robot state)")
+            if rate < 20:
+                print("  (slow: launch the driver with report_type:=dev for ~100 Hz before any run where the arm moves)")
             return True
         names = sorted(t for t, _ in self.node.get_topic_names_and_types())
         xarm = [t for t in names if "xarm" in t or "joint" in t]
