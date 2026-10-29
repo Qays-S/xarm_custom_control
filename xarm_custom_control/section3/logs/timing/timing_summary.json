@@ -1,0 +1,89 @@
+{
+  "frames": 21177,
+  "read_failures": 0,
+  "frame_interval_ms": {
+    "n": 21169,
+    "median": 61.61,
+    "p95": 74.73,
+    "mean": 61.08,
+    "max": 105.76
+  },
+  "fps_from_median_interval": 16.23,
+  "camera_read_ms": {
+    "n": 21177,
+    "median": 3.38,
+    "p95": 4.14,
+    "mean": 3.37,
+    "max": 13.09
+  },
+  "detection_ms": {
+    "n": 21177,
+    "median": 53.01,
+    "p95": 65.31,
+    "mean": 52.64,
+    "max": 95.39
+  },
+  "jitter_rms_px_during_holds": {
+    "shoulder": {
+      "n": 82,
+      "median": 4.92,
+      "p95": 10.91,
+      "mean": 5.71,
+      "max": 16.55
+    },
+    "elbow": {
+      "n": 82,
+      "median": 4.22,
+      "p95": 8.35,
+      "mean": 4.51,
+      "max": 11.47
+    },
+    "wrist": {
+      "n": 82,
+      "median": 2.86,
+      "p95": 5.98,
+      "mean": 3.26,
+      "max": 10.27
+    },
+    "hand": {
+      "n": 82,
+      "median": 1.48,
+      "p95": 4.51,
+      "mean": 1.99,
+      "max": 14.0
+    },
+    "tip": {
+      "n": 82,
+      "median": 0.79,
+      "p95": 3.62,
+      "mean": 1.29,
+      "max": 12.04
+    }
+  },
+  "camera_latency_ms": {
+    "n": 40,
+    "median": 113.6,
+    "p95": 150.67,
+    "mean": 114.14,
+    "max": 154.59
+  },
+  "camera_latency_note": "screen flip to first camera frame showing it; includes the screen's refresh",
+  "forecast_ms": {
+    "GRU": {
+      "median_ms": 0.731,
+      "p95_ms": 1.019
+    },
+    "STS-GCN": {
+      "median_ms": 1.394,
+      "p95_ms": 1.942
+    }
+  },
+  "end_to_end_ms_GRU": {
+    "median": 167.3,
+    "p95_sum": 217.0
+  },
+  "end_to_end_ms_STS-GCN": {
+    "median": 168.0,
+    "p95_sum": 217.9
+  }
+}

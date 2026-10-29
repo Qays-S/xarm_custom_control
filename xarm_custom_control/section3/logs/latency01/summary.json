@@ -1,0 +1,19 @@
+{
+  "flips": 40,
+  "detected": 40,
+  "latency_ms": {
+    "mean": 114.13591952498336,
+    "median": 113.60445549962606,
+    "p95": 150.66960859958272,
+    "min": 67.43616099993233,
+    "max": 154.59465399999317
+  },
+  "camera_fps_measured": 24.99882505544988,
+  "roi": [
+    573,
+    593,
+    733,
+    677
+  ],
+  "note": "camera + screen latency (upper bound for the camera's share)"
+}

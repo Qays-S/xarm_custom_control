@@ -25,13 +25,20 @@ Run everything from this folder. Keep the camera resolution the same for every s
 
 ## Order of work (your steps on the robot)
 
-**A. Latency test: do this FIRST, before calibrating.** After calibration the camera must not
-move. Put the laptop screen in front of the camera, then:
+**A. Latency test (camera already calibrated: do NOT move the camera or tripod).** Bring the
+laptop screen into the camera's view instead, e.g. lay the laptop on the table under the camera
+with the lid opened back so the screen faces up. Then:
 ```
-python3 s3_latency_test.py --out logs/latency01 --flips 40
+python3 s3_latency_test.py --out logs/latency01 --flips 40 --camera 0
 ```
-Aim the camera so the window fills much of the image, press SPACE, and keep everything still.
-The result includes the screen's refresh delay, so it slightly overestimates the camera's latency.
+The window shows the live camera view: click two opposite corners of the laptop screen as it
+appears there (r = redo), press SPACE, and keep everything still for about 40 s while the
+window flips black/white full screen. The result includes the screen's refresh delay, so it
+slightly overestimates the camera's latency. Put the laptop back afterwards and run the drift
+check before the next recording. Then the timing summary (also uses the E1-E4 recordings):
+```
+python3 s3_timing_summary.py logs/E1_s01 logs/E2_s01 logs/E3_s01 logs/E4_s01 logs/E1_s02 logs/E2_s02 logs/E3_s02 logs/E4_s02 --latency logs/latency01
+```
 
 **B. Mount the camera rigidly** in its final reach-view position. Do not touch it again this session.
 

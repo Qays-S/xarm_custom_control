@@ -9,15 +9,19 @@ delay, so it is a slight over-estimate (state that in the paper). Adding the
 detector's processing time from s3_perception_analyze.py gives the end-to-end
 perception latency (event in the world -> keypoints available).
 
-IMPORTANT: never move the calibrated camera to do this. Either run it BEFORE
-calibrating, or bring the laptop screen into the camera's view without touching the
-camera. Use the same resolution / camera settings as for recording.
+IMPORTANT: never move the calibrated camera to do this. Bring the laptop screen into the
+camera's view instead (e.g. lay the laptop on the table under the camera with the lid opened
+back so the screen faces up), without touching the camera or its tripod. Use the same
+resolution / camera settings as for recording.
+
+Aiming: the window shows the live camera view. Click two opposite corners of the laptop
+screen as it appears in that view (r = redo), then press SPACE. The window goes full screen
+and flips between black and white; only the area you marked is measured.
 
 Usage
   python3 s3_latency_test.py --out logs/latency01 [--camera 0] [--flips 40]
        [--width 1280 --height 720]
-Then point the camera at the window (it should fill a good part of the image) and
-press SPACE to start. Writes flips.csv, frames.csv, summary.json.
+Writes flips.csv, frames.csv, summary.json (and roi.png, the camera view with the marked area).
 """
 import argparse
 import csv
@@ -39,17 +43,20 @@ class Grabber(threading.Thread):
     def __init__(self, cap):
         super().__init__(daemon=True)
         self.cap, self.rows, self.running, self.last = cap, [], True, None
+        self.roi = None            # (x0, y0, x1, y1) in camera pixels; None = centre of the image
+        self.record = False
 
     def run(self):
         while self.running:
             ok, f = self.cap.read()
             t = time.monotonic()
             if ok:
-                g = cv2.cvtColor(f, cv2.COLOR_BGR2GRAY)
-                h, w = g.shape
-                roi = g[h // 4:3 * h // 4, w // 4:3 * w // 4]  # centre of the image
-                self.rows.append((t, float(roi.mean())))
                 self.last = f
+                if self.record:
+                    g = cv2.cvtColor(f, cv2.COLOR_BGR2GRAY)
+                    h, w = g.shape
+                    x0, y0, x1, y1 = self.roi or (w // 4, h // 4, 3 * w // 4, 3 * h // 4)
+                    self.rows.append((t, float(g[y0:y1, x0:x1].mean())))
 
 
 def main():
@@ -66,22 +73,44 @@ def main():
     g = Grabber(cap)
     g.start()
 
-    win = "s3 latency test (point the camera here, SPACE to start, q to quit)"
+    win = "s3 latency test: click 2 corners of the laptop screen in the camera view, r = redo, SPACE = start, q = quit"
     cv2.namedWindow(win, cv2.WINDOW_NORMAL)
-    white = np.full((600, 800, 3), 255, np.uint8)
-    black = np.zeros_like(white)
-    while True:  # aiming phase: show the camera view in the corner of a white screen
-        view = white.copy()
-        if g.last is not None:
-            small = cv2.resize(g.last, (240, 135))
-            view[0:135, 0:240] = small
+    corners = []
+
+    def on_mouse(ev, x, y, fl, p):
+        if ev == cv2.EVENT_LBUTTONDOWN and len(corners) < 2:
+            corners.append((x, y))
+    cv2.setMouseCallback(win, on_mouse)
+    while True:  # aiming phase: live camera view, mark the screen
+        if g.last is None:
+            cv2.waitKey(30); continue
+        view = g.last.copy()
+        for c in corners:
+            cv2.circle(view, c, 6, (0, 0, 255), -1)
+        if len(corners) == 2:
+            cv2.rectangle(view, corners[0], corners[1], (0, 0, 255), 2)
+        msg = "click 2 opposite corners of the laptop screen" if len(corners) < 2 else "SPACE to start (r to redo)"
+        cv2.putText(view, msg, (20, 40), cv2.FONT_HERSHEY_SIMPLEX, 1.0, (0, 255, 255), 2)
         cv2.imshow(win, view)
         k = cv2.waitKey(30) & 0xFF
-        if k == ord(" "):
+        if k == ord("r"):
+            corners.clear()
+        if k == ord(" ") and len(corners) == 2:
             break
         if k == ord("q"):
             g.running = False
             return
+    (xa, ya), (xb, yb) = corners
+    m = 0.15  # shrink the box a little so only the screen itself is measured
+    x0, x1, y0, y1 = sorted((xa, xb)) + sorted((ya, yb))
+    dx, dy = int((x1 - x0) * m), int((y1 - y0) * m)
+    g.roi = (x0 + dx, y0 + dy, x1 - dx, y1 - dy)
+    snap = g.last.copy(); cv2.rectangle(snap, g.roi[:2], g.roi[2:], (0, 0, 255), 2)
+    cv2.imwrite(os.path.join(a.out, "roi.png"), snap)
+    cv2.setWindowProperty(win, cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
+    white = np.full((720, 1280, 3), 255, np.uint8)
+    black = np.zeros_like(white)
+    g.record = True
 
     flips, state = [], True
     cv2.imshow(win, white); cv2.waitKey(500)
@@ -113,6 +142,7 @@ def main():
                    "mean": float(good.mean()), "median": float(np.median(good)),
                    "p95": float(np.percentile(good, 95)), "min": float(good.min()), "max": float(good.max())},
                "camera_fps_measured": float(1 / np.median(np.diff([r[0] for r in g.rows]))) if len(g.rows) > 2 else None,
+               "roi": list(map(int, g.roi)),
                "note": "camera + screen latency (upper bound for the camera's share)"}
     json.dump(summary, open(os.path.join(a.out, "summary.json"), "w"), indent=2)
     print(json.dumps(summary, indent=2))
