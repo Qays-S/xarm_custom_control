@@ -1,0 +1,289 @@
+{
+ "note": "ADE in px of the 1280x720 image; wrist = right wrist. In E5 the 'truth' is the camera's own (degraded) detection, so errors mix forecast error and detection error.",
+ "phase_share": {
+  "val": {
+   "cued": 0.471,
+   "moving": 0.294,
+   "hold": 0.235
+  },
+  "e5": {
+   "cued": 0.259,
+   "moving": 0.246,
+   "hold": 0.495
+  }
+ },
+ "sets": {
+  "val": {
+   "all": {
+    "current pose": {
+     "0.25": 9.34,
+     "0.5": 15.78,
+     "1.0": 27.93,
+     "n_1.0s": 3318
+    },
+    "constant velocity (n=2)": {
+     "0.25": 8.3,
+     "0.5": 17.37,
+     "1.0": 38.71,
+     "n_1.0s": 3318
+    },
+    "GRU": {
+     "0.25": 6.0,
+     "0.5": 10.89,
+     "1.0": 22.6,
+     "n_1.0s": 3318
+    },
+    "STS-GCN fine-tuned": {
+     "0.25": 7.82,
+     "0.5": 13.42,
+     "1.0": 26.22,
+     "n_1.0s": 3318
+    }
+   },
+   "moving": {
+    "current pose": {
+     "0.25": 18.42,
+     "0.5": 28.01,
+     "1.0": 41.5,
+     "n_1.0s": 963
+    },
+    "constant velocity (n=2)": {
+     "0.25": 14.97,
+     "0.5": 32.43,
+     "1.0": 72.81,
+     "n_1.0s": 963
+    },
+    "GRU": {
+     "0.25": 9.18,
+     "0.5": 15.44,
+     "1.0": 26.51,
+     "n_1.0s": 963
+    },
+    "STS-GCN fine-tuned": {
+     "0.25": 10.8,
+     "0.5": 17.42,
+     "1.0": 28.44,
+     "n_1.0s": 963
+    }
+   }
+  },
+  "e5": {
+   "all": {
+    "current pose": {
+     "0.25": 15.75,
+     "0.5": 20.08,
+     "1.0": 25.7,
+     "n_1.0s": 6646
+    },
+    "constant velocity (n=2)": {
+     "0.25": 27.47,
+     "0.5": 43.29,
+     "1.0": 71.42,
+     "n_1.0s": 6646
+    },
+    "GRU": {
+     "0.25": 16.84,
+     "0.5": 23.16,
+     "1.0": 36.28,
+     "n_1.0s": 6646
+    },
+    "STS-GCN fine-tuned": {
+     "0.25": 26.17,
+     "0.5": 35.95,
+     "1.0": 60.3,
+     "n_1.0s": 6646
+    }
+   },
+   "moving": {
+    "current pose": {
+     "0.25": 37.16,
+     "0.5": 51.34,
+     "1.0": 71.39,
+     "n_1.0s": 1077
+    },
+    "constant velocity (n=2)": {
+     "0.25": 60.35,
+     "0.5": 105.28,
+     "1.0": 197.59,
+     "n_1.0s": 1077
+    },
+    "GRU": {
+     "0.25": 36.15,
+     "0.5": 51.23,
+     "1.0": 71.76,
+     "n_1.0s": 1077
+    },
+    "STS-GCN fine-tuned": {
+     "0.25": 48.89,
+     "0.5": 63.05,
+     "1.0": 84.15,
+     "n_1.0s": 1077
+    }
+   }
+  }
+ },
+ "e5_tracking_quality": {
+  "cover/normal": {
+   "frames": 879,
+   "wrist_missing": 2.8,
+   "hand_missing": 11.3,
+   "wrist_jumps": 2.16,
+   "conf_at_jumps": 0.54,
+   "conf_steady": 0.92
+  },
+  "head/normal": {
+   "frames": 813,
+   "wrist_missing": 0.5,
+   "hand_missing": 2.7,
+   "wrist_jumps": 8.36,
+   "conf_at_jumps": 0.86,
+   "conf_steady": 0.95
+  },
+  "none/normal": {
+   "frames": 544,
+   "wrist_missing": 0.0,
+   "hand_missing": 3.7,
+   "wrist_jumps": 0.18,
+   "conf_at_jumps": 0.94,
+   "conf_steady": 0.98
+  },
+  "cover/dim": {
+   "frames": 919,
+   "wrist_missing": 19.7,
+   "hand_missing": 40.2,
+   "wrist_jumps": 5.77,
+   "conf_at_jumps": 0.65,
+   "conf_steady": 0.92
+  },
+  "none/dim": {
+   "frames": 504,
+   "wrist_missing": 0.4,
+   "hand_missing": 44.4,
+   "wrist_jumps": 0.99,
+   "conf_at_jumps": 0.83,
+   "conf_steady": 0.95
+  },
+  "head/dim": {
+   "frames": 954,
+   "wrist_missing": 15.0,
+   "hand_missing": 33.1,
+   "wrist_jumps": 16.35,
+   "conf_at_jumps": 0.92,
+   "conf_steady": 0.94
+  }
+ },
+ "e5_moving_1s": {
+  "current pose": {
+   "none/normal": {
+    "wrist": 46.3,
+    "hand": 53.62
+   },
+   "cover/normal": {
+    "wrist": 43.88,
+    "hand": 58.89
+   },
+   "head/normal": {
+    "wrist": 109.27,
+    "hand": 125.43
+   },
+   "none/dim": {
+    "wrist": 39.75,
+    "hand": 44.02
+   },
+   "cover/dim": {
+    "wrist": 43.18,
+    "hand": 44.01
+   },
+   "head/dim": {
+    "wrist": 129.61,
+    "hand": 143.75
+   }
+  },
+  "constant velocity (n=2)": {
+   "none/normal": {
+    "wrist": 75.04,
+    "hand": 85.01
+   },
+   "cover/normal": {
+    "wrist": 76.55,
+    "hand": 115.19
+   },
+   "head/normal": {
+    "wrist": 270.61,
+    "hand": 340.17
+   },
+   "none/dim": {
+    "wrist": 81.91,
+    "hand": 78.58
+   },
+   "cover/dim": {
+    "wrist": 172.54,
+    "hand": 114.41
+   },
+   "head/dim": {
+    "wrist": 460.79,
+    "hand": 513.69
+   }
+  },
+  "GRU": {
+   "none/normal": {
+    "wrist": 25.1,
+    "hand": 28.85
+   },
+   "cover/normal": {
+    "wrist": 41.87,
+    "hand": 52.88
+   },
+   "head/normal": {
+    "wrist": 98.22,
+    "hand": 116.18
+   },
+   "none/dim": {
+    "wrist": 27.37,
+    "hand": 29.49
+   },
+   "cover/dim": {
+    "wrist": 52.38,
+    "hand": 53.16
+   },
+   "head/dim": {
+    "wrist": 157.95,
+    "hand": 181.7
+   }
+  },
+  "STS-GCN fine-tuned": {
+   "none/normal": {
+    "wrist": 36.85,
+    "hand": null
+   },
+   "cover/normal": {
+    "wrist": 42.73,
+    "hand": null
+   },
+   "head/normal": {
+    "wrist": 122.59,
+    "hand": null
+   },
+   "none/dim": {
+    "wrist": 48.18,
+    "hand": null
+   },
+   "cover/dim": {
+    "wrist": 72.5,
+    "hand": null
+   },
+   "head/dim": {
+    "wrist": 167.51,
+    "hand": null
+   }
+  }
+ },
+ "e5_moving_windows": {
+  "none/normal": 156,
+  "cover/normal": 291,
+  "head/normal": 178,
+  "none/dim": 90,
+  "cover/dim": 151,
+  "head/dim": 211
+ }
+}

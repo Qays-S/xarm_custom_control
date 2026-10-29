@@ -25,6 +25,9 @@ Split (one participant, so the split is by session and by time, never by random 
         first third -> val,  middle third -> cal,  last third -> test
   A window (history L + future K) is only used if it lies entirely inside one block, so no
   overlapping windows from one recording ever end up in two sets. The audit checks this.
+  * E5 sessions (degraded viewing)               -> one held-out set "e5", never trained or tuned on.
+    Prepare them into their own folder so the frozen E1-E4 manifest is not rewritten:
+      python3 s5_prepare.py logs/E5_s01 logs/E5_s02 --out logs/prepared_e5
 
 Usage
   python3 s5_prepare.py logs/E1_s01 logs/E2_s01 logs/E3_s01 logs/E4_s01 \
@@ -123,7 +126,9 @@ def main():
                             ("t", "y", "conf", "miss", "reach", "goal", "phase")})
         T, n = len(s["t"]), s["n_reaches"]
         # block per step
-        if name.endswith("_s01"):
+        if s["mode"] == "E5":
+            blocks = [("e5", 0, n)]
+        elif name.endswith("_s01"):
             blocks = [("train", 0, n)]
         else:
             b1, b2 = round(n / 3), round(2 * n / 3)

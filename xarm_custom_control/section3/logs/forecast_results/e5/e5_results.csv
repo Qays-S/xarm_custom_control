@@ -1,0 +1,49 @@
+set,phase,model,horizon_s,n_windows,elbow_ade_px,wrist_ade_px,elbow_fde_px,wrist_fde_px
+val,all,current pose,0.25,3378,5.7,9.34,8.52,14.44
+val,all,current pose,0.5,3358,9.16,15.78,15.01,26.85
+val,all,current pose,1.0,3318,15.44,27.93,26.57,49.89
+val,all,constant velocity (n=2),0.25,3378,5.8,8.3,9.45,14.15
+val,all,constant velocity (n=2),0.5,3358,11.18,17.37,21.0,34.42
+val,all,constant velocity (n=2),1.0,3318,23.19,38.71,46.26,79.97
+val,all,GRU,0.25,3378,4.32,6.0,6.42,9.35
+val,all,GRU,0.5,3358,7.04,10.89,11.95,20.25
+val,all,GRU,1.0,3318,13.24,22.6,25.06,44.63
+val,all,STS-GCN fine-tuned,0.25,3378,5.72,7.82,7.62,11.76
+val,all,STS-GCN fine-tuned,0.5,3358,8.66,13.42,14.19,23.72
+val,all,STS-GCN fine-tuned,1.0,3318,15.68,26.22,29.19,50.15
+val,moving,current pose,0.25,975,9.95,18.42,14.68,27.35
+val,moving,current pose,0.5,971,14.98,28.01,22.73,42.8
+val,moving,current pose,1.0,963,22.0,41.5,32.74,62.72
+val,moving,constant velocity (n=2),0.25,975,8.71,14.97,14.7,26.03
+val,moving,constant velocity (n=2),0.5,971,17.71,32.43,34.16,65.01
+val,moving,constant velocity (n=2),1.0,963,38.0,72.81,76.8,149.74
+val,moving,GRU,0.25,975,6.09,9.18,8.99,13.92
+val,moving,GRU,0.5,971,9.62,15.44,15.61,26.19
+val,moving,GRU,1.0,963,15.64,26.51,25.59,45.06
+val,moving,STS-GCN fine-tuned,0.25,975,7.09,10.8,9.59,16.33
+val,moving,STS-GCN fine-tuned,0.5,971,10.7,17.42,16.94,28.3
+val,moving,STS-GCN fine-tuned,1.0,963,17.53,28.44,29.34,47.13
+e5,all,current pose,0.25,7238,15.61,15.75,20.08,20.41
+e5,all,current pose,0.5,7019,19.59,20.08,26.02,27.22
+e5,all,current pose,1.0,6646,24.17,25.7,32.73,36.44
+e5,all,constant velocity (n=2),0.25,7238,27.85,27.47,41.03,40.6
+e5,all,constant velocity (n=2),0.5,7019,43.55,43.29,71.97,72.29
+e5,all,constant velocity (n=2),1.0,6646,71.87,71.42,128.26,128.88
+e5,all,GRU,0.25,7238,15.88,16.84,20.74,22.59
+e5,all,GRU,0.5,7019,20.69,23.16,29.14,34.96
+e5,all,GRU,1.0,6646,29.04,36.28,46.64,62.79
+e5,all,STS-GCN fine-tuned,0.25,7238,20.57,26.17,25.88,33.23
+e5,all,STS-GCN fine-tuned,0.5,7019,27.34,35.95,40.05,55.09
+e5,all,STS-GCN fine-tuned,1.0,6646,42.49,60.3,72.45,107.52
+e5,moving,current pose,0.25,1334,33.07,37.16,43.74,49.57
+e5,moving,current pose,0.5,1240,45.25,51.34,62.52,71.9
+e5,moving,current pose,1.0,1077,62.43,71.39,83.76,96.57
+e5,moving,constant velocity (n=2),0.25,1334,56.17,60.35,83.89,90.66
+e5,moving,constant velocity (n=2),0.5,1240,96.8,105.28,164.36,181.27
+e5,moving,constant velocity (n=2),1.0,1077,181.82,197.59,328.81,361.31
+e5,moving,GRU,0.25,1334,32.19,36.15,42.63,48.78
+e5,moving,GRU,0.5,1240,44.74,51.23,62.96,73.84
+e5,moving,GRU,1.0,1077,61.59,71.76,82.48,96.69
+e5,moving,STS-GCN fine-tuned,0.25,1334,37.02,48.89,45.6,59.39
+e5,moving,STS-GCN fine-tuned,0.5,1240,48.43,63.05,65.02,84.71
+e5,moving,STS-GCN fine-tuned,1.0,1077,65.81,84.15,88.4,110.0

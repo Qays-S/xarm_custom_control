@@ -1,0 +1,25 @@
+model,perturb,lighting,n_moving_windows,wrist_ade_1s_px,hand_ade_1s_px
+current pose,none,normal,156,46.3,53.62
+current pose,cover,normal,291,43.88,58.89
+current pose,head,normal,178,109.27,125.43
+current pose,none,dim,90,39.75,44.02
+current pose,cover,dim,151,43.18,44.01
+current pose,head,dim,211,129.61,143.75
+constant velocity (n=2),none,normal,156,75.04,85.01
+constant velocity (n=2),cover,normal,291,76.55,115.19
+constant velocity (n=2),head,normal,178,270.61,340.17
+constant velocity (n=2),none,dim,90,81.91,78.58
+constant velocity (n=2),cover,dim,151,172.54,114.41
+constant velocity (n=2),head,dim,211,460.79,513.69
+GRU,none,normal,156,25.1,28.85
+GRU,cover,normal,291,41.87,52.88
+GRU,head,normal,178,98.22,116.18
+GRU,none,dim,90,27.37,29.49
+GRU,cover,dim,151,52.38,53.16
+GRU,head,dim,211,157.95,181.7
+STS-GCN fine-tuned,none,normal,156,36.85,
+STS-GCN fine-tuned,cover,normal,291,42.73,
+STS-GCN fine-tuned,head,normal,178,122.59,
+STS-GCN fine-tuned,none,dim,90,48.18,
+STS-GCN fine-tuned,cover,dim,151,72.5,
+STS-GCN fine-tuned,head,dim,211,167.51,
