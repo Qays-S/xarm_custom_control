@@ -1,0 +1,25 @@
+{
+ "config": {
+  "M": 5,
+  "hidden": 128,
+  "layers": 2,
+  "lr": 0.001,
+  "batch": 256
+ },
+ "name": "M5_h128_l2_lr0.001",
+ "n_in": 18,
+ "K": 24,
+ "M": 5,
+ "keypoints": [
+  "elbow",
+  "wrist",
+  "hand"
+ ],
+ "dt": 0.0625,
+ "history_steps": 16,
+ "min_std_px": 1.0,
+ "covariance": "per keypoint and step 2x2 Cholesky [[a,0],[c,b]], a,b = softplus + 1 px; blocks independent",
+ "seed": 0,
+ "chosen_on": "val NLL",
+ "val_nll_nats_per_point_px": 7.1509
+}

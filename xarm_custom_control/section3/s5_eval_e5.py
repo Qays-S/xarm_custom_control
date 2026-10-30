@@ -4,6 +4,7 @@ Blueprint E5 (degraded viewing): how much worse do the forecasters get when the 
 degraded? The models are the ones already chosen on D_val; nothing is trained or tuned on E5.
 
 Models   current pose, constant velocity (n from baselines_val.json), GRU (gru_best.pt),
+         multimodal GRU, most likely mode (mgru_best.pt, if present),
          STS-GCN fine-tuned from AMASS (stsgcn_finetuned_best.pt; needs --manicast-dir)
 Sets     val  = the clean validation windows (E1-E4 round 2, first third), as reported before
          e5   = every E5 window (logs/prepared_e5, made by s5_prepare.py ... --out logs/prepared_e5)
@@ -157,6 +158,12 @@ def main():
     gcfg = json.load(open(os.path.join(a.results, "gru", "gru_best.json")))
     gru = GRUForecaster(gcfg["n_in"], gcfg["config"]["hidden"], gcfg["config"]["layers"], gcfg["K"])
     gru.load_state_dict(torch.load(os.path.join(a.results, "gru", "gru_best.pt"), map_location="cpu"))
+    mgru = None
+    if os.path.exists(os.path.join(a.results, "mgru", "mgru_best.pt")):
+        from s5_mgru import MixtureGRU, run as mrun, to_positions
+        mc = json.load(open(os.path.join(a.results, "mgru", "mgru_best.json")))
+        mgru = MixtureGRU(mc["n_in"], mc["config"]["hidden"], mc["config"]["layers"], mc["K"], mc["M"])
+        mgru.load_state_dict(torch.load(os.path.join(a.results, "mgru", "mgru_best.pt"), map_location="cpu"))
     sts = None
     if os.path.exists(os.path.join(a.manicast_dir, "model", "manicast.py")):
         sts = StsGcn(a.manicast_dir, m0, s0, os.path.join(a.results, "stsgcn", "stsgcn_finetuned_best.pt"))
@@ -168,6 +175,9 @@ def main():
         x, cur = features(w)
         p = {"current pose": current_pose(w, 24), f"constant velocity (n={cvn})": const_vel(w, 24, cvn),
              "GRU": predict(gru, x, cur)}
+        if mgru is not None:
+            pi, pos = to_positions(mrun(mgru, x), cur)
+            p["multimodal GRU (top mode)"] = pos[np.arange(len(pos)), pi.argmax(1)]
         if sts:
             p["STS-GCN fine-tuned"] = sts.run(m, s, sn, w)
         preds[sn] = p

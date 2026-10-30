@@ -8,6 +8,9 @@ val,all,constant velocity (n=2),1.0,3318,23.19,38.71,46.26,79.97
 val,all,GRU,0.25,3378,4.32,6.0,6.42,9.35
 val,all,GRU,0.5,3358,7.04,10.89,11.95,20.25
 val,all,GRU,1.0,3318,13.24,22.6,25.06,44.63
+val,all,multimodal GRU (top mode),0.25,3378,4.5,6.06,6.81,9.79
+val,all,multimodal GRU (top mode),0.5,3358,7.73,11.38,13.57,21.19
+val,all,multimodal GRU (top mode),1.0,3318,14.33,23.12,26.27,45.6
 val,all,STS-GCN fine-tuned,0.25,3378,5.72,7.82,7.62,11.76
 val,all,STS-GCN fine-tuned,0.5,3358,8.66,13.42,14.19,23.72
 val,all,STS-GCN fine-tuned,1.0,3318,15.68,26.22,29.19,50.15
@@ -20,6 +23,9 @@ val,moving,constant velocity (n=2),1.0,963,38.0,72.81,76.8,149.74
 val,moving,GRU,0.25,975,6.09,9.18,8.99,13.92
 val,moving,GRU,0.5,971,9.62,15.44,15.61,26.19
 val,moving,GRU,1.0,963,15.64,26.51,25.59,45.06
+val,moving,multimodal GRU (top mode),0.25,975,6.68,10.02,10.38,16.11
+val,moving,multimodal GRU (top mode),0.5,971,11.44,17.87,19.48,31.25
+val,moving,multimodal GRU (top mode),1.0,963,19.05,31.36,30.62,53.24
 val,moving,STS-GCN fine-tuned,0.25,975,7.09,10.8,9.59,16.33
 val,moving,STS-GCN fine-tuned,0.5,971,10.7,17.42,16.94,28.3
 val,moving,STS-GCN fine-tuned,1.0,963,17.53,28.44,29.34,47.13
@@ -32,6 +38,9 @@ e5,all,constant velocity (n=2),1.0,6646,71.87,71.42,128.26,128.88
 e5,all,GRU,0.25,7238,15.88,16.84,20.74,22.59
 e5,all,GRU,0.5,7019,20.69,23.16,29.14,34.96
 e5,all,GRU,1.0,6646,29.04,36.28,46.64,62.79
+e5,all,multimodal GRU (top mode),0.25,7238,15.82,16.59,20.44,21.77
+e5,all,multimodal GRU (top mode),0.5,7019,19.99,21.31,26.82,29.41
+e5,all,multimodal GRU (top mode),1.0,6646,25.64,28.62,38.35,46.47
 e5,all,STS-GCN fine-tuned,0.25,7238,20.57,26.17,25.88,33.23
 e5,all,STS-GCN fine-tuned,0.5,7019,27.34,35.95,40.05,55.09
 e5,all,STS-GCN fine-tuned,1.0,6646,42.49,60.3,72.45,107.52
@@ -44,6 +53,9 @@ e5,moving,constant velocity (n=2),1.0,1077,181.82,197.59,328.81,361.31
 e5,moving,GRU,0.25,1334,32.19,36.15,42.63,48.78
 e5,moving,GRU,0.5,1240,44.74,51.23,62.96,73.84
 e5,moving,GRU,1.0,1077,61.59,71.76,82.48,96.69
+e5,moving,multimodal GRU (top mode),0.25,1334,32.39,37.19,43.02,49.99
+e5,moving,multimodal GRU (top mode),0.5,1240,44.84,51.82,62.91,73.54
+e5,moving,multimodal GRU (top mode),1.0,1077,62.48,72.24,86.1,100.02
 e5,moving,STS-GCN fine-tuned,0.25,1334,37.02,48.89,45.6,59.39
 e5,moving,STS-GCN fine-tuned,0.5,1240,48.43,63.05,65.02,84.71
 e5,moving,STS-GCN fine-tuned,1.0,1077,65.81,84.15,88.4,110.0

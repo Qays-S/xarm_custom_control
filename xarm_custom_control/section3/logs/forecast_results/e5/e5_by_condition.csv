@@ -17,6 +17,12 @@ GRU,head,normal,178,98.22,116.18
 GRU,none,dim,90,27.37,29.49
 GRU,cover,dim,151,52.38,53.16
 GRU,head,dim,211,157.95,181.7
+multimodal GRU (top mode),none,normal,156,28.42,33.19
+multimodal GRU (top mode),cover,normal,291,45.89,61.48
+multimodal GRU (top mode),head,normal,178,89.03,107.09
+multimodal GRU (top mode),none,dim,90,25.06,27.08
+multimodal GRU (top mode),cover,dim,151,68.48,70.38
+multimodal GRU (top mode),head,dim,211,149.64,176.49
 STS-GCN fine-tuned,none,normal,156,36.85,
 STS-GCN fine-tuned,cover,normal,291,42.73,
 STS-GCN fine-tuned,head,normal,178,122.59,
