@@ -1,0 +1,26 @@
+{
+ "frozen_at": "2026-10-30 14:21:04",
+ "note": "Everything below was fixed before D_test was opened. D_test is evaluated once.",
+ "sha256": {
+  "logs/prepared/split_manifest.json": "04bdeb2470d5dd232e9adfef83575121e87b3e78fbdcabc6d1e3dfc39c8d9675",
+  "logs/forecast_results/baselines_val.json": "bc8956dbec826dfd7f320e9ad635e67ca6f3d74857cace067e5d603f79ab37b5",
+  "logs/forecast_results/gru/gru_best.pt": "cd4e7a211190f4fb2512e09799f8eddaeeb2ad553856d0f53625311898401791",
+  "logs/forecast_results/gru/gru_best.json": "cbe4316cf4616eb930311b0b5671ad4a2f57067fd21d2a0320d4c08266189e69",
+  "logs/forecast_results/mgru/mgru_best.pt": "f35ce124a59b1f2e21a2468218f2b8c2199cf11ed7a43dd2820d087153a8affe",
+  "logs/forecast_results/mgru/mgru_best.json": "71188ac985c4723931ea50997089d46a9f1d62b7a5d49f18ea57cc62f51cd61e",
+  "logs/forecast_results/stsgcn/stsgcn_finetuned_best.pt": "1c6e30a7e270c2f297f373d7c35cc27a03e0ba7cdee0e2417cda34b703a92800",
+  "logs/reliability/reliability_model.pkl": "658c01de2059a0f7bc5232c733a0de26b6d36cd6343639b6aff1c1ced05272e3",
+  "logs/reliability/summary.json": "e11fac5e7a85f873ef0b953ef2a0a68dfbe3a1c0f2a9dd5ec7eda8acfcb7f8bb",
+  "logs/replay/summary.json": "f3ee105a4c93ca2e4e6e220f77561c45ce6a2bac1d522701ed4ee00e8556fa29",
+  "logs/replay/v2_declared.txt": "ac2e71d4e07941f50a77f16cfb6de9676f93b83fec8146d0c3c8fef7147cf4e6",
+  "s5_baselines.py": "de2d535ade162483ccf6be9453abe208d169853af07c2cb72199e7310685e83f",
+  "s5_gru.py": "1f381a31180263912e795bddef53b0c608f5e2a98ab7fde4b4ab77258b7ee3dc",
+  "s5_mgru.py": "b12f7a08c7d0ebb04e4cd37d92e382327910a6d7ed6a0881d48a0cd041be3387",
+  "s5_stsgcn.py": "956f100e6cbf424b9298becced3b0efffb1210246e45d79c9ccce32f7fc62eb3",
+  "s6_features.py": "c0c84fd24216eb7d1010a65703e455a55c74fddae35838097dbf35b6cc52055a",
+  "s6_reliability.py": "49085947ad32ea0ed08e7188c07f9764415c59abe912440b430de53c6c6c1622",
+  "s7_robot.py": "af595c7fda26f6990ed264a851a6224dfe7d55926defa2273f5b48af79e86b16",
+  "s7_replay.py": "eeff92b7270de9f935d32defc62b47a861c470f8098e73bdb7b182fd9aefae79",
+  "s7_tradeoff.py": "137ec8246a799eb1a4d3aa913f219c12c06421e44ee022416eb7376c98964695"
+ }
+}

@@ -1,0 +1,650 @@
+{
+ "forecasting": {
+  "nll": {
+   "0.25": 4.979,
+   "0.5": 5.711,
+   "1.0": 6.659,
+   "1.5": 7.382
+  },
+  "min_ade_1s": 14.29,
+  "calibration": [
+   [
+    4,
+    0.5,
+    3220,
+    0.6059,
+    0.5807,
+    0.6481,
+    0.6116
+   ],
+   [
+    4,
+    0.8,
+    3220,
+    0.8531,
+    0.8575,
+    0.8525,
+    0.8543
+   ],
+   [
+    4,
+    0.95,
+    3220,
+    0.9556,
+    0.959,
+    0.9475,
+    0.954
+   ],
+   [
+    8,
+    0.5,
+    3192,
+    0.5009,
+    0.5448,
+    0.5802,
+    0.542
+   ],
+   [
+    8,
+    0.8,
+    3192,
+    0.782,
+    0.8001,
+    0.7973,
+    0.7931
+   ],
+   [
+    8,
+    0.95,
+    3192,
+    0.943,
+    0.9339,
+    0.9239,
+    0.9336
+   ],
+   [
+    16,
+    0.5,
+    3149,
+    0.4808,
+    0.5094,
+    0.5408,
+    0.5103
+   ],
+   [
+    16,
+    0.8,
+    3149,
+    0.7641,
+    0.7428,
+    0.7618,
+    0.7562
+   ],
+   [
+    16,
+    0.95,
+    3149,
+    0.9279,
+    0.9181,
+    0.9225,
+    0.9228
+   ],
+   [
+    24,
+    0.5,
+    3109,
+    0.5198,
+    0.5159,
+    0.5211,
+    0.5189
+   ],
+   [
+    24,
+    0.8,
+    3109,
+    0.7887,
+    0.816,
+    0.8086,
+    0.8044
+   ],
+   [
+    24,
+    0.95,
+    3109,
+    0.9334,
+    0.9308,
+    0.9347,
+    0.933
+   ]
+  ],
+  "wrist_1s_by_condition": {
+   "current pose": {
+    "E1": 32.33,
+    "E2": 24.15,
+    "E3": 28.75,
+    "E4": 37.78,
+    "moving": 41.52,
+    "hold": 3.56
+   },
+   "constant velocity (n=2)": {
+    "E1": 45.59,
+    "E2": 25.4,
+    "E3": 36.19,
+    "E4": 55.0,
+    "moving": 68.16,
+    "hold": 10.83
+   },
+   "GRU": {
+    "E1": 24.56,
+    "E2": 21.49,
+    "E3": 22.17,
+    "E4": 26.89,
+    "moving": 26.98,
+    "hold": 9.84
+   },
+   "multimodal GRU (most likely mode)": {
+    "E1": 22.36,
+    "E2": 20.6,
+    "E3": 24.77,
+    "E4": 28.74,
+    "moving": 31.5,
+    "hold": 4.99
+   },
+   "STS-GCN fine-tuned": {
+    "E1": 28.64,
+    "E2": 23.26,
+    "E3": 24.58,
+    "E4": 35.32,
+    "moving": 29.21,
+    "hold": 16.96
+   }
+  },
+  "n_windows": 3320
+ },
+ "reliability": {
+  "estimators": [
+   [
+    "confidence-only (o)",
+    0.609,
+    0.327,
+    0.1836,
+    0.5546,
+    0.0337,
+    -0.217,
+    0.027,
+    0.129,
+    0.869
+   ],
+   [
+    "uncertainty-only (u)",
+    0.761,
+    0.541,
+    0.156,
+    0.4823,
+    0.0395,
+    -0.507,
+    0.0,
+    null,
+    1.0
+   ],
+   [
+    "residual-only (e)",
+    0.785,
+    0.518,
+    0.1541,
+    0.4711,
+    0.051,
+    -0.536,
+    0.481,
+    0.092,
+    0.833
+   ],
+   [
+    "combined (o+u+e)",
+    0.809,
+    0.57,
+    0.1468,
+    0.4498,
+    0.0463,
+    -0.561,
+    0.439,
+    0.071,
+    0.838
+   ]
+  ],
+  "by_condition": [
+   [
+    "E1",
+    611,
+    0.226,
+    0.776,
+    0.563,
+    0.105
+   ],
+   [
+    "E2",
+    822,
+    0.208,
+    0.816,
+    0.326,
+    0.049
+   ],
+   [
+    "E3",
+    921,
+    0.265,
+    0.784,
+    0.393,
+    0.069
+   ],
+   [
+    "E4",
+    795,
+    0.299,
+    0.883,
+    0.514,
+    0.059
+   ],
+   [
+    "moving",
+    1027,
+    0.342,
+    0.785,
+    0.385,
+    0.109
+   ],
+   [
+    "hold",
+    783,
+    0.006,
+    0.879,
+    0.728,
+    0.002
+   ]
+  ],
+  "association": {
+   "spearman": -0.561,
+   "ci95_reach_bootstrap": [
+    -0.616,
+    -0.508
+   ]
+  },
+  "switch_detection": {
+   "n": 6,
+   "detected": 6,
+   "median": 0.704,
+   "p90": 1.085
+  },
+  "n_labelled": 3149,
+  "unreliable_share": 0.251
+ },
+ "planning": {
+  "replay": {
+   "delay3/reactive": {
+    "minutes": 3.46,
+    "cycles_per_min": 5.776,
+    "mean_speed": 0.651,
+    "wait_share": 0.239,
+    "fallback_share": 0.0,
+    "fallback_per_min": 0.0,
+    "min_sep_mm": -34.0,
+    "sep_p5_mm": 67.5,
+    "close_while_stopped_share": 0.1711,
+    "violations_per_min": 14.17,
+    "violation_share": 0.0148,
+    "decision_loss": 0.764,
+    "regret": 2.809
+   },
+   "delay3/cv": {
+    "minutes": 3.46,
+    "cycles_per_min": 5.927,
+    "mean_speed": 0.668,
+    "wait_share": 0.269,
+    "fallback_share": 0.0,
+    "fallback_per_min": 0.0,
+    "min_sep_mm": -19.6,
+    "sep_p5_mm": 66.5,
+    "close_while_stopped_share": 0.1991,
+    "violations_per_min": 13.01,
+    "violation_share": 0.0136,
+    "decision_loss": 0.7378,
+    "regret": 2.8838
+   },
+   "delay3/gru": {
+    "minutes": 3.46,
+    "cycles_per_min": 5.248,
+    "mean_speed": 0.591,
+    "wait_share": 0.333,
+    "fallback_share": 0.0,
+    "fallback_per_min": 0.0,
+    "min_sep_mm": -7.5,
+    "sep_p5_mm": 69.3,
+    "close_while_stopped_share": 0.2325,
+    "violations_per_min": 10.7,
+    "violation_share": 0.0111,
+    "decision_loss": 0.7983,
+    "regret": 1.8382
+   },
+   "delay3/mgru": {
+    "minutes": 3.46,
+    "cycles_per_min": 4.128,
+    "mean_speed": 0.465,
+    "wait_share": 0.352,
+    "fallback_share": 0.0,
+    "fallback_per_min": 0.0,
+    "min_sep_mm": -9.4,
+    "sep_p5_mm": 70.0,
+    "close_while_stopped_share": 0.2006,
+    "violations_per_min": 8.39,
+    "violation_share": 0.0087,
+    "decision_loss": 0.8858,
+    "regret": 1.9514
+   },
+   "delay3/sts": {
+    "minutes": 3.46,
+    "cycles_per_min": 4.355,
+    "mean_speed": 0.491,
+    "wait_share": 0.41,
+    "fallback_share": 0.0,
+    "fallback_per_min": 0.0,
+    "min_sep_mm": -11.4,
+    "sep_p5_mm": 63.3,
+    "close_while_stopped_share": 0.1786,
+    "violations_per_min": 18.51,
+    "violation_share": 0.0193,
+    "decision_loss": 1.0997,
+    "regret": 1.8696
+   },
+   "delay3/uncert": {
+    "minutes": 3.46,
+    "cycles_per_min": 3.694,
+    "mean_speed": 0.416,
+    "wait_share": 0.415,
+    "fallback_share": 0.0,
+    "fallback_per_min": 0.0,
+    "min_sep_mm": 20.7,
+    "sep_p5_mm": 70.5,
+    "close_while_stopped_share": 0.1991,
+    "violations_per_min": 2.31,
+    "violation_share": 0.0024,
+    "decision_loss": 0.8394,
+    "regret": 1.6756
+   },
+   "delay3/gate": {
+    "minutes": 3.46,
+    "cycles_per_min": 1.952,
+    "mean_speed": 0.22,
+    "wait_share": 0.693,
+    "fallback_share": 0.565,
+    "fallback_per_min": 32.96,
+    "min_sep_mm": 52.8,
+    "sep_p5_mm": 72.3,
+    "close_while_stopped_share": 0.2386,
+    "violations_per_min": 0.0,
+    "violation_share": 0.0,
+    "decision_loss": 1.1268,
+    "regret": 0.7995
+   },
+   "delay3/full": {
+    "minutes": 3.46,
+    "cycles_per_min": 2.376,
+    "mean_speed": 0.268,
+    "wait_share": 0.666,
+    "fallback_share": 0.565,
+    "fallback_per_min": 32.96,
+    "min_sep_mm": 25.7,
+    "sep_p5_mm": 63.8,
+    "close_while_stopped_share": 0.2256,
+    "violations_per_min": 3.47,
+    "violation_share": 0.0036,
+    "decision_loss": 1.1377,
+    "regret": 0.975
+   },
+   "delay3/full_nofb": {
+    "minutes": 3.46,
+    "cycles_per_min": 4.362,
+    "mean_speed": 0.491,
+    "wait_share": 0.358,
+    "fallback_share": 0.0,
+    "fallback_per_min": 0.0,
+    "min_sep_mm": 19.9,
+    "sep_p5_mm": 70.9,
+    "close_while_stopped_share": 0.2157,
+    "violations_per_min": 4.63,
+    "violation_share": 0.0048,
+    "decision_loss": 0.7838,
+    "regret": 1.7439
+   },
+   "delay3/full2": {
+    "minutes": 3.46,
+    "cycles_per_min": 2.933,
+    "mean_speed": 0.33,
+    "wait_share": 0.634,
+    "fallback_share": 0.49,
+    "fallback_per_min": 25.16,
+    "min_sep_mm": 27.7,
+    "sep_p5_mm": 65.4,
+    "close_while_stopped_share": 0.1801,
+    "violations_per_min": 3.47,
+    "violation_share": 0.0036,
+    "decision_loss": 1.059,
+    "regret": 1.1316
+   },
+   "delay0/reactive": {
+    "minutes": 3.46,
+    "cycles_per_min": 5.803,
+    "mean_speed": 0.654,
+    "wait_share": 0.231,
+    "fallback_share": 0.0,
+    "fallback_per_min": 0.0,
+    "min_sep_mm": 55.4,
+    "sep_p5_mm": 70.7,
+    "close_while_stopped_share": 0.1858,
+    "violations_per_min": 0.0,
+    "violation_share": 0.0,
+    "decision_loss": 0.4616,
+    "regret": 2.223
+   },
+   "delay0/cv": {
+    "minutes": 3.46,
+    "cycles_per_min": 5.859,
+    "mean_speed": 0.66,
+    "wait_share": 0.276,
+    "fallback_share": 0.0,
+    "fallback_per_min": 0.0,
+    "min_sep_mm": 54.7,
+    "sep_p5_mm": 71.1,
+    "close_while_stopped_share": 0.209,
+    "violations_per_min": 0.0,
+    "violation_share": 0.0,
+    "decision_loss": 0.4776,
+    "regret": 2.0931
+   },
+   "delay0/gru": {
+    "minutes": 3.46,
+    "cycles_per_min": 5.497,
+    "mean_speed": 0.619,
+    "wait_share": 0.307,
+    "fallback_share": 0.0,
+    "fallback_per_min": 0.0,
+    "min_sep_mm": 37.6,
+    "sep_p5_mm": 66.2,
+    "close_while_stopped_share": 0.2196,
+    "violations_per_min": 9.25,
+    "violation_share": 0.0096,
+    "decision_loss": 0.7267,
+    "regret": 1.6694
+   },
+   "delay0/mgru": {
+    "minutes": 3.46,
+    "cycles_per_min": 4.444,
+    "mean_speed": 0.501,
+    "wait_share": 0.345,
+    "fallback_share": 0.0,
+    "fallback_per_min": 0.0,
+    "min_sep_mm": 37.5,
+    "sep_p5_mm": 68.9,
+    "close_while_stopped_share": 0.2416,
+    "violations_per_min": 4.34,
+    "violation_share": 0.0045,
+    "decision_loss": 0.762,
+    "regret": 1.6749
+   },
+   "delay0/sts": {
+    "minutes": 3.46,
+    "cycles_per_min": 3.578,
+    "mean_speed": 0.403,
+    "wait_share": 0.526,
+    "fallback_share": 0.0,
+    "fallback_per_min": 0.0,
+    "min_sep_mm": 86.6,
+    "sep_p5_mm": 100.8,
+    "close_while_stopped_share": 0.2015,
+    "violations_per_min": 0.0,
+    "violation_share": 0.0,
+    "decision_loss": 0.8599,
+    "regret": 1.034
+   },
+   "delay0/uncert": {
+    "minutes": 3.46,
+    "cycles_per_min": 4.132,
+    "mean_speed": 0.466,
+    "wait_share": 0.374,
+    "fallback_share": 0.0,
+    "fallback_per_min": 0.0,
+    "min_sep_mm": 45.7,
+    "sep_p5_mm": 69.6,
+    "close_while_stopped_share": 0.1979,
+    "violations_per_min": 0.87,
+    "violation_share": 0.0009,
+    "decision_loss": 0.7398,
+    "regret": 1.3397
+   },
+   "delay0/gate": {
+    "minutes": 3.46,
+    "cycles_per_min": 2.334,
+    "mean_speed": 0.263,
+    "wait_share": 0.667,
+    "fallback_share": 0.566,
+    "fallback_per_min": 32.96,
+    "min_sep_mm": 46.0,
+    "sep_p5_mm": 68.4,
+    "close_while_stopped_share": 0.2449,
+    "violations_per_min": 1.45,
+    "violation_share": 0.0015,
+    "decision_loss": 1.1008,
+    "regret": 0.6501
+   },
+   "delay0/full": {
+    "minutes": 3.46,
+    "cycles_per_min": 2.495,
+    "mean_speed": 0.281,
+    "wait_share": 0.662,
+    "fallback_share": 0.566,
+    "fallback_per_min": 32.96,
+    "min_sep_mm": 31.1,
+    "sep_p5_mm": 63.3,
+    "close_while_stopped_share": 0.2301,
+    "violations_per_min": 5.2,
+    "violation_share": 0.0054,
+    "decision_loss": 1.1584,
+    "regret": 0.7343
+   },
+   "delay0/full_nofb": {
+    "minutes": 3.46,
+    "cycles_per_min": 4.444,
+    "mean_speed": 0.501,
+    "wait_share": 0.369,
+    "fallback_share": 0.0,
+    "fallback_per_min": 0.0,
+    "min_sep_mm": 30.1,
+    "sep_p5_mm": 70.4,
+    "close_while_stopped_share": 0.2208,
+    "violations_per_min": 4.34,
+    "violation_share": 0.0045,
+    "decision_loss": 0.774,
+    "regret": 1.4105
+   },
+   "delay0/full2": {
+    "minutes": 3.46,
+    "cycles_per_min": 3.077,
+    "mean_speed": 0.347,
+    "wait_share": 0.611,
+    "fallback_share": 0.492,
+    "fallback_per_min": 25.16,
+    "min_sep_mm": 27.7,
+    "sep_p5_mm": 63.0,
+    "close_while_stopped_share": 0.1636,
+    "violations_per_min": 7.23,
+    "violation_share": 0.0075,
+    "decision_loss": 1.1092,
+    "regret": 0.8477
+   }
+  },
+  "matched": [
+   [
+    "reactive",
+    2.71,
+    4.01,
+    6.79,
+    10.95
+   ],
+   [
+    "constant velocity",
+    0.0,
+    0.17,
+    1.85,
+    6.49
+   ],
+   [
+    "GRU",
+    0.0,
+    0.7,
+    2.92,
+    8.91
+   ],
+   [
+    "multimodal GRU",
+    0.98,
+    2.96,
+    7.77,
+    34.48
+   ],
+   [
+    "ManiCast-style (STS-GCN)",
+    4.05,
+    8.47,
+    15.88,
+    50.88
+   ],
+   [
+    "uncertainty-only adaptation",
+    0.46,
+    1.12,
+    5.55,
+    ""
+   ],
+   [
+    "reliability-guided (ours)",
+    2.79,
+    4.17,
+    7.06,
+    ""
+   ],
+   [
+    "binary gate",
+    0.07,
+    1.61,
+    4.62,
+    ""
+   ],
+   [
+    "reliability-guided v2 (smoothed, GRU)",
+    2.61,
+    3.39,
+    2.47,
+    5.13
+   ]
+  ]
+ }
+}

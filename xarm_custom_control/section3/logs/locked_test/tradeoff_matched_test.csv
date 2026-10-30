@@ -1,0 +1,10 @@
+method,near_misses_at_2_cycles_per_min,near_misses_at_3_cycles_per_min,near_misses_at_4_cycles_per_min,near_misses_at_5_cycles_per_min
+reactive,2.71,4.01,6.79,10.95
+constant velocity,0.0,0.17,1.85,6.49
+GRU,0.0,0.7,2.92,8.91
+multimodal GRU,0.98,2.96,7.77,34.48
+ManiCast-style (STS-GCN),4.05,8.47,15.88,50.88
+uncertainty-only adaptation,0.46,1.12,5.55,
+reliability-guided (ours),2.79,4.17,7.06,
+binary gate,0.07,1.61,4.62,
+"reliability-guided v2 (smoothed, GRU)",2.61,3.39,2.47,5.13

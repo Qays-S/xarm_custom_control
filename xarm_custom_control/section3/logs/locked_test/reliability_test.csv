@@ -1,0 +1,5 @@
+estimator,AUROC,AUPRC,Brier,log_loss,ECE,spearman_r_vs_loss,trusted_share,FTR,tau
+confidence-only (o),0.609,0.327,0.1836,0.5546,0.0337,-0.217,0.027,0.129,0.869
+uncertainty-only (u),0.761,0.541,0.156,0.4823,0.0395,-0.507,0.0,,1.0
+residual-only (e),0.785,0.518,0.1541,0.4711,0.051,-0.536,0.481,0.092,0.833
+combined (o+u+e),0.809,0.57,0.1468,0.4498,0.0463,-0.561,0.439,0.071,0.838
