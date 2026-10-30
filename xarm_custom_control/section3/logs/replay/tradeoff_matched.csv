@@ -1,0 +1,17 @@
+set,method,near_misses_at_2_cycles_per_min,near_misses_at_3_cycles_per_min,near_misses_at_4_cycles_per_min,near_misses_at_5_cycles_per_min
+val,reactive,1.13,4.74,8.7,12.98
+val,constant velocity,0.13,0.28,0.96,5.46
+val,GRU,0.0,0.27,0.79,4.39
+val,multimodal GRU,1.2,3.42,7.89,22.47
+val,ManiCast-style (STS-GCN),3.09,3.9,11.31,58.24
+val,uncertainty-only adaptation,0.0,0.46,6.6,
+val,reliability-guided (ours),1.09,2.19,5.44,
+val,binary gate,0.0,1.98,5.19,
+E5,reactive,4.06,7.21,9.49,11.73
+E5,constant velocity,5.14,7.0,10.66,15.36
+E5,GRU,5.0,9.26,15.45,32.77
+E5,multimodal GRU,6.08,9.87,21.15,
+E5,ManiCast-style (STS-GCN),18.39,26.38,34.89,48.2
+E5,uncertainty-only adaptation,4.2,9.49,,
+E5,reliability-guided (ours),7.45,14.33,,
+E5,binary gate,6.29,10.54,,

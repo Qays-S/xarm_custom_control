@@ -1,0 +1,109 @@
+method,settings,decision_loss,violations_per_min,cycles_per_min
+reactive,"{""d_fix"": 40.0, ""l_fix"": 2.5}",0.5887,8.4,6.309
+reactive,"{""d_fix"": 40.0, ""l_fix"": 5.5}",0.5132,2.52,5.95
+reactive,"{""d_fix"": 40.0, ""l_fix"": 10.0}",0.4532,0.0,5.797
+reactive,"{""d_fix"": 60.0, ""l_fix"": 2.5}",0.4827,0.0,5.589
+reactive,"{""d_fix"": 60.0, ""l_fix"": 5.5}",0.7025,0.0,4.234
+reactive,"{""d_fix"": 60.0, ""l_fix"": 10.0}",0.7591,0.0,3.938
+reactive,"{""d_fix"": 90.0, ""l_fix"": 2.5}",0.8562,0.0,3.488
+reactive,"{""d_fix"": 90.0, ""l_fix"": 5.5}",0.9831,0.0,2.855
+reactive,"{""d_fix"": 90.0, ""l_fix"": 10.0}",1.0004,0.0,2.775
+reactive,"{""d_fix"": 120.0, ""l_fix"": 2.5}",1.1387,0.0,1.857
+reactive,"{""d_fix"": 120.0, ""l_fix"": 5.5}",1.304,0.0,0.957
+reactive,"{""d_fix"": 120.0, ""l_fix"": 10.0}",1.312,0.0,0.902
+reactive,"{""d_fix"": 180.0, ""l_fix"": 2.5}",1.3933,0.0,0.49
+reactive,"{""d_fix"": 180.0, ""l_fix"": 5.5}",1.3971,0.0,0.474
+reactive,"{""d_fix"": 180.0, ""l_fix"": 10.0}",1.3987,0.0,0.463
+constant velocity,"{""d_fix"": 40.0, ""l_fix"": 2.5}",0.6409,10.08,6.171
+constant velocity,"{""d_fix"": 40.0, ""l_fix"": 5.5}",0.512,1.12,5.75
+constant velocity,"{""d_fix"": 40.0, ""l_fix"": 10.0}",0.5256,0.0,5.483
+constant velocity,"{""d_fix"": 60.0, ""l_fix"": 2.5}",0.5749,0.0,5.183
+constant velocity,"{""d_fix"": 60.0, ""l_fix"": 5.5}",0.7198,0.0,4.291
+constant velocity,"{""d_fix"": 60.0, ""l_fix"": 10.0}",0.7886,0.0,3.873
+constant velocity,"{""d_fix"": 90.0, ""l_fix"": 2.5}",0.9821,0.0,2.861
+constant velocity,"{""d_fix"": 90.0, ""l_fix"": 5.5}",1.0055,0.0,2.768
+constant velocity,"{""d_fix"": 90.0, ""l_fix"": 10.0}",1.0184,0.0,2.669
+constant velocity,"{""d_fix"": 120.0, ""l_fix"": 2.5}",1.1911,0.0,1.587
+constant velocity,"{""d_fix"": 120.0, ""l_fix"": 5.5}",1.3106,0.0,0.969
+constant velocity,"{""d_fix"": 120.0, ""l_fix"": 10.0}",1.3584,0.0,0.701
+constant velocity,"{""d_fix"": 180.0, ""l_fix"": 2.5}",1.3934,0.0,0.52
+constant velocity,"{""d_fix"": 180.0, ""l_fix"": 5.5}",1.3971,0.0,0.504
+constant velocity,"{""d_fix"": 180.0, ""l_fix"": 10.0}",1.3992,0.0,0.494
+GRU,"{""d_fix"": 40.0, ""l_fix"": 2.5}",0.6681,5.04,5.332
+GRU,"{""d_fix"": 40.0, ""l_fix"": 5.5}",0.6806,1.12,4.756
+GRU,"{""d_fix"": 40.0, ""l_fix"": 10.0}",0.7321,0.0,4.244
+GRU,"{""d_fix"": 60.0, ""l_fix"": 2.5}",0.7692,0.0,3.971
+GRU,"{""d_fix"": 60.0, ""l_fix"": 5.5}",0.7893,0.0,3.821
+GRU,"{""d_fix"": 60.0, ""l_fix"": 10.0}",0.9781,0.0,2.815
+GRU,"{""d_fix"": 90.0, ""l_fix"": 2.5}",1.0446,0.0,2.407
+GRU,"{""d_fix"": 90.0, ""l_fix"": 5.5}",1.1502,0.0,1.891
+GRU,"{""d_fix"": 90.0, ""l_fix"": 10.0}",1.2539,0.0,1.285
+GRU,"{""d_fix"": 120.0, ""l_fix"": 2.5}",1.3189,0.0,0.88
+GRU,"{""d_fix"": 120.0, ""l_fix"": 5.5}",1.371,0.0,0.597
+GRU,"{""d_fix"": 120.0, ""l_fix"": 10.0}",1.3785,0.0,0.566
+GRU,"{""d_fix"": 180.0, ""l_fix"": 2.5}",1.3966,0.0,0.472
+GRU,"{""d_fix"": 180.0, ""l_fix"": 5.5}",1.3995,0.0,0.458
+GRU,"{""d_fix"": 180.0, ""l_fix"": 10.0}",1.3981,0.0,0.447
+multimodal GRU,"{""d_fix"": 40.0, ""l_fix"": 2.5}",0.8115,7.0,4.499
+multimodal GRU,"{""d_fix"": 40.0, ""l_fix"": 5.5}",0.9148,0.28,3.173
+multimodal GRU,"{""d_fix"": 40.0, ""l_fix"": 10.0}",0.9721,0.0,2.803
+multimodal GRU,"{""d_fix"": 60.0, ""l_fix"": 2.5}",0.9105,0.0,3.054
+multimodal GRU,"{""d_fix"": 60.0, ""l_fix"": 5.5}",1.0562,0.0,2.31
+multimodal GRU,"{""d_fix"": 60.0, ""l_fix"": 10.0}",1.195,0.0,1.561
+multimodal GRU,"{""d_fix"": 90.0, ""l_fix"": 2.5}",1.1917,0.0,1.425
+multimodal GRU,"{""d_fix"": 90.0, ""l_fix"": 5.5}",1.3427,0.0,0.661
+multimodal GRU,"{""d_fix"": 90.0, ""l_fix"": 10.0}",1.3624,0.0,0.579
+multimodal GRU,"{""d_fix"": 120.0, ""l_fix"": 2.5}",1.3452,0.0,0.595
+multimodal GRU,"{""d_fix"": 120.0, ""l_fix"": 5.5}",1.379,0.0,0.504
+multimodal GRU,"{""d_fix"": 120.0, ""l_fix"": 10.0}",1.3849,0.0,0.48
+multimodal GRU,"{""d_fix"": 180.0, ""l_fix"": 2.5}",1.3871,0.0,0.44
+multimodal GRU,"{""d_fix"": 180.0, ""l_fix"": 5.5}",1.4089,0.0,0.377
+multimodal GRU,"{""d_fix"": 180.0, ""l_fix"": 10.0}",1.4218,0.0,0.332
+ManiCast-style (STS-GCN),"{""d_fix"": 40.0, ""l_fix"": 2.5}",0.8198,14.84,5.63
+ManiCast-style (STS-GCN),"{""d_fix"": 40.0, ""l_fix"": 5.5}",0.5624,1.4,5.503
+ManiCast-style (STS-GCN),"{""d_fix"": 40.0, ""l_fix"": 10.0}",0.5505,0.0,5.397
+ManiCast-style (STS-GCN),"{""d_fix"": 60.0, ""l_fix"": 2.5}",0.5923,0.0,5.086
+ManiCast-style (STS-GCN),"{""d_fix"": 60.0, ""l_fix"": 5.5}",0.6837,0.0,4.508
+ManiCast-style (STS-GCN),"{""d_fix"": 60.0, ""l_fix"": 10.0}",0.7851,0.0,3.919
+ManiCast-style (STS-GCN),"{""d_fix"": 90.0, ""l_fix"": 2.5}",0.8973,0.0,3.331
+ManiCast-style (STS-GCN),"{""d_fix"": 90.0, ""l_fix"": 5.5}",0.9442,0.0,3.083
+ManiCast-style (STS-GCN),"{""d_fix"": 90.0, ""l_fix"": 10.0}",1.0126,0.0,2.733
+ManiCast-style (STS-GCN),"{""d_fix"": 120.0, ""l_fix"": 2.5}",1.1255,0.0,2.048
+ManiCast-style (STS-GCN),"{""d_fix"": 120.0, ""l_fix"": 5.5}",1.2843,0.0,1.142
+ManiCast-style (STS-GCN),"{""d_fix"": 120.0, ""l_fix"": 10.0}",1.3186,0.0,0.94
+ManiCast-style (STS-GCN),"{""d_fix"": 180.0, ""l_fix"": 2.5}",1.3902,0.0,0.515
+ManiCast-style (STS-GCN),"{""d_fix"": 180.0, ""l_fix"": 5.5}",1.3933,0.0,0.503
+ManiCast-style (STS-GCN),"{""d_fix"": 180.0, ""l_fix"": 10.0}",1.3952,0.0,0.492
+uncertainty-only adaptation,"{""d_min"": 40.0, ""dd"": 60.0, ""l_min"": 1.0, ""l_max"": 4.0}",0.8443,7.0,4.294
+uncertainty-only adaptation,"{""d_min"": 40.0, ""dd"": 60.0, ""l_min"": 1.0, ""l_max"": 10.0}",0.7988,0.28,3.786
+uncertainty-only adaptation,"{""d_min"": 40.0, ""dd"": 120.0, ""l_min"": 1.0, ""l_max"": 4.0}",0.7857,0.56,3.837
+uncertainty-only adaptation,"{""d_min"": 40.0, ""dd"": 120.0, ""l_min"": 1.0, ""l_max"": 10.0}",0.9114,0.0,3.064
+uncertainty-only adaptation,"{""d_min"": 60.0, ""dd"": 60.0, ""l_min"": 1.0, ""l_max"": 4.0}",0.8489,0.0,3.364
+uncertainty-only adaptation,"{""d_min"": 60.0, ""dd"": 60.0, ""l_min"": 1.0, ""l_max"": 10.0}",0.988,0.0,2.658
+uncertainty-only adaptation,"{""d_min"": 60.0, ""dd"": 120.0, ""l_min"": 1.0, ""l_max"": 4.0}",0.9743,0.0,2.719
+uncertainty-only adaptation,"{""d_min"": 60.0, ""dd"": 120.0, ""l_min"": 1.0, ""l_max"": 10.0}",1.0881,0.0,2.17
+binary gate,"{""d_fix"": 40.0, ""l_fix"": 1.0}",1.0695,7.84,3.353
+binary gate,"{""d_fix"": 40.0, ""l_fix"": 2.5}",1.0564,0.28,2.36
+binary gate,"{""d_fix"": 40.0, ""l_fix"": 5.5}",1.1721,0.0,1.779
+binary gate,"{""d_fix"": 60.0, ""l_fix"": 1.0}",1.0215,0.56,2.593
+binary gate,"{""d_fix"": 60.0, ""l_fix"": 2.5}",1.1695,0.0,1.713
+binary gate,"{""d_fix"": 60.0, ""l_fix"": 5.5}",1.2733,0.0,1.178
+binary gate,"{""d_fix"": 90.0, ""l_fix"": 1.0}",1.2005,0.0,1.505
+binary gate,"{""d_fix"": 90.0, ""l_fix"": 2.5}",1.3182,0.0,0.83
+binary gate,"{""d_fix"": 90.0, ""l_fix"": 5.5}",1.3731,0.0,0.557
+reliability-guided (ours),"{""d_min"": 40.0, ""dd"": 60.0, ""l_min"": 1.0, ""l_max"": 4.0}",0.978,0.0,2.869
+reliability-guided (ours),"{""d_min"": 40.0, ""dd"": 60.0, ""l_min"": 1.0, ""l_max"": 10.0}",1.0502,0.56,2.48
+reliability-guided (ours),"{""d_min"": 40.0, ""dd"": 120.0, ""l_min"": 1.0, ""l_max"": 4.0}",0.9903,0.0,2.781
+reliability-guided (ours),"{""d_min"": 40.0, ""dd"": 120.0, ""l_min"": 1.0, ""l_max"": 10.0}",1.091,0.84,2.274
+reliability-guided (ours),"{""d_min"": 60.0, ""dd"": 60.0, ""l_min"": 1.0, ""l_max"": 4.0}",1.096,0.28,2.123
+reliability-guided (ours),"{""d_min"": 60.0, ""dd"": 60.0, ""l_min"": 1.0, ""l_max"": 10.0}",1.1465,0.28,1.838
+reliability-guided (ours),"{""d_min"": 60.0, ""dd"": 120.0, ""l_min"": 1.0, ""l_max"": 4.0}",1.1344,0.28,1.901
+reliability-guided (ours),"{""d_min"": 60.0, ""dd"": 120.0, ""l_min"": 1.0, ""l_max"": 10.0}",1.1779,0.28,1.662
+"reliability-guided, no fallback (A11)","{""d_min"": 40.0, ""dd"": 60.0, ""l_min"": 1.0, ""l_max"": 4.0}",0.7839,6.16,4.563
+"reliability-guided, no fallback (A11)","{""d_min"": 40.0, ""dd"": 60.0, ""l_min"": 1.0, ""l_max"": 10.0}",0.7977,0.84,3.829
+"reliability-guided, no fallback (A11)","{""d_min"": 40.0, ""dd"": 120.0, ""l_min"": 1.0, ""l_max"": 4.0}",0.8187,2.24,3.877
+"reliability-guided, no fallback (A11)","{""d_min"": 40.0, ""dd"": 120.0, ""l_min"": 1.0, ""l_max"": 10.0}",0.8772,0.84,3.389
+"reliability-guided, no fallback (A11)","{""d_min"": 60.0, ""dd"": 60.0, ""l_min"": 1.0, ""l_max"": 4.0}",0.8233,0.0,3.536
+"reliability-guided, no fallback (A11)","{""d_min"": 60.0, ""dd"": 60.0, ""l_min"": 1.0, ""l_max"": 10.0}",0.9899,0.28,2.651
+"reliability-guided, no fallback (A11)","{""d_min"": 60.0, ""dd"": 120.0, ""l_min"": 1.0, ""l_max"": 4.0}",0.9521,0.28,2.825
+"reliability-guided, no fallback (A11)","{""d_min"": 60.0, ""dd"": 120.0, ""l_min"": 1.0, ""l_max"": 10.0}",1.0332,0.28,2.414

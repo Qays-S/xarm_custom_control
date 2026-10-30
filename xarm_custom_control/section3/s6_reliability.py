@@ -146,29 +146,33 @@ def main():
     np.savez_compressed(os.path.join(a.out, "features_dev.npz"), **dev)
     np.savez_compressed(os.path.join(a.out, "features_e5.npz"), **e5)
     lab = lambda T: sub(T, ~np.isnan(T["L_future"]))
-    V, C, E = lab(sub(dev, dev["set"] == "val")), lab(sub(dev, dev["set"] == "cal")), lab(e5)
+    Vall = sub(dev, dev["set"] == "val")
+    fall = folds(Vall)                                   # fold of every val row, labelled or not
+    V, C, E = lab(Vall), lab(sub(dev, dev["set"] == "cal")), lab(e5)
     for T in (V, C, E):
         T["z"] = (T["L_future"] <= L_MAX).astype(int)
-    fv = folds(V)
+    fv = fall[~np.isnan(Vall["L_future"])]
     print(f"l_max = {L_MAX} px.  labelled windows: val {len(V['z'])} ({1 - V['z'].mean():.0%} unreliable), "
           f"cal {len(C['z'])} ({1 - C['z'].mean():.0%}), E5 {len(E['z'])} ({1 - E['z'].mean():.0%})")
 
     # ---- step 38: compare estimators on D_val by cross-validation
-    rows, chosen, oof_store = [], {}, {}
+    rows, chosen, oof_store, fold_store = [], {}, {}, {}
     for name, cols in SETS.items():
         best = None
         for kind in ("logistic", "boosted trees"):
-            oof = np.zeros(len(V["z"]))
+            oof, fold_models = np.zeros(len(V["z"])), []
             for k in range(fv.max() + 1):
                 tr, te = fv != k, fv == k
                 mdl = make(kind).fit(X(V, cols)[tr], V["z"][tr])
                 cal = IsotonicRegression(out_of_bounds="clip", y_min=0, y_max=1).fit(
                     mdl.predict_proba(X(C, cols))[:, 1], C["z"])                  # calibrated on D_cal
                 oof[te] = cal.predict(mdl.predict_proba(X(V, cols)[te])[:, 1])
+                fold_models.append((mdl, cal))
             ll = log_loss(V["z"], np.clip(oof, 1e-4, 1 - 1e-4))
             if best is None or ll < best[0]:
-                best = (ll, kind, oof)
+                best = (ll, kind, oof, fold_models)
         chosen[name] = best[1]
+        fold_store[name] = best[3]
         oof_store[name] = best[2]
         mtr = metrics(best[2], V["z"], V["L_future"])
         rows.append(["val (cross-validated)", name, best[1]] + [mtr[k] for k in ("AUROC", "AUPRC", "Brier", "log_loss", "ECE", "spearman_r_vs_loss")])
@@ -234,6 +238,26 @@ def main():
     print(f"\nE4 switches in D_val: {sw['n']}; r_t fell below tau within 1.5 s of the physical onset in {sw['detected']} "
           f"(delay median {sw['median']} s, p90 {sw['p90']} s); on E1 val: {sw['alarms_per_min_E1']} alarms per minute, "
           f"{sw['unneeded_alarms_per_min_E1']} of them unneeded")
+
+    # ---- r_t for EVERY row (labelled or not), for the offline planner replay:
+    #      val rows use the model of their own cross-validation fold (never fitted on them); cal and E5 use the
+    #      final estimator. Saved for the combined and the uncertainty-only estimator.
+    C_all = sub(dev, dev["set"] == "cal")
+    scores = {}
+    for name in ("combined (o+u+e)", "uncertainty-only (u)"):
+        cols = SETS[name]
+        rv_all = np.zeros(len(fall))
+        for k, (mdl_k, cal_k) in enumerate(fold_store[name]):
+            m = fall == k
+            if m.any():
+                rv_all[m] = cal_k.predict(mdl_k.predict_proba(X(Vall, cols)[m])[:, 1])
+        mdl, cal, _, _ = final[name]
+        key = "combined" if name.startswith("combined") else "uncertainty"
+        scores[key] = {"val": rv_all, "cal": cal.predict(mdl.predict_proba(X(C_all, cols))[:, 1]),
+                       "e5": cal.predict(mdl.predict_proba(X(e5, cols))[:, 1])}
+    for setname, T in (("val", Vall), ("cal", C_all), ("e5", e5)):
+        np.savez_compressed(os.path.join(a.out, f"scores_{setname}.npz"), session=T["session"], anchor=T["anchor"],
+                            r_combined=scores["combined"][setname], r_uncertainty=scores["uncertainty"][setname])
 
     pickle.dump({"estimators": {k: (v[0], v[1], v[2], v[3]) for k, v in final.items()}, "l_max_px": L_MAX,
                  "ftr_budget": FTR_BUDGET}, open(os.path.join(a.out, "reliability_model.pkl"), "wb"))

@@ -1,0 +1,37 @@
+set,condition,method,cycles_per_min,violations_per_min,decision_loss,regret
+val,E1,reactive,6.024,0.0,0.4244,3.3872
+val,E2,reactive,5.254,0.0,0.554,2.2298
+val,E3,reactive,5.299,0.0,0.5007,1.3947
+val,E4,reactive,7.022,0.0,0.2808,2.6723
+val,E1,constant velocity,6.017,1.38,0.4769,3.0913
+val,E2,constant velocity,5.191,2.08,0.6152,2.4361
+val,E3,constant velocity,5.268,0.88,0.5784,2.1639
+val,E4,constant velocity,6.933,0.0,0.3136,2.5494
+val,E1,GRU,5.039,5.53,0.7262,1.5232
+val,E2,GRU,4.602,6.25,0.8129,1.1391
+val,E3,GRU,5.266,7.05,0.7103,1.1
+val,E4,GRU,6.641,0.0,0.3638,2.0346
+val,E1,multimodal GRU,4.096,6.92,0.8779,0.638
+val,E2,multimodal GRU,4.378,7.29,0.8544,1.4302
+val,E3,multimodal GRU,4.289,5.28,0.8135,1.4022
+val,E4,multimodal GRU,5.359,9.29,0.6902,1.6052
+val,E1,ManiCast-style (STS-GCN),4.71,0.0,0.6653,0.9835
+val,E2,ManiCast-style (STS-GCN),4.57,0.0,0.7004,1.766
+val,E3,ManiCast-style (STS-GCN),5.387,0.0,0.5321,1.6112
+val,E4,ManiCast-style (STS-GCN),7.126,0.0,0.2766,2.6068
+val,E1,uncertainty-only adaptation,3.674,1.38,0.8455,0.4452
+val,E2,uncertainty-only adaptation,3.389,1.04,0.8802,0.6647
+val,E3,uncertainty-only adaptation,3.457,0.0,0.8229,0.7456
+val,E4,uncertainty-only adaptation,5.141,0.0,0.5515,1.6871
+val,E1,binary gate,2.44,0.0,1.0256,0.3992
+val,E2,binary gate,2.344,2.08,1.1101,0.3141
+val,E3,binary gate,2.176,0.0,1.0805,0.6384
+val,E4,binary gate,3.686,0.0,0.8157,1.2898
+val,E1,reliability-guided (ours),3.479,0.0,0.8898,0.7035
+val,E2,reliability-guided (ours),2.395,0.0,1.061,0.383
+val,E3,reliability-guided (ours),2.172,0.0,1.0823,0.5834
+val,E4,reliability-guided (ours),3.941,0.0,0.7994,1.4121
+val,E1,"reliability-guided, no fallback (A11)",4.224,19.37,1.1142,0.8682
+val,E2,"reliability-guided, no fallback (A11)",4.375,4.16,0.7923,1.1622
+val,E3,"reliability-guided, no fallback (A11)",4.289,1.76,0.7351,1.1956
+val,E4,"reliability-guided, no fallback (A11)",5.543,2.66,0.5297,2.3924
