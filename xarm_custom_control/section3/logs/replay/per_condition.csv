@@ -35,3 +35,7 @@ val,E1,"reliability-guided, no fallback (A11)",4.0,6.92,0.8872,1.0884
 val,E2,"reliability-guided, no fallback (A11)",3.449,3.12,0.9043,1.4074
 val,E3,"reliability-guided, no fallback (A11)",4.08,4.4,0.8229,1.4687
 val,E4,"reliability-guided, no fallback (A11)",5.257,3.98,0.5916,1.8885
+val,E1,"reliability-guided v2 (smoothed, GRU)",2.181,0.0,1.1016,0.8355
+val,E2,"reliability-guided v2 (smoothed, GRU)",2.469,0.0,1.0651,0.682
+val,E3,"reliability-guided v2 (smoothed, GRU)",2.321,0.88,1.1069,1.0512
+val,E4,"reliability-guided v2 (smoothed, GRU)",4.284,0.0,0.7455,2.6239

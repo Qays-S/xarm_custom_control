@@ -50,6 +50,11 @@ Methods (steps 45, 56; single-mode forecasts use pi = 1):
     binary gate         multimodal GRU, smallest margin when trusted, fallback otherwise (A6)
     reliability-guided  multimodal GRU, continuous adaptation to r_t plus fallback (full method)
     reliability, no fallback   the same without the fallback (ablation A11, offline only)
+    reliability-guided v2      one declared revision after the first results (2026-10-30): r_t smoothed by a
+                        causal exponential moving average (time constant 0.25 s) and the deterministic GRU as the
+                        planner's forecast; tau from D_cal for the same 10% budget on the smoothed score.
+                        Success criterion fixed before running: on E5 at 3 cycles/min, fewer near-misses than
+                        both the GRU with a fixed margin and the reactive planner (s7_tradeoff.py).
     Every method gets its own settings, chosen on D_val by the same rule (lowest mean decision loss):
     fixed-margin methods: margin d in {40, 60, 90, 120, 180} mm x risk weight in {2.5, 5.5, 10};
     adaptive methods: d_min in {40, 60}, dd in {60, 120} mm, l_max in {4, 10} (l_min = 1);
@@ -98,6 +103,8 @@ W_G, W_W, W_P = 1.0, 0.5, 20.0
 KAPPA = 0.1               # 1/mm
 LG, LS, LW = 1.0, 0.2, 0.3
 N_HYST = 3
+EMA_TAU_S = 0.25
+EMA_A = 1 - np.exp(-DT / EMA_TAU_S)
 DELAY = 3                 # steps of perception delay (0.19 s); see the docstring
 ORACLE_L, ORACLE_D = 5.5, 60.0   # oracle for regret: realised future, fixed weight and margin
 H_BAND = 200.0            # mm above the table
@@ -235,8 +242,34 @@ def forecasts(prepared, setname, results, manicast_dir, scores_file):
             "pi": pi[sel], "modes": mm(pos[sel]),
             "gru": mm(g[sel]), "cv": mm(cvp[sel]), "reactive": mm(rea[sel]),
             "sts": mm(np.concatenate([sts[sel], np.repeat(sts[sel][:, -1:], 8, 1)], 1)) if sts is not None else None,
-            "r": rr[:, 0], "r_u": rr[:, 1]}
+            "r": rr[:, 0], "r_u": rr[:, 1], "r_s": ema(rr[:, 0])}
     return out
+
+
+def ema(r):
+    """Causal exponential moving average of a score series (missing values hold the last average)."""
+    out, m = np.zeros(len(r)), None
+    for i, v in enumerate(r):
+        if v == v:
+            m = v if m is None else m + EMA_A * (v - m)
+        out[i] = m if m is not None else np.nan
+    return out
+
+
+def tau_smoothed(budget, l_max):
+    """tau on D_cal for the smoothed score (each cal session smoothed in time order)."""
+    from s6_reliability import choose_tau
+    dev = np.load("logs/reliability/features_dev.npz", allow_pickle=True)
+    sc = np.load("logs/reliability/scores_cal.npz", allow_pickle=True)
+    cal = dev["set"] == "cal"
+    L, ses, anc = dev["L_future"][cal], sc["session"], sc["anchor"]
+    rs = np.zeros(len(L))
+    for sname in np.unique(ses):
+        m = np.where(ses == sname)[0]
+        o = m[np.argsort(anc[m])]
+        rs[o] = ema(sc["r_combined"][o])
+    ok = ~np.isnan(L) & ~np.isnan(rs)
+    return choose_tau(rs[ok], (L[ok] <= l_max).astype(int), budget)
 
 
 # ------------------------------------------------------------------ planner
@@ -266,12 +299,13 @@ def simulate(path, F, method, p, delay=None):
     mid_l, mid_d = p.get("l_fix", (p.get("l_min", 1) + p.get("l_max", 1)) / 2), p.get("d_fix", p.get("d_min", 0) + p.get("dd", 0) / 2)
     for i in range(n):
         j = max(0, i - D)                                 # the newest data the planner has at step i
-        r = F["r"][j] if F["r"][j] == F["r"][j] else 0.0
+        rkey = "r_s" if method == "full2" else "r"
+        r = F[rkey][j] if F[rkey][j] == F[rkey][j] else 0.0
         # human positions paired with the arm after 1..K steps: times t .. t+K-1. Forecast methods with a delay
         # take time t from their own forecast; without delay (or for the reactive planner) time t is the
         # newest observation, followed by the forecast.
-        if method in ("reactive", "cv", "gru", "sts"):
-            src, pi = F[method][j][None], np.ones(1)
+        if method in ("reactive", "cv", "gru", "sts", "full2"):
+            src, pi = F["gru" if method == "full2" else method][j][None], np.ones(1)
         else:
             src, pi = F["modes"][j], F["pi"][j]
         if D > 0 and method != "reactive":
@@ -279,14 +313,14 @@ def simulate(path, F, method, p, delay=None):
         else:
             traj, now_in = src[:, D:D + K], F["now"][j]
         lam, dreq = mid_l, mid_d
-        if method in ("full", "full_nofb", "uncert"):
+        if method in ("full", "full_nofb", "uncert", "full2"):
             rr = r if method != "uncert" else (F["r_u"][j] if F["r_u"][j] == F["r_u"][j] else 0.0)
             lam = p["l_min"] + (1 - rr) * (p["l_max"] - p["l_min"])
             dreq = p["d_min"] + (1 - rr) * p["dd"]
         if method == "gate":
             lam, dreq = p["l_fix"], p["d_fix"]
         # fallback with hysteresis (full and gate)
-        if method in ("full", "gate"):
+        if method in ("full", "gate", "full2"):
             low = low + 1 if r < p["tau"] else 0
             high = high + 1 if r >= p["tau"] else 0
             if not fb and low >= N_HYST:
@@ -296,12 +330,12 @@ def simulate(path, F, method, p, delay=None):
             if not F["visible"][j]:
                 fb = True
         ai, _ = choose(path, s, a_prev, pi, traj, lam, dreq, now_in)
-        a = 0.0 if (fb and method in ("full", "gate")) else SPEEDS[ai]
+        a = 0.0 if (fb and method in ("full", "gate", "full2")) else SPEEDS[ai]
         # realised outcome and one-step regret against an oracle that sees the realised future
         sep = float(path.dist(F["now"][i][None], np.array([s]))[0].min()) if np.isfinite(F["now"][i]).all() else np.nan
         _, Jtrue = choose(path, s, a_prev, np.ones(1), F["fut_real"][i][None], ORACLE_L, ORACLE_D, F["now"][i])
         rec["regret"][i] = Jtrue[list(SPEEDS).index(a)] - Jtrue.min()
-        rec["a"][i], rec["sep"][i], rec["fallback"][i], rec["lam"][i], rec["dreq"][i] = a, sep, float(fb and method in ("full", "gate")), lam, dreq
+        rec["a"][i], rec["sep"][i], rec["fallback"][i], rec["lam"][i], rec["dreq"][i] = a, sep, float(fb and method in ("full", "gate", "full2")), lam, dreq
         s += a * V_NOM * DT
         rec["progress"][i] = s
         a_prev = a
@@ -329,7 +363,8 @@ def summarise(recs, path):
 
 METHODS = {"reactive": "reactive", "cv": "constant velocity", "gru": "GRU", "mgru": "multimodal GRU",
            "sts": "ManiCast-style (STS-GCN)", "uncert": "uncertainty-only adaptation", "gate": "binary gate",
-           "full": "reliability-guided (ours)", "full_nofb": "reliability-guided, no fallback (A11)"}
+           "full": "reliability-guided (ours)", "full_nofb": "reliability-guided, no fallback (A11)",
+           "full2": "reliability-guided v2 (smoothed, GRU)"}
 
 FIXED_GRID = [dict(d_fix=d, l_fix=l) for d in (40.0, 60.0, 90.0, 120.0, 180.0) for l in (2.5, 5.5, 10.0)]
 ADAPT_GRID = [dict(d_min=dm, dd=dd, l_min=1.0, l_max=lm) for dm in (40.0, 60.0) for dd in (60.0, 120.0) for lm in (4.0, 10.0)]
@@ -354,6 +389,8 @@ def main():
     os.makedirs(a.out, exist_ok=True)
     rel = json.load(open("logs/reliability/summary.json"))
     tau = rel["tau"]["combined (o+u+e)"]
+    tau2 = tau_smoothed(rel["ftr_budget_on_cal"], rel["l_max_px"])
+    print(f"tau on D_cal (10% false-trust budget): raw score {tau:.3f}, smoothed score (v2) {tau2:.3f}")
 
     path = Path(json.load(open("calib/calib_cam3d.json")))
     print(f"robot path: {path.length / 10:.0f} cm per cycle (pick dot {PICK} -> place dot {PLACE}), "
@@ -366,10 +403,10 @@ def main():
     # ---- step 43: each method's settings on D_val (lowest mean decision loss)
     best, tune = {}, []
     for mth in methods:
-        grid = ADAPT_GRID if mth in ("full", "full_nofb", "uncert") else GATE_GRID if mth == "gate" else FIXED_GRID
+        grid = ADAPT_GRID if mth in ("full", "full_nofb", "uncert", "full2") else GATE_GRID if mth == "gate" else FIXED_GRID
         scored = []
         for g in grid:
-            p = dict(g, tau=tau)
+            p = dict(g, tau=tau2 if mth == "full2" else tau)
             sm = summarise(run_set(path, Fv, mth, p), path)
             scored.append((sm["decision_loss"], p))
             tune.append([METHODS[mth], json.dumps(g), sm["decision_loss"], sm["violations_per_min"], sm["cycles_per_min"]])
@@ -405,7 +442,7 @@ def main():
     for r in rows:
         print(f"{r[0]:<5}{r[1]:<40}{r[2]:>11.2f}{r[3]:>7.2f}{r[4]:>8.2f}{r[6]:>9.1f}{r[7]:>8.1f}{r[8]:>9.2f}{r[9]:>8.3f}{r[10]:>8.3f}")
     json.dump({"delay_steps": DELAY, "delay_s": DELAY * DT, "path": {"pick_dot": PICK, "place_dot": PLACE, "cycle_mm": path.length, "v_nom_mm_s": V_NOM, "ik_ok": path.ik_ok},
-               "chosen_on_val": best, "tau_from_cal": tau, "d_safe_mm": D_SAFE, "loss_weights": [W_G, W_W, W_P],
+               "chosen_on_val": best, "tau_from_cal": tau, "tau_smoothed_from_cal": tau2, "d_safe_mm": D_SAFE, "loss_weights": [W_G, W_W, W_P],
                "results": {f"{k[0]}/{k[1]}": v[1] for k, v in results.items()}},
               open(os.path.join(a.out, "summary.json"), "w"), indent=1)
     pickle.dump({k: v[0] for k, v in results.items()}, open(os.path.join(a.out, "traces.pkl"), "wb"))

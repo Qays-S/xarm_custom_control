@@ -8,8 +8,8 @@ Caution setting swept (everything else as chosen on D_val in s7_replay.py, perce
   fixed-margin planners (reactive, constant velocity, GRU, multimodal GRU, ManiCast-style):
       margin d in {20, 40, 60, 90, 120, 180, 250} mm
   uncertainty-only adaptation: d_min in {20, 40, 60, 90, 120} mm
-  reliability-guided and binary gate: the declared false-trust budget used to set tau on D_cal,
-      in {5, 10, 15, 20, 30}% (tau re-chosen on D_cal for each budget), plus no fallback
+  reliability-guided (v1, v2) and binary gate: the declared false-trust budget used to set tau on D_cal,
+      in {5, 10, 15, 20, 30}% (tau re-chosen on D_cal for each budget; v2 on the smoothed score), plus no fallback
 Near-miss = the arm moves while the planar separation proxy is below 50 mm (s7_replay.py).
 Results on D_val (where the settings were chosen) and E5 (held out). D_test stays locked.
 
@@ -84,6 +84,8 @@ def main():
         for b in BUDGETS:
             runs.append((mth, f"budget={int(b * 100)}%", dict(chosen[mth], tau=taus[b])))
     runs.append(("full", "no fallback", dict(chosen["full"], tau=-1.0)))
+    for b in BUDGETS:
+        runs.append(("full2", f"budget={int(b * 100)}%", dict(chosen["full2"], tau=R.tau_smoothed(b, rel["l_max_px"]))))
 
     rows, curves = [], {}
     for setname, Fs in sets.items():
@@ -113,15 +115,16 @@ def main():
         import matplotlib; matplotlib.use("Agg"); import matplotlib.pyplot as plt
         fig, ax = plt.subplots(1, 2, figsize=(11, 4.2), sharey=False)
         style = {"reactive": ("k", "o"), "cv": ("tab:gray", "v"), "gru": ("tab:blue", "s"), "mgru": ("tab:cyan", "D"),
-                 "sts": ("tab:purple", "^"), "uncert": ("tab:orange", "P"), "gate": ("tab:green", "X"), "full": ("tab:red", "*")}
+                 "sts": ("tab:purple", "^"), "uncert": ("tab:orange", "P"), "gate": ("tab:green", "X"), "full": ("tab:red", "*"),
+                 "full2": ("darkred", "*")}
         for i, setname in enumerate(sets):
             for (sn, mth), pts in curves.items():
                 if sn != setname:
                     continue
                 pts = sorted(pts)
                 c, mk = style[mth]
-                ax[i].plot([p[0] for p in pts], [p[1] for p in pts], marker=mk, color=c, lw=1.2 if mth != "full" else 2.2,
-                           ms=5 if mth != "full" else 9, label=R.METHODS[mth])
+                ax[i].plot([p[0] for p in pts], [p[1] for p in pts], marker=mk, color=c, lw=1.2 if not mth.startswith("full") else 2.2,
+                           ms=5 if not mth.startswith("full") else 9, ls="--" if mth == "full2" else "-", label=R.METHODS[mth])
             ax[i].set(xlabel="pick-and-place cycles per minute (higher is better)", ylabel="near-misses per minute (lower is better)",
                       title=("Validation (settings chosen here)" if setname == "val" else "E5, degraded view (held out)"))
             ax[i].grid(alpha=0.3)

@@ -1,0 +1,7 @@
+Declared 2026-10-30 before running (one change only, agreed with Qays):
+reliability-guided v2 = (1) r_t smoothed by a causal exponential moving average, time constant 0.25 s
+(alpha = 1 - exp(-0.0625/0.25)); (2) planner forecast = deterministic GRU (single mode) instead of the
+multimodal GRU; (3) tau from D_cal for the 10% false-trust budget computed on the smoothed score; settings tuned
+on D_val with the same grid and decision-loss rule; 3-step hysteresis unchanged.
+Success criterion: on E5, at 3 cycles/min (interpolated on the trade-off curve), fewer near-misses per minute
+than both GRU fixed margin (9.26) and reactive (7.21) from the v1 sweep. Otherwise H2 is reported as not supported.

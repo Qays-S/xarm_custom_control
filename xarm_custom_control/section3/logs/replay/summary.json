@@ -59,9 +59,17 @@
    "l_min": 1.0,
    "l_max": 4.0,
    "tau": 0.8384
+  },
+  "full2": {
+   "d_min": 40.0,
+   "dd": 60.0,
+   "l_min": 1.0,
+   "l_max": 4.0,
+   "tau": 0.8091
   }
  },
  "tau_from_cal": 0.8384,
+ "tau_smoothed_from_cal": 0.8091,
  "d_safe_mm": 50.0,
  "loss_weights": [
   1.0,
@@ -204,6 +212,21 @@
    "decision_loss": 0.8091,
    "regret": 1.4637
   },
+  "val/full2": {
+   "minutes": 3.57,
+   "cycles_per_min": 2.746,
+   "mean_speed": 0.309,
+   "wait_share": 0.644,
+   "fallback_share": 0.487,
+   "fallback_per_min": 21.84,
+   "min_sep_mm": 45.1,
+   "sep_p5_mm": 64.6,
+   "close_while_stopped_share": 0.2246,
+   "violations_per_min": 0.28,
+   "violation_share": 0.0003,
+   "decision_loss": 1.0184,
+   "regret": 1.2399
+  },
   "E5/reactive": {
    "minutes": 9.17,
    "cycles_per_min": 5.561,
@@ -338,6 +361,21 @@
    "violation_share": 0.0218,
    "decision_loss": 1.2155,
    "regret": 1.529
+  },
+  "E5/full2": {
+   "minutes": 9.17,
+   "cycles_per_min": 1.728,
+   "mean_speed": 0.195,
+   "wait_share": 0.751,
+   "fallback_share": 0.549,
+   "fallback_per_min": 15.05,
+   "min_sep_mm": -6.3,
+   "sep_p5_mm": 56.8,
+   "close_while_stopped_share": 0.1915,
+   "violations_per_min": 6.54,
+   "violation_share": 0.0068,
+   "decision_loss": 1.3171,
+   "regret": 0.8094
   }
  }
 }

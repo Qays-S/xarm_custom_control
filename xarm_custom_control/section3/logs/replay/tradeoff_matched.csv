@@ -7,6 +7,7 @@ val,ManiCast-style (STS-GCN),3.09,3.9,11.31,58.24
 val,uncertainty-only adaptation,0.0,0.46,6.6,
 val,reliability-guided (ours),1.09,2.19,5.44,
 val,binary gate,0.0,1.98,5.19,
+val,"reliability-guided v2 (smoothed, GRU)",0.45,0.98,2.35,2.71
 E5,reactive,4.06,7.21,9.49,11.73
 E5,constant velocity,5.14,7.0,10.66,15.36
 E5,GRU,5.0,9.26,15.45,32.77
@@ -15,3 +16,4 @@ E5,ManiCast-style (STS-GCN),18.39,26.38,34.89,48.2
 E5,uncertainty-only adaptation,4.2,9.49,,
 E5,reliability-guided (ours),7.45,14.33,,
 E5,binary gate,6.29,10.54,,
+E5,"reliability-guided v2 (smoothed, GRU)",6.5,9.27,,

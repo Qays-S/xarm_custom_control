@@ -50,6 +50,11 @@ val,binary gate,budget=15%,3.604,4.2,0.448,0.23,68.2
 val,binary gate,budget=20%,4.166,5.6,0.349,0.035,66.5
 val,binary gate,budget=30%,4.327,4.76,0.309,0.0,68.8
 val,reliability-guided (ours),no fallback,4.142,4.48,0.365,0.0,67.4
+val,"reliability-guided v2 (smoothed, GRU)",budget=5%,1.504,0.56,0.82,0.756,70.5
+val,"reliability-guided v2 (smoothed, GRU)",budget=10%,2.746,0.28,0.644,0.487,64.6
+val,"reliability-guided v2 (smoothed, GRU)",budget=15%,3.656,2.8,0.519,0.285,68.1
+val,"reliability-guided v2 (smoothed, GRU)",budget=20%,4.723,1.4,0.381,0.027,63.9
+val,"reliability-guided v2 (smoothed, GRU)",budget=30%,5.079,3.08,0.341,0.0,64.2
 E5,reactive,d=20,7.552,123.99,0.051,0.0,25.8
 E5,reactive,d=40,6.631,32.93,0.201,0.0,52.9
 E5,reactive,d=60,5.561,12.98,0.266,0.0,64.2
@@ -101,3 +106,8 @@ E5,binary gate,budget=15%,2.927,10.25,0.494,0.24,61.5
 E5,binary gate,budget=20%,3.479,12.43,0.387,0.106,59.9
 E5,binary gate,budget=30%,3.716,15.59,0.352,0.024,59.6
 E5,reliability-guided (ours),no fallback,3.553,19.19,0.397,0.024,58.8
+E5,"reliability-guided v2 (smoothed, GRU)",budget=5%,1.074,1.53,0.842,0.744,62.8
+E5,"reliability-guided v2 (smoothed, GRU)",budget=10%,1.728,6.54,0.751,0.549,56.8
+E5,"reliability-guided v2 (smoothed, GRU)",budget=15%,2.554,6.43,0.627,0.342,59.7
+E5,"reliability-guided v2 (smoothed, GRU)",budget=20%,3.72,13.85,0.493,0.083,61.6
+E5,"reliability-guided v2 (smoothed, GRU)",budget=30%,3.728,13.96,0.483,0.025,60.0
