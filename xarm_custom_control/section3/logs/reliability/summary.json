@@ -1,0 +1,53 @@
+{
+ "l_max_px": 32.0,
+ "l_max_note": "about 4 cm at the table (1.27 mm/px); fixed on D_val before fitting",
+ "label": "mean ADE of the most likely mode over elbow, wrist and hand for the next 1.0 s <= l_max",
+ "ftr_budget_on_cal": 0.1,
+ "chosen_models": {
+  "confidence-only (o)": "boosted trees",
+  "uncertainty-only (u)": "boosted trees",
+  "residual-only (e)": "boosted trees",
+  "combined (o+u+e)": "boosted trees"
+ },
+ "tau": {
+  "confidence-only (o)": 0.8691,
+  "uncertainty-only (u)": 1.0,
+  "residual-only (e)": 0.8326,
+  "combined (o+u+e)": 0.8384
+ },
+ "association": {
+  "val": {
+   "spearman": -0.565,
+   "ci95_reach_bootstrap": [
+    -0.601,
+    -0.525
+   ]
+  },
+  "E5": {
+   "spearman": -0.338,
+   "ci95_reach_bootstrap": [
+    -0.424,
+    -0.256
+   ]
+  }
+ },
+ "switch_detection": {
+  "n": 6,
+  "detected": 6,
+  "median": 0.417,
+  "p90": 0.907,
+  "alarms_per_min_E1": 70.55,
+  "unneeded_alarms_per_min_E1": 48.41,
+  "note": "alarm = run of steps with r_t < tau; unneeded = the forecast stayed within l_max throughout"
+ },
+ "counts": {
+  "val": 3318,
+  "cal": 3368,
+  "e5": 6646
+ },
+ "unreliable_share": {
+  "val": 0.224,
+  "cal": 0.216,
+  "e5": 0.219
+ }
+}

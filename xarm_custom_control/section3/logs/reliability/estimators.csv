@@ -1,0 +1,14 @@
+data,estimator,model,AUROC,AUPRC,Brier,log_loss,ECE,spearman_r_vs_loss,tau (from cal),trusted_share,FTR
+val (cross-validated),confidence-only (o),boosted trees,0.591,0.285,0.1718,0.5252,0.0243,-0.178,0.869,0.072,0.113
+val (cross-validated),uncertainty-only (u),boosted trees,0.727,0.462,0.1505,0.4723,0.0282,-0.502,1.0,0.0,
+val (cross-validated),residual-only (e),boosted trees,0.761,0.468,0.1484,0.4588,0.0409,-0.511,0.833,0.576,0.111
+val (cross-validated),combined (o+u+e),boosted trees,0.794,0.521,0.1403,0.4365,0.028,-0.565,0.838,0.492,0.075
+val,raw score: detector confidence,-,0.531,0.241,,,,0.012
+val,raw score: between-mode spread,-,0.596,0.286,,,,0.123
+val,raw score: top-mode probability,-,0.576,0.294,,,,0.255
+val,raw score: within-mode spread,-,0.654,0.365,,,,0.53
+val,raw score: 0.25 s residual,-,0.618,0.305,,,,0.33
+E5 (held out),confidence-only (o),boosted trees,0.729,0.419,0.152,0.4739,0.0342,-0.279,0.869,0.218,0.064
+E5 (held out),uncertainty-only (u),boosted trees,0.662,0.457,0.1502,0.4781,0.0266,-0.39,1.0,0.0,
+E5 (held out),residual-only (e),boosted trees,0.767,0.518,0.1374,0.4427,0.0528,-0.495,0.833,0.403,0.094
+E5 (held out),combined (o+u+e),boosted trees,0.719,0.475,0.1473,0.4711,0.0477,-0.338,0.838,0.512,0.121
