@@ -1,23 +1,12 @@
 #!/usr/bin/env python3
 """
-Fit the camera-to-table homography H_CB robustly and report held-out error.
-
-Protocol (matches the paper's Section III):
-  1. Before fitting, a held-out set is reserved (--holdout N points, chosen at random
-     with a fixed --seed, or listed explicitly with --holdout-ids). The split is
-     written to the output so it can be reported and never silently changed.
-  2. H is fitted on the remaining points with RANSAC + DLT refit (outliers are
-     reported, not hidden).
-  3. Headline result: error of that H on the held-out points (mm).
-  4. Secondary: leave-one-out error over every point.
-  5. The deployed H (for pixel_to_world.py) is refitted on all inlier points; the
-     held-out numbers therefore describe a slightly smaller fit and are conservative.
+Fit the camera-to-table homography H robustly and report its error on held-out dots.
 
 Usage
   python3 s3_calib_analyze.py calib_session.json --holdout 4 [--seed 0] [--ransac-mm 10]
   python3 s3_calib_analyze.py calib_session.json --holdout-ids 3 8 14 17
-Writes <session>_analysis/ : calibration_error.csv, summary.json, error_map.png,
-error_ecdf.png, and camera_calibration_s3.json (same keys pixel_to_world.py reads).
+Writes <session>_analysis/: calibration_error.csv, summary.json, error_map.png, error_ecdf.png
+and camera_calibration_s3.json (the file pixel_to_world.py reads).
 """
 import argparse
 import csv
@@ -46,6 +35,8 @@ def main():
     if n < 8:
         raise SystemExit(f"Only {n} points; collect 12-20 so that some can be held out.")
 
+    # 1. Reserve the held-out dots BEFORE fitting (random with a fixed seed, or listed by id).
+    #    The split is saved in summary.json so it can't be changed quietly later.
     if a.holdout_ids:
         hold = np.isin(ids, a.holdout_ids)
         if hold.sum() != len(a.holdout_ids):
@@ -58,13 +49,15 @@ def main():
     if train.sum() < 6:
         raise SystemExit("Fewer than 6 training points left; hold out fewer.")
 
+    # 2. Fit on the rest with RANSAC + refit (outliers are reported, not hidden).
+    # 3. Main result: the error of that fit on the held-out dots (mm).
     h_train, inl = robust_fit(pix[train], world[train], a.ransac_mm, seed=a.seed)
     train_ids = ids[train]
     outliers = train_ids[~inl].tolist()
     e_train = errors_mm(h_train, pix[train][inl], world[train][inl])
     e_hold = errors_mm(h_train, pix[hold], world[hold])
 
-    # leave-one-out over every inlier point (secondary diagnostic)
+    # 4. Leave-one-out over every inlier point (secondary check)
     keep = np.ones(n, bool)
     keep[np.isin(ids, outliers)] = False
     loo = np.full(n, np.nan)
@@ -73,9 +66,12 @@ def main():
         m[i] = False
         loo[i] = errors_mm(fit_homography(pix[m], world[m]), pix[i:i + 1], world[i:i + 1])[0]
 
+    # 5. The H actually used later is refitted on all inliers, so the held-out
+    #    numbers (from a slightly smaller fit) are on the safe side.
     h_all = fit_homography(pix[keep], world[keep])
     e_all = errors_mm(h_all, pix[keep], world[keep])
 
+    # ---- save the per-point table, the summary and the deployed calibration
     out = os.path.splitext(a.session)[0] + "_analysis"
     os.makedirs(out, exist_ok=True)
     with open(os.path.join(out, "calibration_error.csv"), "w", newline="") as f:
@@ -109,6 +105,7 @@ def main():
         "heldout_max_error_mm": summary["error_mm"]["heldout"]["max"],
         "source_session": os.path.basename(a.session)})
 
+    # ---- plots: error at each dot on the table, and the error curve (ECDF)
     try:
         import matplotlib
         matplotlib.use("Agg")
@@ -122,7 +119,8 @@ def main():
                 ax.scatter(world[m, 1], world[m, 0], marker=mk, c=col, label=role)
         e_plot = errors_mm(h_train, pix, world)
         for i in range(n):
-            ax.annotate(f"{e_plot[i]:.1f}", (world[i, 1], world[i, 0]), fontsize=7, xytext=(4, 4), textcoords="offset points")
+            ax.annotate(f"{e_plot[i]:.1f}", (world[i, 1], world[i, 0]), fontsize=7, xytext=(4, 4),
+                        textcoords="offset points")
         ax.set_xlabel("robot Y (mm)"); ax.set_ylabel("robot X (mm)")
         ax.set_title("Calibration points (labels: error of training fit, mm)")
         ax.legend(); ax.set_aspect("equal"); fig.tight_layout()
@@ -138,7 +136,8 @@ def main():
         print("matplotlib not installed; skipped plots")
 
     hs = summary["error_mm"]["heldout"]
-    print(f"Points: {n} ({int(hold.sum())} held out, ids {ids[hold].tolist()}); RANSAC outliers: {outliers or 'none'}")
+    print(f"Points: {n} ({int(hold.sum())} held out, ids {ids[hold].tolist()}); "
+          f"RANSAC outliers: {outliers or 'none'}")
     print(f"HELD-OUT error: mean {hs['mean']:.2f} mm, median {hs['median']:.2f}, max {hs['max']:.2f}")
     lo = summary["error_mm"]["leave_one_out"]
     print(f"Leave-one-out:  mean {lo['mean']:.2f} mm, median {lo['median']:.2f}, max {lo['max']:.2f}")

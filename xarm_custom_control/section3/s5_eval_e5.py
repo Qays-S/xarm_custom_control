@@ -1,30 +1,15 @@
 #!/usr/bin/env python3
 """
-Blueprint E5 (degraded viewing): how much worse do the forecasters get when the camera view is
-degraded? The models are the ones already chosen on D_val; nothing is trained or tuned on E5.
+E5: how much worse the forecasters get when the camera view is degraded.
+Uses the models already chosen on val; nothing is trained or tuned on E5.
 
-Models   current pose, constant velocity (n from baselines_val.json), GRU (gru_best.pt),
-         multimodal GRU, most likely mode (mgru_best.pt, if present),
-         STS-GCN fine-tuned from AMASS (stsgcn_finetuned_best.pt; needs --manicast-dir)
-Sets     val  = the clean validation windows (E1-E4 round 2, first third), as reported before
-         e5   = every E5 window (logs/prepared_e5, made by s5_prepare.py ... --out logs/prepared_e5)
-Windows  the same rule as everywhere else (current pose and future observed), all phases and the
-         moving phase only. E5 has much longer holds than E1-E4 (about 49% vs 24% of windows), which
-         makes "stay where you are" look good overall, so the moving-phase numbers and the within-E5
-         control (none/normal) are the fair comparison.
-Conditions  what was done during the reach (perturb: none / cover / head) and the lighting
-         (normal = room lights at half, dim = all lights off), from reaches.csv.
-Tracking quality per condition: missing rates, how often the right wrist jumps more than 60 px between
-frames (in HEAD reaches mostly a left/right swap with the raised left hand), and the detector's
-confidence at those jumps. In E5 the "truth" is the camera's own detection, so a swap corrupts the
-target too: E5 errors are disagreement with what the camera reports, not true arm error.
+Compares the clean validation windows with every E5 window, overall and while moving, and per
+condition (perturb: none / cover / head; lighting: normal = half, dim = off). In E5 the "truth"
+is the camera's own detection, so a left/right swap corrupts the target too.
 
 Usage
   python3 s5_eval_e5.py --manicast-dir ~/manicast
-Outputs in logs/forecast_results/e5/
-  e5_results.csv      ADE/FDE per model, set, phase (all / moving) and horizon (elbow, wrist)
-  e5_by_condition.csv wrist and hand ADE at 1.0 s per model and E5 condition (moving windows)
-  e5_summary.json     the numbers used in the paper, including the tracking-quality table
+Outputs in logs/forecast_results/e5/: e5_results.csv, e5_by_condition.csv, e5_summary.json
 """
 import argparse
 import csv
@@ -65,7 +50,9 @@ def e5_labels(m, w):
 
 
 def tracking_quality(m, jump_px=60.0):
-    """Per E5 condition, over raw frames between cue and arrival."""
+    """Per E5 condition, over raw frames between cue and arrival: missing rates, how often the right
+    wrist jumps > jump_px between frames (in HEAD reaches mostly a swap with the raised left hand),
+    and the detector's confidence at those jumps vs otherwise."""
     acc = {}
     for name, info in m["sessions"].items():
         d = info["path"]
@@ -123,6 +110,7 @@ class StsGcn:
 
 
 def scores(pred, w, mask):
+    """Elbow and wrist ADE/FDE at each horizon, on the windows selected by mask."""
     out = {}
     for h, k in zip(HZ, KS):
         mk = mask(w, k)
@@ -133,6 +121,8 @@ def scores(pred, w, mask):
 
 
 def moving(w, k):
+    """Scorable windows in the moving phase. E5 has many more holds than E1-E4 (about 49% vs 24%),
+    which flatters "stay where you are", so moving windows are the fair comparison."""
     return eval_mask(w, k) & (w["phase"] == "moving")
 
 
@@ -154,6 +144,7 @@ def main():
         w["reach"] = np.concatenate([s[n]["reach"][w["anchor"][w["session"] == n]] for n in m["sessions"]
                                      if (w["session"] == n).any()])
 
+    # ---- load the frozen models (all chosen on val earlier)
     cvn = json.load(open(os.path.join(a.results, "baselines_val.json")))["cv_window_chosen"]
     gcfg = json.load(open(os.path.join(a.results, "gru", "gru_best.json")))
     gru = GRUForecaster(gcfg["n_in"], gcfg["config"]["hidden"], gcfg["config"]["layers"], gcfg["K"])
@@ -170,6 +161,7 @@ def main():
     else:
         print(f"(ManiCast not found in {a.manicast_dir}: STS-GCN is skipped)")
 
+    # ---- forecasts of every model on both sets
     preds = {}
     for sn, (m, s, w) in sets.items():
         x, cur = features(w)
@@ -182,9 +174,11 @@ def main():
             p["STS-GCN fine-tuned"] = sts.run(m, s, sn, w)
         preds[sn] = p
 
+    # ---- scores per set and phase
     summary = {"note": "ADE in px of the 1280x720 image; wrist = right wrist. In E5 the 'truth' is the camera's "
                        "own (degraded) detection, so errors mix forecast error and detection error.",
-               "phase_share": {sn: {ph: round(float((w["phase"] == ph).mean()), 3) for ph in ("cued", "moving", "hold")}
+               "phase_share": {sn: {ph: round(float((w["phase"] == ph).mean()), 3)
+                                    for ph in ("cued", "moving", "hold")}
                                for sn, (_, _, w) in sets.items()},
                "sets": {}}
     rows = []
@@ -194,7 +188,8 @@ def main():
         for ph, fn in (("all", eval_mask), ("moving", moving)):
             for model, pa in preds[sn].items():
                 r = scores(pa, w, fn)
-                print(f"{model:<28}{sn:<5}{ph:<8}" + "".join(f"{r[h]['wrist']:>9.1f}" for h in HZ) + f"{r[1.0]['n']:>11}")
+                print(f"{model:<28}{sn:<5}{ph:<8}" + "".join(f"{r[h]['wrist']:>9.1f}" for h in HZ)
+                      + f"{r[1.0]['n']:>11}")
                 for h in HZ:
                     rows.append([sn, ph, model, h, r[h]["n"]] + [round(r[h][q], 2) for q in
                                                                 ("elbow", "wrist", "elbow_fde", "wrist_fde")])
@@ -206,6 +201,7 @@ def main():
                      "elbow_fde_px", "wrist_fde_px"])
         cw.writerows(rows)
 
+    # ---- E5 tracking quality and errors per condition
     m, s, w = sets["e5"]
     pert, light = e5_labels(m, w)
     cn = [f"{p_}/{l_}" for p_, l_ in CONDS]
@@ -214,8 +210,10 @@ def main():
     print("\nE5 tracking quality per condition (raw frames during reaches, right wrist / hand)")
     print(f"{'':<28}" + "".join(f"{c:>14}" for c in cn))
     for key, lab, fmt in (("frames", "frames", "{:>14}"), ("wrist_missing", "wrist missing %", "{:>14.0f}"),
-                          ("hand_missing", "hand missing %", "{:>14.0f}"), ("wrist_jumps", "wrist jumps > 60 px %", "{:>14.1f}"),
-                          ("conf_at_jumps", "confidence at jumps", "{:>14.2f}"), ("conf_steady", "confidence otherwise", "{:>14.2f}")):
+                          ("hand_missing", "hand missing %", "{:>14.0f}"),
+                          ("wrist_jumps", "wrist jumps > 60 px %", "{:>14.1f}"),
+                          ("conf_at_jumps", "confidence at jumps", "{:>14.2f}"),
+                          ("conf_steady", "confidence otherwise", "{:>14.2f}")):
         print(f"{lab:<28}" + "".join(fmt.format(q[c][key]) if q[c][key] == q[c][key] else f"{'-':>14}" for c in cn))
 
     print("\nE5 by condition, MOVING windows: ADE (px) at 1.0 s, right wrist [hand]")

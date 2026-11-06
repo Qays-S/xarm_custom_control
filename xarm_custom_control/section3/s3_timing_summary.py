@@ -1,19 +1,8 @@
 #!/usr/bin/env python3
 """
-Blueprint step 17, the timing and jitter part: camera timing, detection time, keypoint jitter
-and the end-to-end perception latency, from recordings that already exist plus one latency test.
+Step 17 (timing): frame rate, detection time, keypoint jitter and the end-to-end perception delay,
+from the existing E1-E4 recordings plus one s3_latency_test.py run.
 
-From the E1-E4 recordings (no new recording needed):
-  * frame interval and frame rate (time between frame captures)
-  * camera read time (t_read_end - t_read_start) and detection time (t_detect_end - t_read_end,
-    MediaPipe Pose + Hands on the 640-wide copy)
-  * keypoint jitter: while the hand rests on a target in E1 ('hold' phase, at least 10 frames),
-    the RMS distance of each keypoint from its mean position in that hold. This includes the
-    small real movements of a resting hand, so it is an upper bound on detector jitter.
-From the latency test (s3_latency_test.py):
-  * camera latency: screen flip -> first frame that shows it (includes the screen's refresh)
-From the forecasting results:
-  * forecast time per window (GRU and STS-GCN, one CPU thread)
 End-to-end estimate = camera latency + detection time + forecast time (medians, and p95s).
 
 Usage
@@ -30,6 +19,7 @@ KP = ["shoulder", "elbow", "wrist", "hand", "tip"]
 
 
 def fnum(x):
+    """float(x), or NaN for blanks."""
     try:
         return float(x)
     except (TypeError, ValueError):
@@ -37,6 +27,7 @@ def fnum(x):
 
 
 def stats(a):
+    """median / p95 / mean / max of the non-NaN values."""
     a = np.asarray([x for x in a if x == x], float)
     return {"n": int(len(a)), "median": round(float(np.median(a)), 2), "p95": round(float(np.percentile(a, 95)), 2),
             "mean": round(float(a.mean()), 2), "max": round(float(a.max()), 2)} if len(a) else {"n": 0}
@@ -55,9 +46,11 @@ def main():
     interval, read, detect, jit, fails, nframes = [], [], [], {k: [] for k in KP}, 0, 0
     for d in a.sessions:
         fr = [r for r in csv.DictReader(open(os.path.join(d, "frames.csv"))) if r.get("phase", "") != "setup"]
-        ev = list(csv.DictReader(open(os.path.join(d, "events.csv")))) if os.path.exists(os.path.join(d, "events.csv")) else []
+        ev = (list(csv.DictReader(open(os.path.join(d, "events.csv"))))
+              if os.path.exists(os.path.join(d, "events.csv")) else [])
         fails += sum(e["event"] == "read_failed" for e in ev)
         nframes += len(fr)
+        # frame interval, camera read time and detection time (MediaPipe on the 640-wide copy), in ms
         tr = np.array([fnum(r["t_read_end"]) for r in fr])
         interval += list(np.diff(tr) * 1000)
         read += list((tr - np.array([fnum(r["t_read_start"]) for r in fr])) * 1000)
@@ -65,6 +58,8 @@ def main():
         meta = json.load(open(os.path.join(d, "meta.json")))
         if meta.get("mode") != "E1":
             continue
+        # Jitter (E1 only): while the hand rests on a target ('hold', >= 10 frames), the RMS
+        # distance of each keypoint from its mean. Includes real small movements, so an upper bound.
         ph = [r.get("phase", "") for r in fr]
         i = 0
         while i < len(ph):
@@ -88,12 +83,14 @@ def main():
            "frame_interval_ms": stats(interval), "fps_from_median_interval": round(1000 / np.median(interval), 2),
            "camera_read_ms": stats(read), "detection_ms": stats(detect),
            "jitter_rms_px_during_holds": {k: stats(v) for k, v in jit.items() if v}}
+    # camera latency from the screen-flip test
     cam = None
     if a.latency:
         cam = json.load(open(os.path.join(a.latency, "summary.json")))
         lat = [fnum(r["latency_ms"]) for r in csv.DictReader(open(os.path.join(a.latency, "flips.csv")))]
         out["camera_latency_ms"] = stats(lat)
         out["camera_latency_note"] = "screen flip to first camera frame showing it; includes the screen's refresh"
+    # forecast time per window (GRU and STS-GCN, one CPU thread), from the forecasting results
     fc = {}
     for name, path in (("GRU", "gru/gru_inference_time.json"), ("STS-GCN", "stsgcn/stsgcn_inference_time.json")):
         p = os.path.join(a.results, path)
@@ -103,12 +100,14 @@ def main():
     if cam is not None:
         for name, t in fc.items():
             out[f"end_to_end_ms_{name}"] = {
-                "median": round(out["camera_latency_ms"]["median"] + out["detection_ms"]["median"] + t["median_ms"], 1),
+                "median": round(out["camera_latency_ms"]["median"] + out["detection_ms"]["median"]
+                                + t["median_ms"], 1),
                 "p95_sum": round(out["camera_latency_ms"]["p95"] + out["detection_ms"]["p95"] + t["p95_ms"], 1)}
     json.dump(out, open(os.path.join(a.out, "timing_summary.json"), "w"), indent=2)
 
     print(f"{nframes} frames, {fails} camera read failures")
-    print(f"frame interval   median {out['frame_interval_ms']['median']:.1f} ms (p95 {out['frame_interval_ms']['p95']:.1f})  -> {out['fps_from_median_interval']} fps")
+    print(f"frame interval   median {out['frame_interval_ms']['median']:.1f} ms "
+          f"(p95 {out['frame_interval_ms']['p95']:.1f})  -> {out['fps_from_median_interval']} fps")
     print(f"camera read      median {out['camera_read_ms']['median']:.1f} ms (p95 {out['camera_read_ms']['p95']:.1f})")
     print(f"detection        median {out['detection_ms']['median']:.1f} ms (p95 {out['detection_ms']['p95']:.1f})")
     if cam is not None:

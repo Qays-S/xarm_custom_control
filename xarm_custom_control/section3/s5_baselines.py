@@ -1,13 +1,11 @@
 #!/usr/bin/env python3
 """
-Blueprint Section V, step 28 (first half): non-learned baselines, scored on D_val only.
+Step 28 (first half): the two non-learned baselines, scored on the validation set only.
 
-  current pose      the arm stays where it is now (the reference every forecaster must beat)
-  constant velocity the arm keeps the velocity of the last n steps; n is chosen on D_val
+  current pose       the arm stays where it is now (every forecaster must beat this)
+  constant velocity  the arm keeps the velocity of the last n steps (n chosen on val)
 
-Scores are ADE and FDE in pixels of the 1280x720 image, at 0.25, 0.5, 1.0 and 1.5 s, for the
-elbow, wrist and hand and their mean. Every model is scored on the same windows: those whose
-current pose and whole future up to that horizon were observed. The test set is not touched.
+ADE/FDE in pixels of the 1280x720 image at 0.25, 0.5, 1.0 and 1.5 s. The test set is not touched.
 
 Usage
   python3 s5_baselines.py                 # after s5_prepare.py
@@ -25,6 +23,7 @@ from s5_data import FORECAST_KP, HORIZONS_S, ade_fde_px, eval_mask, load, window
 
 
 def current_pose(w, K):
+    """Repeat the last seen pose for all K future steps."""
     return np.repeat(w["hist"][:, -1:], K, axis=1)
 
 
@@ -44,6 +43,7 @@ def const_vel(w, K, n):
 
 
 def score(pred, w, ks):
+    """ADE/FDE at each horizon, on the windows whose current pose and future were observed."""
     rows = {}
     for k in ks:
         m = eval_mask(w, k)
@@ -61,7 +61,7 @@ def main():
     os.makedirs(a.out, exist_ok=True)
     m, sess = load(a.prepared)
     dt = m["dt"]
-    ks = [round(h / dt) for h in HORIZONS_S]
+    ks = [round(h / dt) for h in HORIZONS_S]      # horizons in steps
     K = max(ks)
     w = windows(m, sess, a.set)
     print(f"{a.set}: {len(w['cond'])} windows, dt {dt} s, horizons {HORIZONS_S} s = {ks} steps\n")
@@ -75,22 +75,26 @@ def main():
     print("constant velocity, mean ADE (px) by velocity window n: "
           + ", ".join(f"n={n}: {v:.1f}" for n, v in cand.items()) + f"  -> n = {best}\n")
 
-    models = {"current pose": lambda: current_pose(w, K), f"constant velocity (n={best})": lambda: const_vel(w, K, best)}
+    models = {"current pose": lambda: current_pose(w, K),
+              f"constant velocity (n={best})": lambda: const_vel(w, K, best)}
     results, timing = {}, {}
     for name, f in models.items():
         t0 = time.perf_counter()
         p = f()
-        timing[name] = (time.perf_counter() - t0) / len(p) * 1e6
+        timing[name] = (time.perf_counter() - t0) / len(p) * 1e6      # microseconds per window
         results[name] = (p, score(p, w, ks))
 
-    hdr = f"{'model':<28}{'horizon':>8}{'n':>7}" + "".join(f"{k + ' ADE':>12}" for k in FORECAST_KP) + f"{'mean ADE':>10}{'mean FDE':>10}"
+    hdr = (f"{'model':<28}{'horizon':>8}{'n':>7}" + "".join(f"{k + ' ADE':>12}" for k in FORECAST_KP)
+           + f"{'mean ADE':>10}{'mean FDE':>10}")
     print(hdr)
     rows = []
     for name, (_, r) in results.items():
         for h, k in zip(HORIZONS_S, ks):
             x = r[k]
-            print(f"{name:<28}{h:>7}s{x['n']:>7}" + "".join(f"{v:>12.1f}" for v in x["ade"]) + f"{x['ade_all']:>10.1f}{x['fde_all']:>10.1f}")
-            rows.append([a.set, name, h, x["n"]] + [round(float(v), 2) for v in x["ade"]] + [round(float(v), 2) for v in x["fde"]]
+            print(f"{name:<28}{h:>7}s{x['n']:>7}" + "".join(f"{v:>12.1f}" for v in x["ade"])
+                  + f"{x['ade_all']:>10.1f}{x['fde_all']:>10.1f}")
+            rows.append([a.set, name, h, x["n"]] + [round(float(v), 2) for v in x["ade"]]
+                        + [round(float(v), 2) for v in x["fde"]]
                         + [round(float(x["ade_all"]), 2), round(float(x["fde_all"]), 2)])
     # by condition and by phase, hand only, 1.0 s
     k1 = ks[HORIZONS_S.index(1.0)]

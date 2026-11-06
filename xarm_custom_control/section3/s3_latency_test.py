@@ -1,22 +1,12 @@
 #!/usr/bin/env python3
 """
-Camera latency ("glass-to-glass") test for the end-to-end perception latency.
+Camera latency ("glass-to-glass") test: how long until the camera sees a change on the screen.
 
-The laptop screen flips a window between black and white at random intervals while
-the camera watches the screen. Latency = time the first camera frame shows the new
-brightness - time the screen was told to flip. This includes the screen's own refresh
-delay, so it is a slight over-estimate (state that in the paper). Adding the
-detector's processing time from s3_perception_analyze.py gives the end-to-end
-perception latency (event in the world -> keypoints available).
-
-IMPORTANT: never move the calibrated camera to do this. Bring the laptop screen into the
-camera's view instead (e.g. lay the laptop on the table under the camera with the lid opened
-back so the screen faces up), without touching the camera or its tripod. Use the same
-resolution / camera settings as for recording.
-
-Aiming: the window shows the live camera view. Click two opposite corners of the laptop
-screen as it appears in that view (r = redo), then press SPACE. The window goes full screen
-and flips between black and white; only the area you marked is measured.
+The laptop screen flips between black and white at random times while the camera watches it.
+Latency = first camera frame showing the new brightness - time the screen was told to flip
+(includes the screen's own refresh, so it is slightly high). Never move the calibrated camera:
+put the laptop under it, screen facing up. Click two opposite corners of the screen in the
+live view (r = redo), then SPACE.
 
 Usage
   python3 s3_latency_test.py --out logs/latency01 [--camera 0] [--flips 40]
@@ -52,7 +42,7 @@ class Grabber(threading.Thread):
             t = time.monotonic()
             if ok:
                 self.last = f
-                if self.record:
+                if self.record:   # store (time, mean brightness inside the marked screen area)
                     g = cv2.cvtColor(f, cv2.COLOR_BGR2GRAY)
                     h, w = g.shape
                     x0, y0, x1, y1 = self.roi or (w // 4, h // 4, 3 * w // 4, 3 * h // 4)
@@ -107,6 +97,8 @@ def main():
     g.roi = (x0 + dx, y0 + dy, x1 - dx, y1 - dy)
     snap = g.last.copy(); cv2.rectangle(snap, g.roi[:2], g.roi[2:], (0, 0, 255), 2)
     cv2.imwrite(os.path.join(a.out, "roi.png"), snap)
+
+    # ---- flipping phase: full-screen black/white, log when each flip was shown
     cv2.setWindowProperty(win, cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
     white = np.full((720, 1280, 3), 255, np.uint8)
     black = np.zeros_like(white)
@@ -129,6 +121,7 @@ def main():
     cv2.destroyAllWindows()
     cap.release()
 
+    # ---- save and summarise
     with open(os.path.join(a.out, "frames.csv"), "w", newline="") as f:
         w = csv.writer(f); w.writerow(["t_frame", "roi_brightness"]); w.writerows(g.rows)
     lat = analyse(flips, g.rows)
@@ -141,7 +134,8 @@ def main():
                "latency_ms": {} if not len(good) else {
                    "mean": float(good.mean()), "median": float(np.median(good)),
                    "p95": float(np.percentile(good, 95)), "min": float(good.min()), "max": float(good.max())},
-               "camera_fps_measured": float(1 / np.median(np.diff([r[0] for r in g.rows]))) if len(g.rows) > 2 else None,
+               "camera_fps_measured": float(1 / np.median(np.diff([r[0] for r in g.rows])))
+               if len(g.rows) > 2 else None,
                "roi": list(map(int, g.roi)),
                "note": "camera + screen latency (upper bound for the camera's share)"}
     json.dump(summary, open(os.path.join(a.out, "summary.json"), "w"), indent=2)
@@ -153,7 +147,7 @@ def analyse(flips, rows):
     if len(rows) < 10:
         return [None] * len(flips)
     t = np.array([r[0] for r in rows]); b = np.array([r[1] for r in rows])
-    lo, hi = np.percentile(b, 5), np.percentile(b, 95)
+    lo, hi = np.percentile(b, 5), np.percentile(b, 95)     # the black and white levels
     if hi - lo < 20:
         print("Brightness barely changes: is the camera looking at the window?")
         return [None] * len(flips)
@@ -161,7 +155,7 @@ def analyse(flips, rows):
     out = []
     for i, (ts, to) in enumerate(flips):
         t_next = flips[i + 1][0] if i + 1 < len(flips) else ts + 1.5
-        m = (t > ts) & (t < t_next)
+        m = (t > ts) & (t < t_next)                          # frames between this flip and the next
         hit = np.flatnonzero((b[m] > mid) if to == "white" else (b[m] < mid))
         out.append(None if not len(hit) else float((t[m][hit[0]] - ts) * 1000))
     return out

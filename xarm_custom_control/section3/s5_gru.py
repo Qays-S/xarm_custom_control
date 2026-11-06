@@ -1,32 +1,14 @@
 #!/usr/bin/env python3
 """
-Blueprint Section V, step 28 (second half) and step 31: deterministic GRU forecaster.
+Steps 28 and 31: the deterministic GRU forecaster, tuned on the validation set only.
 
-Input per history step (L = 16 steps = 1.0 s), for elbow, wrist and hand:
-  * position relative to the current position (u, v), in normalised image units
-  * the current absolute position (so the model knows where on the table the arm is)
-  * detector confidence c_t and missingness m_t
-Missing history steps are filled with the last observed value (their m_t = 1 tells the model).
-Robot state x_r is left out (the robot was parked in E1-E4), and so is the on-screen goal:
-a robot would not normally know the person's goal, and in E4 it would give away the switch.
-
-Output: the displacement from the current position for all K = 24 future steps (1.5 s),
+Takes 1.0 s of elbow, wrist and hand history and predicts the next 1.5 s (24 steps) at once,
 so one model gives the 0.25, 0.5, 1.0 and 1.5 s forecasts.
-Loss: mean squared error in pixels on future steps that were observed.
-
-Tuning (step 31) uses D_val only: a small grid of hidden size and layers, early stopping on
-val ADE. The test and calibration sets are not touched.
-
-Outputs in logs/forecast_results/gru/
-  learning_curve_<cfg>.csv   train loss and val ADE per epoch, for every config
-  search.csv                 best val ADE per config
-  gru_best.pt, gru_best.json the chosen model and its settings
-  gru_val.csv                ADE/FDE per horizon (same format as baselines_val.csv)
-  learning_curves.png        (if matplotlib is installed)
 
 Usage
   python3 s5_gru.py                    # grid search, about 5-15 min on a laptop CPU
   python3 s5_gru.py --quick            # one small config, for a quick check
+Outputs in logs/forecast_results/gru/: learning curves, search.csv, gru_best.pt/.json, gru_val.csv
 """
 import argparse
 import csv
@@ -40,7 +22,7 @@ import torch.nn as nn
 
 from s5_data import FORECAST_KP, HORIZONS_S, ade_fde_px, eval_mask, load, windows
 
-SIZE = np.array([1280.0, 720.0])
+SIZE = np.array([1280.0, 720.0])        # image size, to turn normalised units into pixels
 
 
 def ffill(h, miss):
@@ -62,6 +44,10 @@ def ffill(h, miss):
 
 
 def features(w):
+    """Model input per history step: position relative to now (px / 100), the current absolute
+    position (where on the table the arm is), detector confidence and missing flags.
+    The robot state and the on-screen goal are left out: the robot was parked, and a robot
+    would not know the person's goal (in E4 it would give away the switch)."""
     h = ffill(w["hist"], w["hmiss"])                     # (N,L,3,2)
     cur = h[:, -1:]                                      # (N,1,3,2)
     rel = (h - cur) * SIZE / 100.0                       # pixels / 100
@@ -72,12 +58,15 @@ def features(w):
 
 
 def targets(w, cur):
+    """Training target: future displacement from now (px / 100), and a mask of observed steps."""
     d = (w["fut"] - cur[:, None]) * SIZE / 100.0         # (N,K,3,2) pixels / 100
     m = (w["fmiss"] == 0)[..., None].repeat(2, -1)
     return np.nan_to_num(d).astype(np.float32), m.astype(np.float32)
 
 
 class GRUForecaster(nn.Module):
+    """GRU over the history, then a small MLP that outputs all K future steps for the J keypoints."""
+
     def __init__(self, n_in, hidden, layers, K, J=3, dropout=0.1):
         super().__init__()
         self.K, self.J = K, J
@@ -90,6 +79,7 @@ class GRUForecaster(nn.Module):
 
 
 def predict(model, x, cur, bs=2048):
+    """Run the model in batches and turn its displacements back into normalised positions."""
     model.eval()
     out = []
     with torch.no_grad():
@@ -100,6 +90,7 @@ def predict(model, x, cur, bs=2048):
 
 
 def val_ade(pred, w, ks):
+    """Mean ADE (px) over the horizons; this is what model selection uses."""
     r = []
     for k in ks:
         m = eval_mask(w, k)
@@ -109,6 +100,7 @@ def val_ade(pred, w, ks):
 
 
 def train_one(cfg, data, ks, seed, max_epochs, patience, log_path):
+    """Train one config with early stopping on val ADE; return the best model and its curve."""
     torch.manual_seed(seed); np.random.seed(seed)
     xtr, ytr, mtr, wv, xv, cv = data
     model = GRUForecaster(xtr.shape[-1], cfg["hidden"], cfg["layers"], ytr.shape[1])
@@ -122,14 +114,14 @@ def train_one(cfg, data, ks, seed, max_epochs, patience, log_path):
         for i in range(0, len(X), cfg["batch"]):
             b = perm[i:i + cfg["batch"]]
             p = model(X[b])
-            loss = (((p - Y[b]) ** 2) * M[b]).sum() / M[b].sum().clamp(min=1)
+            loss = (((p - Y[b]) ** 2) * M[b]).sum() / M[b].sum().clamp(min=1)   # MSE on observed steps only
             opt.zero_grad(); loss.backward()
             nn.utils.clip_grad_norm_(model.parameters(), 1.0)
             opt.step()
             tot += loss.item() * len(b)
         v = val_ade(predict(model, xv, cv), wv, ks)
         curve.append((ep, tot / len(X), v))
-        if v < best - 1e-3:
+        if v < best - 1e-3:            # improved: keep this state; else count towards patience
             best, bad = v, 0
             best_state = {k: t.clone() for k, t in model.state_dict().items()}
         else:
@@ -137,7 +129,8 @@ def train_one(cfg, data, ks, seed, max_epochs, patience, log_path):
             if bad >= patience:
                 break
     with open(log_path, "w", newline="") as f:
-        cw = csv.writer(f); cw.writerow(["epoch", "train_mse_px2_per_1e4", "val_mean_ade_px"]); cw.writerows(curve)
+        cw = csv.writer(f); cw.writerow(["epoch", "train_mse_px2_per_1e4", "val_mean_ade_px"])
+        cw.writerows(curve)
     model.load_state_dict(best_state)
     return model, best, curve
 
@@ -162,8 +155,10 @@ def main():
     xtr, ctr = features(wt); ytr, mtr = targets(wt, ctr)
     xv, cv = features(wv)
     data = (xtr, ytr, mtr, wv, xv, cv)
-    print(f"train {len(xtr)} windows, val {len(xv)} windows, input {xtr.shape[-1]} features x {xtr.shape[1]} steps")
+    print(f"train {len(xtr)} windows, val {len(xv)} windows, "
+          f"input {xtr.shape[-1]} features x {xtr.shape[1]} steps")
 
+    # small grid: hidden 64/128, 1-2 layers, two learning rates (8 configs)
     grid = [dict(hidden=64, layers=1, lr=2e-3, batch=256)] if a.quick else \
         [dict(hidden=h, layers=l, lr=lr, batch=256) for h in (64, 128) for l in (1, 2) for lr in (1e-3, 3e-3)]
     results = []
@@ -187,14 +182,17 @@ def main():
 
     # ---- val report, same layout as s5_baselines.py
     p = predict(model, xv, cv)
-    print(f"\n{'model':<28}{'horizon':>8}{'n':>7}" + "".join(f"{k + ' ADE':>12}" for k in FORECAST_KP) + f"{'mean ADE':>10}{'mean FDE':>10}")
+    print(f"\n{'model':<28}{'horizon':>8}{'n':>7}" + "".join(f"{k + ' ADE':>12}" for k in FORECAST_KP)
+          + f"{'mean ADE':>10}{'mean FDE':>10}")
     rows = []
     for h, k in zip(HORIZONS_S, ks):
         msk = eval_mask(wv, k)
         ad, fd = ade_fde_px(p[msk], {"fut": wv["fut"][msk]}, k)
-        print(f"{'GRU':<28}{h:>7}s{msk.sum():>7}" + "".join(f"{v:>12.1f}" for v in ad.mean(0)) + f"{ad.mean():>10.1f}{fd.mean():>10.1f}")
+        print(f"{'GRU':<28}{h:>7}s{msk.sum():>7}" + "".join(f"{v:>12.1f}" for v in ad.mean(0))
+              + f"{ad.mean():>10.1f}{fd.mean():>10.1f}")
         rows.append(["val", "GRU " + name, h, int(msk.sum())] + [round(float(v), 2) for v in ad.mean(0)]
-                    + [round(float(v), 2) for v in fd.mean(0)] + [round(float(ad.mean()), 2), round(float(fd.mean()), 2)])
+                    + [round(float(v), 2) for v in fd.mean(0)]
+                    + [round(float(ad.mean()), 2), round(float(fd.mean()), 2)])
     k1 = ks[HORIZONS_S.index(1.0)]
     groups = [("cond", c) for c in sorted(set(wv["cond"]))] + [("phase", ph) for ph in ("cued", "moving", "hold")]
     print(f"\nHand ADE (px) at 1.0 s:      " + "".join(f"{g[1]:>9}" for g in groups))
@@ -215,9 +213,11 @@ def main():
     x1 = torch.from_numpy(xv[:1]); ts = []
     with torch.no_grad():
         for i in range(300):
-            t0 = time.perf_counter(); model(torch.from_numpy(xv[i % len(xv)][None])); ts.append((time.perf_counter() - t0) * 1e3)
-    ts = np.array(ts[20:])
-    print(f"\nInference time, one window, 1 CPU thread: median {np.median(ts):.2f} ms, p95 {np.percentile(ts, 95):.2f} ms")
+            t0 = time.perf_counter(); model(torch.from_numpy(xv[i % len(xv)][None]))
+            ts.append((time.perf_counter() - t0) * 1e3)
+    ts = np.array(ts[20:])              # drop the first 20 (warm-up)
+    print(f"\nInference time, one window, 1 CPU thread: median {np.median(ts):.2f} ms, "
+          f"p95 {np.percentile(ts, 95):.2f} ms")
     json.dump({"median_ms": round(float(np.median(ts)), 3), "p95_ms": round(float(np.percentile(ts, 95)), 3)},
               open(os.path.join(a.out, "gru_inference_time.json"), "w"))
 

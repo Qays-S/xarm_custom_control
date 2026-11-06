@@ -1,41 +1,15 @@
 #!/usr/bin/env python3
 """
-Blueprint Section V, step 29 (with 31): M-mode probabilistic GRU forecaster.
+Steps 29 and 31: the multimodal GRU, which predicts M possible futures, each with a probability.
 
-Same inputs as the deterministic GRU (s5_gru.py): for elbow, wrist and hand, the position relative to
-the current position, the current absolute position, detector confidence and missingness, over the last
-L = 16 steps (1.0 s). Robot state is left out (the robot was parked) and so is the on-screen goal.
-
-Output: a mixture of M trajectory-level modes over the next K = 24 steps (1.5 s)
-    p(Y+ | Z) = sum_m pi_m  prod_{k,j} N( y_kj ; mu_mkj , Sigma_mkj )
-  * pi_m        mode probabilities (softmax), one per whole trajectory, so a mode is one way the
-                arm can move, not a per-step choice
-  * mu_mkj      mean position of keypoint j at step k in mode m (as a displacement from now)
-  * Sigma_mkj   2x2 covariance, made positive definite through its Cholesky factor
-                L = [[a, 0], [c, b]] with a, b = softplus(.) + 1 px  ->  Sigma = L L^T
-  Independence approximation (block diagonal): within a mode, the 2x2 blocks of different keypoints
-  and different future steps are treated as independent; correlations across time and joints are
-  carried only by the mode means and by the choice of mode.
-Loss: negative log-likelihood of the observed future points (missing future points are left out).
-Tuning (step 31) on D_val only: M in {1, 3, 5} x hidden {64, 128}, 2 layers, early stopping on val NLL.
-M = 1 is the single-Gaussian version, so the grid also shows whether more than one mode helps.
-
-Reported on D_val (same windows as every other model: current pose and future observed)
-  * ADE / FDE of the most likely mode (the forecast a planner would use), and of the mixture mean
-  * minADE over the M modes (oracle, a secondary diagnostic only: it needs the true future to pick)
-  * NLL in nats per observed 2-D point, in pixel units of the 1280x720 image, over the whole
-    trajectory up to each horizon (mixture-aware, no collapse to one Gaussian)
-  * calibration: how often the true point falls inside the forecast's 50 / 80 / 95% highest-density
-    region of the per-point mixture (estimated with 400 samples per point)
-  * inference time for one window on one CPU thread
-
-Outputs in logs/forecast_results/mgru/
-  learning_curve_<cfg>.csv, search.csv, mgru_best.pt, mgru_best.json, mgru_val.csv,
-  mgru_calibration.csv, mgru_inference_time.json, learning_curves.png
+Same inputs as s5_gru.py. Output: M whole-trajectory modes over the next 1.5 s, each a mean path
+plus a 2x2 spread per point. Trained on the likelihood of the observed future; tuned on val
+(M in {1, 3, 5} x hidden {64, 128}). M = 1 shows whether more than one mode helps.
 
 Usage
   python3 s5_mgru.py            # 6 runs, about 15-30 min on a laptop CPU
   python3 s5_mgru.py --quick    # one run, for a quick check
+Outputs in logs/forecast_results/mgru/: mgru_best.pt/.json, mgru_val.csv, mgru_calibration.csv, ...
 """
 import argparse
 import csv
@@ -57,6 +31,13 @@ LN100 = math.log(100.0)   # model units are px/100, so a density per px^2 is 100
 
 
 class MixtureGRU(nn.Module):
+    """p(Y | Z) = sum_m pi_m prod_{k,j} N(y_kj; mu_mkj, Sigma_mkj).
+
+    pi_m: probability of mode m (one per whole path). mu: mean displacement of keypoint j at
+    step k. Sigma = L L^T with L = [[a, 0], [off, b]], a, b = softplus + 1 px, so it is always valid.
+    Within a mode, different points and steps are treated as independent.
+    """
+
     def __init__(self, n_in, hidden, layers, K, M, J=3, dropout=0.1):
         super().__init__()
         self.K, self.M, self.J = K, M, J
@@ -98,6 +79,7 @@ def traj_loglik(out, y, mask, k=None):
 
 
 def run(model, x, bs=2048):
+    """Model outputs (logpi, mu, a, b, off) for all windows, in batches."""
     model.eval()
     outs = []
     with torch.no_grad():
@@ -123,6 +105,7 @@ def nll_px(model_out, w, cur, k):
 
 
 def train_one(cfg, data, seed, max_epochs, patience, log_path):
+    """Train one config on the likelihood (missing future points left out); early stop on val NLL."""
     torch.manual_seed(seed); np.random.seed(seed)
     xtr, ytr, mtr, wv, xv, cv = data
     model = MixtureGRU(xtr.shape[-1], cfg["hidden"], cfg["layers"], ytr.shape[1], cfg["M"])
@@ -175,8 +158,11 @@ def hpd_coverage(out, w, cur, ks, levels=(0.5, 0.8, 0.95), S=400, seed=0):
             d = pt[:, :, None] - mu[:, None]                   # (N,S,M,J,2)
             z1 = d[..., 0] / a[:, None]
             z2 = (d[..., 1] - off[:, None] * z1) / b[:, None]
-            lp = -0.5 * (z1 ** 2 + z2 ** 2) - torch.log(a[:, None]) - torch.log(b[:, None]) - math.log(2 * math.pi)
+            lp = (-0.5 * (z1 ** 2 + z2 ** 2) - torch.log(a[:, None]) - torch.log(b[:, None])
+                  - math.log(2 * math.pi))
             return torch.logsumexp(logpi[:, None, :, None] + lp, 2)
+        # Draw S samples from the mixture, then find the density level that S*(1-lv) of them
+        # fall below; the true point is "inside" if its density is above that level.
         mode = torch.multinomial(logpi.exp(), S, replacement=True, generator=g)              # (N,S)
         e = torch.randn(N, S, J, 2, generator=g)
         idx = mode[:, :, None].expand(N, S, J)
@@ -229,21 +215,26 @@ def main():
         mk = eval_mask(wv, k1)
         ad, _ = ade_fde_px(top[mk], {"fut": wv["fut"][mk]}, k1)
         results.append((best, name, cfg, model, curve, float(ad.mean())))
-        print(f"  {name:<22} best val NLL {best:6.3f} nats/point   most-likely-mode mean ADE at 1.0 s {ad.mean():5.1f} px"
+        print(f"  {name:<22} best val NLL {best:6.3f} nats/point   "
+              f"most-likely-mode mean ADE at 1.0 s {ad.mean():5.1f} px"
               f"  ({len(curve)} epochs, {time.time() - t0:.0f} s)", flush=True)
     with open(os.path.join(a.out, "search.csv"), "w", newline="") as f:
-        cw = csv.writer(f); cw.writerow(["config", "val_nll_nats_per_point_px", "val_top_mode_mean_ade_1s_px", "epochs"])
+        cw = csv.writer(f)
+        cw.writerow(["config", "val_nll_nats_per_point_px", "val_top_mode_mean_ade_1s_px", "epochs"])
         cw.writerows([(n, round(b, 4), round(d, 2), len(c)) for b, n, _, _, c, d in results])
     best, name, cfg, model, curve, _ = min(results, key=lambda r: r[0])
     torch.save(model.state_dict(), os.path.join(a.out, "mgru_best.pt"))
     json.dump({"config": cfg, "name": name, "n_in": int(xtr.shape[-1]), "K": int(ytr.shape[1]), "M": cfg["M"],
-               "keypoints": FORECAST_KP, "dt": m["dt"], "history_steps": m["history_steps"], "min_std_px": MIN_STD * 100,
-               "covariance": "per keypoint and step 2x2 Cholesky [[a,0],[c,b]], a,b = softplus + 1 px; blocks independent",
+               "keypoints": FORECAST_KP, "dt": m["dt"], "history_steps": m["history_steps"],
+               "min_std_px": MIN_STD * 100,
+               "covariance": "per keypoint and step 2x2 Cholesky [[a,0],[c,b]], a,b = softplus + 1 px; "
+                             "blocks independent",
                "seed": a.seed, "chosen_on": "val NLL", "val_nll_nats_per_point_px": round(best, 4)},
               open(os.path.join(a.out, "mgru_best.json"), "w"), indent=1)
     print(f"\nChosen on val NLL: {name}")
 
-    # ---- val report
+    # ---- val report: most likely mode (what a planner would use), mixture mean,
+    # minADE over modes (oracle: needs the true future, diagnostic only) and NLL per point
     out = run(model, xv)
     pi, pos = to_positions(out, cv)
     top = pos[np.arange(len(pos)), pi.argmax(1)]
@@ -259,14 +250,17 @@ def main():
         msk = eval_mask(wv, k)
         ad, fd = ade_fde_px(top[msk], {"fut": wv["fut"][msk]}, k)
         am, _ = ade_fde_px(mean[msk], {"fut": wv["fut"][msk]}, k)
-        per_mode = np.stack([ade_fde_px(pos[msk][:, q], {"fut": wv["fut"][msk]}, k)[0].mean(1) for q in range(cfg["M"])], 1)
+        per_mode = np.stack([ade_fde_px(pos[msk][:, q], {"fut": wv["fut"][msk]}, k)[0].mean(1)
+                             for q in range(cfg["M"])], 1)
         mn = per_mode.min(1).mean()
         nll, _ = nll_px(out, wv, cv, k)
-        print(f"{h:>7}s{msk.sum():>7}" + "".join(f"{v:>12.1f}" for v in ad.mean(0)) + f"{ad.mean():>10.1f}{fd.mean():>10.1f}"
+        print(f"{h:>7}s{msk.sum():>7}" + "".join(f"{v:>12.1f}" for v in ad.mean(0))
+              + f"{ad.mean():>10.1f}{fd.mean():>10.1f}"
               f"{am.mean():>14.1f}{mn:>9.1f}{det.get(h, float('nan')):>10.1f}{nll:>8.2f}")
         rows.append(["val", "MGRU " + name, h, int(msk.sum())] + [round(float(v), 2) for v in ad.mean(0)]
-                    + [round(float(v), 2) for v in fd.mean(0)] + [round(float(ad.mean()), 2), round(float(fd.mean()), 2),
-                                                                  round(float(am.mean()), 2), round(float(mn), 2), round(nll, 3)])
+                    + [round(float(v), 2) for v in fd.mean(0)]
+                    + [round(float(ad.mean()), 2), round(float(fd.mean()), 2),
+                       round(float(am.mean()), 2), round(float(mn), 2), round(nll, 3)])
     with open(os.path.join(a.out, "mgru_val.csv"), "w", newline="") as f:
         cw = csv.writer(f)
         cw.writerow(["set", "model", "horizon_s", "n_windows"] + [f"{k}_ade_px" for k in FORECAST_KP]
@@ -276,22 +270,27 @@ def main():
     print(f"\nMode probabilities on val: mean largest {pi.max(1).mean():.2f}; "
           f"windows where the top mode has < 0.6: {(pi.max(1) < 0.6).mean():.0%}")
 
+    # calibration: how often the true point is inside the 50 / 80 / 95% region (400 samples per point)
     cal = hpd_coverage(out, wv, cv, ks)
     with open(os.path.join(a.out, "mgru_calibration.csv"), "w", newline="") as f:
         cw = csv.writer(f)
-        cw.writerow(["horizon_step", "nominal", "n_windows"] + [f"{k}_coverage" for k in FORECAST_KP] + ["mean_coverage"])
+        cw.writerow(["horizon_step", "nominal", "n_windows"] + [f"{k}_coverage" for k in FORECAST_KP]
+                    + ["mean_coverage"])
         cw.writerows(cal)
     print("\nCalibration: share of true points inside the 50 / 80 / 95% region (mean over elbow, wrist, hand)")
     for h, k in zip(HORIZONS_S, ks):
         r = [c for c in cal if c[0] == k]
         print(f"  {h:>4} s   " + "   ".join(f"{c[1]:.0%}: {c[-1]:.0%}" for c in r))
 
+    # inference time, one window at a time on one CPU thread (first 20 runs are warm-up)
     model.eval(); torch.set_num_threads(1); ts = []
     with torch.no_grad():
         for i in range(300):
-            t0 = time.perf_counter(); model(torch.from_numpy(xv[i % len(xv)][None])); ts.append((time.perf_counter() - t0) * 1e3)
+            t0 = time.perf_counter(); model(torch.from_numpy(xv[i % len(xv)][None]))
+            ts.append((time.perf_counter() - t0) * 1e3)
     ts = np.array(ts[20:])
-    print(f"\nInference time, one window, 1 CPU thread: median {np.median(ts):.2f} ms, p95 {np.percentile(ts, 95):.2f} ms")
+    print(f"\nInference time, one window, 1 CPU thread: median {np.median(ts):.2f} ms, "
+          f"p95 {np.percentile(ts, 95):.2f} ms")
     json.dump({"median_ms": round(float(np.median(ts)), 3), "p95_ms": round(float(np.percentile(ts, 95)), 3)},
               open(os.path.join(a.out, "mgru_inference_time.json"), "w"))
 

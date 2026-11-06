@@ -1,19 +1,10 @@
 #!/usr/bin/env python3
 """
-Check that the camera has not moved since calibration (paper step: "rigidly mount
-the RGB camera and do not move it during a calibrated session").
+Check that the camera has not moved since calibration. Run at the start and end of every session.
 
-Compares a live frame (or an image file) with the reference frame saved by
-s3_collect.py, using ORB features on the static scene. Reports the median pixel
-shift and the shift the calibration homography would imply in mm on the table.
-Run it at the start and end of every recording session and log the result.
-
---dots CALIB (recommended): also finds each calibration dot (post-it) of CALIB in the
-live frame by template matching against the reference, and decides OK / MOVED on the
-dots alone. The whole-scene ORB number is still printed, but it can be fooled by things
-that move on their own (e.g. the parked arm in a slightly different pose), while the dots
-are exactly what the calibration depends on. CALIB's pixel positions must belong to the
-reference image (e.g. now_E5_median.png with calib_cam3d.json).
+Compares a live frame (or an image) with the reference frame saved by s3_collect.py.
+--dots CALIB (recommended) finds each calibration dot in both images and decides on the dots
+alone; CALIB's pixel positions must belong to the reference image.
 
 Usage
   python3 s3_check_drift.py calib_session_reference_frame.png [--camera 0 | --image now.png]
@@ -31,6 +22,9 @@ from s3_common import CAM_H, CAM_W, open_camera
 
 
 def shift(ref, cur):
+    """Whole-scene shift: match ORB features between the two images and return
+    (median shift in px, number of inlier matches, affine fit), or None if unclear.
+    Can be fooled by things that move on their own (e.g. the parked arm), hence --dots."""
     orb = cv2.ORB_create(3000)
     g1, g2 = (cv2.cvtColor(im, cv2.COLOR_BGR2GRAY) for im in (ref, cur))
     k1, d1 = orb.detectAndCompute(g1, None)
@@ -60,6 +54,7 @@ def dot_shifts(ref, cur, points, half=25, search0=14):
         search = min(search0, ui - half, vi - half, W_ - 1 - ui - half, H - 1 - vi - half)  # dots near the edge
         if search < 3:
             continue
+        # T = the dot's patch in the reference; W = a slightly bigger window around it now.
         T = g1[vi - half:vi + half + 1, ui - half:ui + half + 1]
         W = g2[vi - half - search:vi + half + search + 1, ui - half - search:ui + half + search + 1]
         if T.shape != (2 * half + 1,) * 2 or W.shape != (2 * (half + search) + 1,) * 2:
@@ -68,6 +63,7 @@ def dot_shifts(ref, cur, points, half=25, search0=14):
         _, sc, _, (x, y) = cv2.minMaxLoc(r)
 
         def sub(a, b, c):
+            # fit a parabola through 3 neighbouring scores to find the peak between pixels
             d = a - 2 * b + c
             return 0.0 if d == 0 else 0.5 * (a - c) / d
         dx = x - search + (sub(r[y, x - 1], r[y, x], r[y, x + 1]) if 0 < x < r.shape[1] - 1 else 0)
@@ -102,6 +98,8 @@ def main():
                  f"(reference {None if ref is None else ref.shape[1::-1]}, camera "
                  f"{None if cur is None else cur.shape[1::-1]}). Use --width/--height to match the reference.")
     r = shift(ref, cur)
+
+    # ---- dot check (decides OK / MOVED); dots matching with score < 0.6 are ignored
     if a.dots:
         import json
         ds = [d for d in dot_shifts(ref, cur, json.load(open(a.dots))["points"]) if d[3] >= 0.6]
@@ -118,12 +116,15 @@ def main():
             sys.exit(1)
         print(f"OK: {msg}.")
         return
+
+    # ---- whole-scene check (only when --dots is not given)
     if r is None:
         print("UNDECIDED: too few matching features (is the scene lit and unobstructed?)")
         sys.exit(2)
     med, ninl, _ = r
     msg = f"median shift {med:.2f} px over {ninl} static features"
     if a.calib:
+        # turn the pixel shift into mm on the table near the image centre
         import json
         hm = np.array(json.load(open(a.calib))["homography"])
         c = np.array([[ref.shape[1] / 2, ref.shape[0] / 2, 1.0], [ref.shape[1] / 2 + med, ref.shape[0] / 2, 1.0]])

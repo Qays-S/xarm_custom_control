@@ -1,41 +1,20 @@
 #!/usr/bin/env python3
 """
-Record target-to-target reaching for blueprint Section IV (E1-E5). The robot stays
-PARKED the whole time; nothing here ever commands the arm.
+Record target-to-target reaching (Section IV, E1-E5). The robot stays PARKED; nothing here moves it.
 
-You reach between taped calibration dots (the targets). The screen tells you which
-dot to touch next, and the tool records, frame by frame:
-  * the raw RGB frame and the arm keypoints (same columns as s3_perception_logger.py)
-    plus the index fingertip, which is what touches the dot
-  * every cue: when it appeared, which target, and the instruction shown
-  * when your hand left the start dot and when it arrived at the goal
-  * the robot's joint angles/velocities and TCP pose (read-only, from ROS 2)
+The screen says which dot to touch next. Saved per frame: the image, arm keypoints plus the index
+fingertip; per reach: cue, departure and arrival times; and the robot state (read-only, ROS 2).
 
-Modes (blueprint step numbers in brackets)
-  E1  [19] one reach at a time, random target, comfortable speed, short hold at each dot
-  E2  [20] continuous: the next target appears the moment you arrive; each reach also
-           asks for a speed (slow/normal/fast) and a path (straight/curved)
-  E3  [21] ambiguous: TWO candidate dots light up; the real one is revealed only after
-           your hand has started moving
-  E4  [22] abrupt switches: on about half the reaches the goal changes shortly after
-           you start moving (sometimes back to where you came from). The cue time is
-           logged here; the physical change onset is measured afterwards from the
-           keypoints (s4_dataset_summary.py), so the two are kept separate.
-  E5  [23] degraded viewing, robot parked: single reaches like E1, but most reaches ask you to
-           COVER your reaching hand with a sheet of paper (held in the other hand) on the way,
-           or to hold the paper flat ABOVE your HEAD like a roof on the way, so the camera cannot
-           see your head (the body detector finds a person from the face, so it then loses the
-           arm) while you can still see the table. Uncover / lower the paper at the dot so the
-           arrival is detected.
-           Partway through, the screen pauses and asks you to DIM the room lights, and later
-           to turn them back on (--dim-at, --bright-at). Each reach logs its 'perturb' and
-           'lighting'. Camera dropout is simulated later from these recordings, not here.
+Modes
+  E1  one reach at a time, random target, comfortable speed, short hold at each dot
+  E2  continuous: next target as soon as you arrive, with a speed and path to use
+  E3  ambiguous: two dots light up; the real one is revealed after you start moving
+  E4  switches: on about half the reaches the goal changes just after you start
+  E5  degraded view: cover the hand with paper or hold it above the head; lights dimmed partway
+      (--dim-at, --bright-at). Lower the paper at the dot, as soon as HOLD shows.
 
-Arrival is detected automatically: the fingertip (or the hand point, if the
-fingertip is missing) stays within --radius pixels of the goal dot for --dwell
-seconds. If detection misses a touch, press SPACE to mark the arrival yourself.
-In E5 arrival is automatic too, so HOLD can appear while the paper is still up: put the
-paper down as soon as HOLD shows. --manual-arrive switches to SPACE-only arrivals.
+Arrival is automatic (fingertip within --radius px of the dot for --dwell s); SPACE marks it
+by hand if detection misses. --manual-arrive (E5) uses SPACE only.
 
 Keys (camera window focused)
   SPACE  force "arrived" for the current goal
@@ -47,8 +26,7 @@ Usage
   python3 s4_record_targets.py --mode E1 --out logs/E1_s01 --targets 1 4 9 12
   python3 s4_record_targets.py --mode E4 --out logs/E4_s01 --reaches 40 --arm ros
   python3 s4_record_targets.py --mode E2 --out /tmp/test --sim        # no camera: dry run
-Targets are dot ids from --calib-session (default: the day-2 touch calibration), so
-every target is known both in pixels and in robot millimetres.
+Targets are dot ids from --calib-session, so each is known in pixels and robot mm.
 """
 import argparse
 import csv
@@ -67,7 +45,7 @@ from s3_common import CAM_H, CAM_W, open_camera
 POSE_IDS = {"L_shoulder": 11, "R_shoulder": 12, "L_elbow": 13, "R_elbow": 14, "L_wrist": 15, "R_wrist": 16}
 KEYPOINTS = ["L_shoulder", "L_elbow", "L_wrist", "L_hand", "L_tip",
              "R_shoulder", "R_elbow", "R_wrist", "R_hand", "R_tip"]
-HAND_CENTER, INDEX_TIP = 9, 8
+HAND_CENTER, INDEX_TIP = 9, 8          # MediaPipe Hands: middle-finger base knuckle, index tip
 SPEEDS, PATHS = ["slow", "normal", "fast"], ["straight", "curved"]
 
 
@@ -88,6 +66,7 @@ def detect(pose, hands, rgb, w, h, conf_th):
             c, t = hl.landmark[HAND_CENTER], hl.landmark[INDEX_TIP]
             s = float(hd.classification[0].score)
             cands.append(((c.x * w, c.y * h, s), (t.x * w, t.y * h, s)))
+        # Give each arm the hand closest to its pose wrist (within 15% of the image).
         for side in "LR":
             wu, wv, _ = out[f"{side}_wrist"]
             if found and wu == wu:
@@ -132,6 +111,7 @@ class RosRobotLog(threading.Thread):
         self.node = rclpy.create_node("s4_record_targets_reader")
         self.f = open(path, "w", newline="")
         self.w = csv.writer(self.f)
+        # one row per message: joint angles q1-q7, velocities v1-v7, TCP pose, state and error code
         self.w.writerow(["t", "source"] + [f"q{i}" for i in range(1, 8)] + [f"v{i}" for i in range(1, 8)]
                         + ["x", "y", "z", "roll", "pitch", "yaw", "state", "err"])
         self.lock, self.n, self.last = threading.Lock(), 0, {}
@@ -156,7 +136,8 @@ class RosRobotLog(threading.Thread):
             rate = (self.n - n0) / (time.monotonic() - t0)
             print(f"  robot logging OK: {rate:.0f} messages/s (joint + robot state)")
             if rate < 20:
-                print("  (slow: launch the driver with report_type:=dev for ~100 Hz before any run where the arm moves)")
+                print("  (slow: launch the driver with report_type:=dev for ~100 Hz "
+                      "before any run where the arm moves)")
             return True
         names = sorted(t for t, _ in self.node.get_topic_names_and_types())
         xarm = [t for t in names if "xarm" in t or "joint" in t]
@@ -167,6 +148,7 @@ class RosRobotLog(threading.Thread):
         return False
 
     def _row(self, src, q=(), v=(), pose=(), state="", err=""):
+        # pad each group with blanks so every row has the same columns
         q = list(q)[:7] + [""] * (7 - len(list(q)[:7]))
         v = list(v)[:7] + [""] * (7 - len(list(v)[:7]))
         pose = list(pose)[:6] + [""] * (6 - len(list(pose)[:6]))
@@ -199,11 +181,14 @@ class RosRobotLog(threading.Thread):
 
 # --------------------------------------------------------------- cue logic
 class Cuer:
+    """Decides the next reach for the chosen mode: goal, instruction, decoy (E3), switch (E4), perturb (E5)."""
+
     def __init__(self, mode, targets, rng, a):
         self.mode, self.T, self.rng, self.a = mode, targets, rng, a
         self.ids = list(targets)
 
     def pause_after_arrival(self):
+        """Seconds to hold at a dot before the next cue (E2: none, it is continuous)."""
         return {"E1": self.rng.uniform(1.0, 2.0), "E2": 0.0, "E3": self.rng.uniform(1.0, 2.0),
                 "E4": self.rng.uniform(0.6, 1.2), "E5": self.rng.uniform(*self.a.hold)}[self.mode]
 
@@ -226,6 +211,7 @@ class Cuer:
             r["resolve_delay"] = round(self.rng.uniform(0.10, 0.30), 3)
             r["instruction"] = "one of the two lit dots: start moving, the real one appears"
         if self.mode == "E5":
+            # 30% normal, 40% cover the hand with paper, 30% paper above the head (hides the face)
             r["perturb"] = self.rng.choices(["none", "cover", "head"], weights=[0.3, 0.4, 0.3])[0]
             r["instruction"] = {"none": "normal reach",
                                 "cover": "COVER your hand with the paper on the way, uncover at the dot",
@@ -253,12 +239,14 @@ def main():
     ap.add_argument("--width", type=int, default=CAM_W)
     ap.add_argument("--height", type=int, default=CAM_H)
     ap.add_argument("--radius", type=float, default=None,
-                    help="arrival radius around a dot in px (default: 30 px at 1280 px width; the dots are ~65 px apart)")
+                    help="arrival radius around a dot in px "
+                         "(default: 30 px at 1280 px width; the dots are ~65 px apart)")
     ap.add_argument("--dwell", type=float, default=0.2, help="seconds inside the radius to count as arrived")
     ap.add_argument("--timeout", type=float, default=6.0, help="seconds before an unfinished reach is re-cued")
     ap.add_argument("--switch-prob", type=float, default=0.5, help="E4: share of reaches with a switch")
     ap.add_argument("--hold", type=float, nargs=2, default=[3.5, 5.0], metavar=("MIN", "MAX"),
-                    help="E5: seconds to wait at each dot before the next cue (time to read it and get the paper ready)")
+                    help="E5: seconds to wait at each dot before the next cue "
+                         "(time to read it and get the paper ready)")
     ap.add_argument("--dim-at", type=int, default=21, help="E5: before this reach, pause and ask to dim the lights")
     ap.add_argument("--bright-at", type=int, default=31, help="E5: before this reach, pause and ask for normal lights")
     ap.add_argument("--manual-arrive", action="store_true",
@@ -278,6 +266,7 @@ def main():
     ap.add_argument("--sim", action="store_true", help="no camera: a simulated hand follows the cues")
     a = ap.parse_args()
 
+    # ---- targets: dot pixel and robot positions from the calibration session
     calib = json.load(open(a.calib_session))
     dots = {p["id"]: p for p in calib["points"]}
     missing_ids = [i for i in a.targets if i not in dots]
@@ -289,6 +278,7 @@ def main():
     rng = random.Random(seed)
     cuer = Cuer(a.mode, T, rng, a)
 
+    # ---- camera and detectors (or the simulated hand)
     if a.sim:
         cap, pose, hands = None, None, None
         sim = SimPerson(T[a.targets[0]]["px"], np.random.default_rng(seed))
@@ -317,14 +307,17 @@ def main():
         a.timeout = 15.0  # you mark arrivals yourself, so allow time to uncover and press SPACE
     elif a.mode == "E5" and a.timeout < 8.0:
         a.timeout = 8.0   # covered reaches can take longer
+    # read-only robot logger (ROS 2)
     if a.arm == "ros" and not a.sim:
         try:
             robot = RosRobotLog(os.path.join(a.out, "robot.csv"), a.joint_topic, a.state_topic)
             robot.start()
             robot_ok = robot.check()
         except ImportError:
-            raise SystemExit("rclpy not found: run `source ~/ros2_ws/install/setup.bash` first, or use --arm none")
+            raise SystemExit("rclpy not found: run `source ~/ros2_ws/install/setup.bash` first, "
+                             "or use --arm none")
 
+    # ---- output files; frames are saved by a background thread so the loop keeps its frame rate
     ext = ".png" if a.lossless else ".jpg"
     import queue
     saveq = queue.Queue(maxsize=240)  # frames are written by a background thread
@@ -337,7 +330,8 @@ def main():
             cv2.imwrite(item[0], item[1], [cv2.IMWRITE_JPEG_QUALITY, 95] if ext == ".jpg" else [])
     writer = threading.Thread(target=_writer, daemon=True)
     writer.start()
-    fcsv, ecsv, rcsv = (open(os.path.join(a.out, n), "w", newline="") for n in ("frames.csv", "events.csv", "reaches.csv"))
+    fcsv, ecsv, rcsv = (open(os.path.join(a.out, n), "w", newline="")
+                        for n in ("frames.csv", "events.csv", "reaches.csv"))
     fw, ew, rw = csv.writer(fcsv), csv.writer(ecsv), csv.writer(rcsv)
     cols = ["frame", "t_read_start", "t_read_end", "t_detect_end", "cam_ms", "pose_found"]
     for k in KEYPOINTS:
@@ -375,6 +369,8 @@ def main():
     win = f"s4 {a.mode}  (SPACE=arrived  x=bad reach  o=occlusion  m=marker  p=pause  q=quit)"
 
     def new_reach(t):
+        """Cue the next reach. In E5, first pause to ask for the lights to change when it's time.
+        Returns False while waiting for the lighting change."""
         nonlocal R, rid, goal, phase, lighting, paused, pause_msg, nxt
         if a.mode == "E5" and pause_msg == "":
             want = "dim" if a.dim_at <= rid + 1 < a.bright_at else "normal"
@@ -399,6 +395,7 @@ def main():
                          ((np.array(T[goal]["px"]) + T[R["decoy"]]["px"]) / 2), t)
 
     def finish(t, how):
+        """The hand arrived (auto or manual): write the reach row and start the hold."""
         nonlocal cur, phase, phase_until, valid_n, R, nxt
         R.update({"goal_final": goal, "t_arrive": round(t, 6), "arrival": how})
         rw.writerow([R[k] for k in RCOLS]); rcsv.flush()
@@ -411,6 +408,7 @@ def main():
 
     try:
         while True:
+            # ---- read a frame and detect the keypoints
             t_rs = time.monotonic()
             if a.sim:
                 frame = np.full((H, W, 3), 90, np.uint8)
@@ -433,7 +431,8 @@ def main():
                 found = True
             else:
                 small = frame if not a.detect_width or w <= a.detect_width else \
-                    cv2.resize(frame, (a.detect_width, round(h * a.detect_width / w)), interpolation=cv2.INTER_AREA)
+                    cv2.resize(frame, (a.detect_width, round(h * a.detect_width / w)),
+                               interpolation=cv2.INTER_AREA)
                 # landmarks are normalised, so scaling by the full w, h gives full-resolution pixels
                 kp, miss, found = detect(pose, hands, cv2.cvtColor(small, cv2.COLOR_BGR2RGB), w, h, a.conf)
             t = time.monotonic()
@@ -445,7 +444,7 @@ def main():
                     eff = kp[k][:2]
                     break
 
-            # ---- cue state machine
+            # ---- cue state machine: setup -> (hold -> cued -> moving -> arrive) repeated
             if not paused:
                 if phase == "setup":
                     pass  # waits for the first touch of the first target
@@ -455,31 +454,35 @@ def main():
                         break
                     new_reach(t)
                 elif phase in ("cued", "moving") and R is not None:
+                    # departed = fingertip more than 1.5 radii from the start dot
                     if phase == "cued" and cur is not None and eff is not None and \
                             math.dist(eff, T[cur]["px"]) > 1.5 * a.radius:
                         R["t_depart"] = round(t, 6)
                         phase = "moving"
                         log(n, t, "depart", R["reach"], cur)
+                    # E3: reveal the real target resolve_delay s after departing
                     if phase == "moving" and R["decoy"] != "" and R["t_resolve"] == "" and \
                             t >= R["t_depart"] + R["resolve_delay"]:
                         R["t_resolve"] = round(t, 6)
                         log(n, t, "resolve", R["reach"], goal, f"decoy {R['decoy']} dropped")
                         if a.sim:
                             sim.set_goal(T[goal]["px"], t - 0.3)
+                    # E4: switch the goal switch_delay s after departing
                     if phase == "moving" and R["switch_to"] != "" and R["t_switch_cue"] == "" and \
                             t >= R["t_depart"] + R["switch_delay"]:
                         R["t_switch_cue"] = round(t, 6)
                         goal = R["switch_to"]
-                        log(n, t, "switch_cue", R["reach"], goal, "reversal" if goal == R["start"] else "new target")
+                        log(n, t, "switch_cue", R["reach"], goal,
+                            "reversal" if goal == R["start"] else "new target")
                         if a.sim:
                             sim.set_goal(T[goal]["px"], t)
-                    if t - R["t_cue"] > a.timeout:
+                    if t - R["t_cue"] > a.timeout:            # too long: mark invalid and re-cue
                         R.update({"valid": 0, "note": "timeout"})
                         R.update({"goal_final": goal, "arrival": "timeout"})
                         rw.writerow([R[k] for k in RCOLS]); rcsv.flush()
                         log(n, t, "timeout", R["reach"], goal)
                         R, phase, phase_until = None, "hold", t + 0.5
-                # arrival (also used for the setup touch)
+                # arrival (also used for the setup touch): within the radius for --dwell seconds
                 if phase == "setup" or (phase in ("cued", "moving") and not manual):
                     resolved = R is None or R["decoy"] == "" or R["t_resolve"] != ""
                     near = eff is not None and math.dist(eff, T[goal]["px"]) <= a.radius
@@ -503,7 +506,7 @@ def main():
                 row += [round(u, 2) if u == u else "", round(v, 2) if v == v else "", round(c, 4), miss[k]]
             fw.writerow(row + [goal if phase != "hold" else "", phase])
 
-            # ---- display
+            # ---- display: lit dots, the fingertip, and a banner strip under the image
             view = frame.copy()
             lit = {goal} if phase in ("setup", "cued", "moving") else set()
             if R is not None and R["decoy"] != "" and R["t_resolve"] == "":
@@ -534,10 +537,12 @@ def main():
             cv2.putText(strip, big, (12, 58), cv2.FONT_HERSHEY_SIMPLEX, 1.6, (0, 255, 255), 3)
             sub = (R["instruction"] if R is not None and a.mode in ("E2", "E5") else "") + \
                   ("   (SPACE when you're there)" if manual and phase in ("cued", "moving") else "") + \
-                  f"   reaches {valid_n}/{a.reaches}   {n / max(t - t0, 1e-6):.0f} fps" + ("   OCCLUSION" if occl else "") + \
+                  f"   reaches {valid_n}/{a.reaches}   {n / max(t - t0, 1e-6):.0f} fps" + \
+                  ("   OCCLUSION" if occl else "") + \
                   ("" if robot is None else f"   robot {robot.n}" if robot.n else "   ROBOT: NO DATA")
             cv2.putText(strip, sub, (12, 98), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 255), 2)
             cv2.imshow(win, np.vstack([view, strip]))
+            # ---- keys
             key = cv2.waitKey(1) & 0xFF
             if key == ord("q"):
                 log(n, time.monotonic(), "quit")
@@ -571,8 +576,8 @@ def main():
             rw.writerow([R[k] for k in RCOLS])
         saveq.put(None)
         writer.join()
-        meta.update({"frames": n, "detect_width": a.detect_width, "duration_s": round(time.monotonic() - t0, 3), "valid_reaches": valid_n,
-                     "reaches_cued": rid, "actual_size": [w, h] if n else None})
+        meta.update({"frames": n, "detect_width": a.detect_width, "duration_s": round(time.monotonic() - t0, 3),
+                     "valid_reaches": valid_n, "reaches_cued": rid, "actual_size": [w, h] if n else None})
         if robot:
             meta["robot_rows"] = robot.n
             meta["robot_last"] = robot.last

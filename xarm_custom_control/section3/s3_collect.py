@@ -1,19 +1,16 @@
 #!/usr/bin/env python3
 """
-Collect pixel <-> robot correspondences for calibration (mode "calib") or for the
-height/parallax test (mode "parallax"). This script NEVER moves the arm; it only
-reads the TCP position after you have jogged the tip into place yourself.
+Collect pixel <-> robot point pairs for calibration ("calib") or the height test ("parallax").
+Never moves the arm: it only reads the tip position after you jog it into place.
 
-calib    : touch the gripper tip to the table at 12-20 spots spread over the whole
-           area people will reach into (edges, corners and interior), one point each.
-parallax : pick >= 3 table spots. At each spot first touch the table (height 0),
-           then raise the tip straight up to known heights (e.g. 50, 100, 150, 200,
-           250 mm) without changing X/Y, recording a point at every height.
+calib    : touch the tip to the table at 12-20 spots over the whole reach area.
+parallax : at >= 3 spots, touch the table, then raise the tip straight up to known
+           heights (e.g. 50 ... 250 mm), recording a point at each height.
 
 Window keys
-  left click  mark the tip in the image (a zoomed inset helps you click precisely)
-  r / Enter   record: reads the arm (or asks you to type X Y Z) for the marked pixel
-  n           parallax only: start the next table spot
+  left click  mark the tip in the image (the zoomed inset helps)
+  r / Enter   record the arm position (or type X Y Z) for the marked pixel
+  n           parallax only: next table spot
   u           undo the last point
   q           quit (everything is autosaved after every point)
 
@@ -30,7 +27,7 @@ import numpy as np
 
 from s3_common import ARM_IP_DEFAULT, CAM_H, CAM_W, ArmReader, load_json, open_camera, save_json, stamp
 
-click = {"pt": None, "mouse": (0, 0)}
+click = {"pt": None, "mouse": (0, 0)}   # last click and current mouse position, set by on_mouse
 
 
 def on_mouse(event, x, y, flags, param):
@@ -40,6 +37,7 @@ def on_mouse(event, x, y, flags, param):
 
 
 def draw(frame, session):
+    """The live frame with the recorded points, the pending click, a zoom inset and a status line."""
     view = frame.copy()
     for p in session["points"]:
         u, v = int(round(p["u"])), int(round(p["v"]))
@@ -83,6 +81,7 @@ def main():
         raise SystemExit(f"Could not read camera {a.camera}")
     h, w = frame.shape[:2]
 
+    # Resume an existing session, or start a new one and save its reference frame.
     if os.path.exists(a.out):
         session = load_json(a.out)
         print(f"Resuming {a.out}: {len(session['points'])} points")
@@ -101,7 +100,7 @@ def main():
     win = f"s3_collect {a.mode}"
     cv2.namedWindow(win)
     cv2.setMouseCallback(win, on_mouse)
-    print(__doc__.split("Window keys")[1].split("Usage")[0])
+    print(__doc__.split("Window keys")[1].split("Usage")[0])   # print the key list from the header
     try:
         while True:
             ok, frame = cap.read()
@@ -119,7 +118,7 @@ def main():
                 session["current_location"] += 1
                 save_json(a.out, session)
                 print(f"Next table spot: L{session['current_location']}. Touch the table there first.")
-            if k in (ord("r"), 13, 10):
+            if k in (ord("r"), 13, 10):                     # r or Enter: record a point
                 if click["pt"] is None:
                     print("Click the tip in the image first.")
                     continue
@@ -129,6 +128,7 @@ def main():
                 p = {"id": (session["points"][-1]["id"] + 1) if session["points"] else 1,
                      "u": float(click["pt"][0]), "v": float(click["pt"][1]),
                      "X": xyz[0], "Y": xyz[1], "Z": xyz[2], "t": stamp()}
+                # Sanity warnings: parallax points should go straight up; calib points should all be on the table.
                 if a.mode == "parallax":
                     p["location"] = session["current_location"]
                     same = [q for q in session["points"] if q["location"] == p["location"]]
@@ -141,7 +141,8 @@ def main():
                               f"is the tip really touching the table?")
                 session["points"].append(p)
                 save_json(a.out, session)
-                print(f"  #{p['id']}: pixel ({p['u']:.0f}, {p['v']:.0f}) -> X={p['X']:.1f} Y={p['Y']:.1f} Z={p['Z']:.1f}")
+                print(f"  #{p['id']}: pixel ({p['u']:.0f}, {p['v']:.0f}) -> "
+                      f"X={p['X']:.1f} Y={p['Y']:.1f} Z={p['Z']:.1f}")
                 click["pt"] = None
     finally:
         arm.close()

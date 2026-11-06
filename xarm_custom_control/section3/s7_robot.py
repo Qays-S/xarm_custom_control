@@ -1,18 +1,8 @@
 """
-Blueprint Section VIII, step 48: xArm 7 + gripper kinematics and simple collision geometry, for offline replay.
+Step 48: xArm 7 + gripper kinematics and simple collision shapes, for the offline replay.
 
-Kinematics: the joint origins (x, y, z, roll, pitch, yaw) of UFACTORY's published xarm7 default kinematics
-(xarm_ros2, xarm_description/config/kinematics/default/xarm7_default_kinematics.yaml, BSD licence; the
-numbers are restated here, no file is copied). Every joint turns about its local z axis, as in the URDF.
-Joint limits are the URDF's (xarm7_robot_macro.xacro). Tool: the xArm gripper, TCP 172 mm along the flange z.
-Units: metres and radians inside, millimetres at the interface (robot base frame, as the arm reports it).
-
-Collision geometry: each link is a capsule (a segment with a radius) between consecutive joint origins, plus
-the gripper from the flange to the TCP. The radii are conservative round numbers from the arm's outer
-dimensions, not a certified model. For the planar separation proxy the capsules are projected on the table.
-
-IK: damped least squares on TCP position with the tool pointing straight down, using the 7th degree of
-freedom to stay close to a comfortable rest posture. Only used to turn a Cartesian path into joint angles.
+Joint origins are UFACTORY's published xarm7 default kinematics (xarm_ros2, BSD licence; numbers
+restated, no file copied); limits from the URDF. Metres and radians inside, mm at the interface.
 """
 import math
 
@@ -27,20 +17,24 @@ JOINTS = [(0, 0, 0.267, 0, 0, 0),
           (0, 0, 0, 1.5708, 0, 0),
           (0.076, 0.097, 0, -1.5708, 0, 0)]
 LOWER = np.array([-math.pi * 0.99, -2.18, -math.pi * 0.99, -0.11, -math.pi * 0.99, -1.75, -math.pi * 0.99])
-UPPER = np.array([math.pi * 0.99, 2.18, math.pi * 0.99, math.pi * 0.99, math.pi * 0.99, math.pi * 0.99, math.pi * 0.99])
-TCP_OFFSET = 0.172
-# capsule radius (m) of the segment that ends at each frame: base->j2 ... j7->flange, flange->TCP
+UPPER = np.array([math.pi * 0.99, 2.18, math.pi * 0.99, math.pi * 0.99, math.pi * 0.99, math.pi * 0.99,
+                  math.pi * 0.99])
+TCP_OFFSET = 0.172        # m, xArm gripper TCP along the flange z axis
+# capsule radius (m) of the segment that ends at each frame: base->j2 ... j7->flange, flange->TCP.
+# Conservative round numbers from the arm's outer size, not a certified model.
 RADII = [0.07, 0.07, 0.06, 0.06, 0.055, 0.05, 0.045, 0.045]
 REST = np.array([0.0, -0.5, 0.0, 1.2, 0.0, 1.7, 0.0])          # a comfortable elbow-up posture
 
 
 def _rpy(r, p, y):
+    """Rotation matrix from roll, pitch, yaw."""
     cr, sr, cp, sp, cy, sy = math.cos(r), math.sin(r), math.cos(p), math.sin(p), math.cos(y), math.sin(y)
     return np.array([[cy * cp, cy * sp * sr - sy * cr, cy * sp * cr + sy * sr],
                      [sy * cp, sy * sp * sr + cy * cr, sy * sp * cr - cy * sr],
                      [-sp, cp * sr, cp * cr]])
 
 
+# the fixed transform of each joint (before its own rotation about z)
 _FIXED = []
 for x, y, z, r, p, yw in JOINTS:
     T = np.eye(4); T[:3, :3] = _rpy(r, p, yw); T[:3, 3] = (x, y, z)
@@ -62,10 +56,12 @@ def fk(q):
 
 
 def flange_mm(q):
+    """Flange position (mm)."""
     return fk(q)[6][:3, 3] * 1000.0
 
 
 def tcp_mm(q):
+    """Tool centre point position (mm)."""
     return fk(q)[7][:3, 3] * 1000.0
 
 
@@ -75,12 +71,14 @@ def capsules(q):
     pts = [np.zeros(3)] + [f[:3, 3] for f in F]
     segs = [(pts[i], pts[i + 1]) for i in range(len(pts) - 1)]
     # drop zero-length segments (coincident joint origins), keep radii aligned
-    keep = [(a, b, RADII[min(i, len(RADII) - 1)]) for i, (a, b) in enumerate(segs) if np.linalg.norm(b - a) > 1e-6]
+    keep = [(a, b, RADII[min(i, len(RADII) - 1)]) for i, (a, b) in enumerate(segs)
+            if np.linalg.norm(b - a) > 1e-6]
     return keep
 
 
 def ik_down(target_mm, q0=None, iters=200, tol_mm=0.5):
-    """Joint angles that put the TCP at target_mm with the tool pointing straight down (-z)."""
+    """Joint angles that put the TCP at target_mm with the tool pointing straight down (-z).
+    Damped least squares; the spare 7th degree of freedom pulls towards the REST posture."""
     q = (REST if q0 is None else q0).astype(float).copy()
     target = np.asarray(target_mm, float) / 1000.0
     for _ in range(iters):
@@ -89,15 +87,16 @@ def ik_down(target_mm, q0=None, iters=200, tol_mm=0.5):
         err = np.r_[target - p, 0.5 * np.cross(z, np.array([0, 0, -1.0]))]
         if np.linalg.norm(err[:3]) * 1000 < tol_mm and np.linalg.norm(err[3:]) < 1e-3:
             return q, True
-        J = np.zeros((6, 7)); eps = 1e-5
+        J = np.zeros((6, 7)); eps = 1e-5          # numerical Jacobian
         for i in range(7):
             dq = q.copy(); dq[i] += eps
             G = fk(dq)
             J[:3, i] = (G[7][:3, 3] - p) / eps
-            J[3:, i] = 0.5 * np.cross(G[7][:3, 2], np.array([0, 0, -1.0])) / eps * -1 + 0.5 * np.cross(z, np.array([0, 0, -1.0])) / eps
+            J[3:, i] = (0.5 * np.cross(G[7][:3, 2], np.array([0, 0, -1.0])) / eps * -1
+                        + 0.5 * np.cross(z, np.array([0, 0, -1.0])) / eps)
         lam = 0.05
         Jp = J.T @ np.linalg.inv(J @ J.T + lam ** 2 * np.eye(6))
-        null = (np.eye(7) - Jp @ J) @ (0.1 * (REST - q))
+        null = (np.eye(7) - Jp @ J) @ (0.1 * (REST - q))    # move towards REST without moving the TCP
         q = np.clip(q + Jp @ err + null, LOWER, UPPER)
     F = fk(q)
     return q, np.linalg.norm(F[7][:3, 3] - target) * 1000 < 2.0

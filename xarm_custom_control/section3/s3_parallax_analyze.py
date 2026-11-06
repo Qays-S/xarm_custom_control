@@ -1,20 +1,17 @@
 #!/usr/bin/env python3
 """
-Height / parallax sensitivity of the table homography.
+How wrong the table homography gets for points held above the table (parallax).
 
-For every point recorded by `s3_collect.py parallax`, the tip's true table position is
-the arm's (X, Y); its height above the table is Z minus the Z of that spot's table
-touch (the lowest Z recorded at that spot). Projecting the tip's pixel through H
-treats it as if it were on the table, so the error ||H(u,v) - (X,Y)|| shows how wrong
-planar projection becomes for an elbow, wrist or hand held above the table.
+Each point from `s3_collect.py parallax` is projected through H as if it were on the table;
+the distance to the arm's true (X, Y) is the error, and height = Z minus that spot's table touch.
 
 Usage
   python3 s3_parallax_analyze.py parallax_session.json --calib camera_calibration_s3.json
                                  [--calib-error-mm 7.5]
 Writes <session>_analysis/: parallax_points.csv, parallax_by_height.csv, summary.json,
 parallax_vs_height.png, parallax_vectors.png.
---calib-error-mm (default: held-out mean stored in the calibration file) is used to
-report the height at which parallax error exceeds the calibration error itself.
+--calib-error-mm (default: the held-out mean in the calibration file) is used to report the
+height where parallax error passes the calibration error.
 """
 import argparse
 import csv
@@ -38,6 +35,7 @@ def main():
     hm = np.array(cal["homography"], float)
     cal_err = a.calib_error_mm or cal.get("heldout_mean_error_mm") or cal.get("mean_error_mm")
 
+    # ---- error of every point: project its pixel through H, compare with the arm's X, Y
     rows = []
     for loc in sorted({p["location"] for p in s["points"]}):
         pts = [p for p in s["points"] if p["location"] == loc]
@@ -63,7 +61,7 @@ def main():
 
     h = np.array([r["height_mm"] for r in rows])
     e = np.array([r["error_mm"] for r in rows])
-    above = h > 5
+    above = h > 5                                  # more than 5 mm above the table counts as "raised"
     # least-squares slope through the origin per spot (a first-order summary; the
     # by-height table and plot show the full, possibly non-linear, relationship)
     e0 = {loc: next(r["error_mm"] for r in rows if r["location"] == loc and r["height_mm"] <= 5)
@@ -76,13 +74,15 @@ def main():
             slopes.append(float(np.sum(h[m] * e[m]) / np.sum(h[m] ** 2)))
     slope = float(np.median(slopes)) if slopes else float("nan")
 
+    # ---- error by height bin (bins centred on 0, 25, 50 ... mm)
     bins = np.arange(0, h.max() + a.bin_mm, a.bin_mm)
     by = []
     for lo in bins:
         m = (h >= lo - a.bin_mm / 2) & (h < lo + a.bin_mm / 2)
         if m.any():
             st = stats(e[m])
-            by.append({"height_mm": float(lo), **{k: round(v, 2) if isinstance(v, float) else v for k, v in st.items()}})
+            by.append({"height_mm": float(lo),
+                       **{k: round(v, 2) if isinstance(v, float) else v for k, v in st.items()}})
     with open(os.path.join(out, "parallax_by_height.csv"), "w", newline="") as f:
         wr = csv.DictWriter(f, by[0].keys())
         wr.writeheader()
@@ -105,6 +105,7 @@ def main():
                "by_height": by}
     save_json(os.path.join(out, "summary.json"), summary)
 
+    # ---- plots: error vs height per spot, and arrows from true to projected position
     try:
         import matplotlib
         matplotlib.use("Agg")

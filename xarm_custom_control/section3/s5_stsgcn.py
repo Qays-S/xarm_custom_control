@@ -1,37 +1,11 @@
 #!/usr/bin/env python3
 """
-Blueprint Section V, step 30 (and Part II step 5): fine-tune the pre-trained STS-GCN forecaster
-released with ManiCast on our camera recordings, following the ManiCast recipe.
+Step 30: fine-tune the pre-trained STS-GCN released with ManiCast on our recordings (ManiCast recipe).
 
-Needs a local copy of the ManiCast repository (code + released checkpoints):
+Needs ManiCast locally (its model class and checkpoints are loaded, nothing is copied):
   git clone https://github.com/portal-cornell/manicast ~/manicast
-Nothing from that repository is copied into ours; this script imports its model class and loads
-its checkpoint files from --manicast-dir.
-
-The released model is fixed in shape: 10 input frames -> 25 output frames at 25 Hz (0.4 s of
-history, 1.0 s forecast), 7 joints in 3-D metres, centred on the waist at the last input frame:
-  BackTop, LShoulderBack, RShoulderBack, LElbowOut, RElbowOut, LWristOut, RWristOut
-How our 2-D camera keypoints are fed in:
-  * joints   BackTop = midpoint of the two shoulders; the other six are MediaPipe's shoulders,
-             elbows and wrists (both arms; the left arm mostly rests and is often missing)
-  * timing   our raw detections are interpolated at 25 Hz (gaps longer than 0.25 s stay missing)
-  * 2-D->3-D image u,v become the two horizontal axes (x = person's right, z = backwards), scaled
-             so that the median shoulder width matches CoMaD's (0.32 m); the vertical axis is held
-             at each joint's average CoMaD height. The pose is placed so BackTop sits where it
-             sits on average in CoMaD. Only the horizontal axes are used in the loss and the score.
-  * missing  inside the input, a missing joint is filled with its nearest observation in the
-             window, or with its average offset from BackTop; missing targets are left out of the loss
-Fine-tuning recipe (ManiCast): Adam, weight decay 1e-5; every update is one ordinary batch plus one
-batch of "transition" windows (a reach starts or a switch is cued within the next 1.0 s); both
-wrists are weighted 5x in the loss. The learning rate is tuned on D_val; each run stops when the
-validation error has not improved for 10 epochs (at most 100).
-
-Compared on exactly the same validation windows as s5_baselines.py and s5_gru.py (the forecast is
-interpolated to the same 16 Hz future steps), for the right elbow and right wrist at 0.25, 0.5 and
-1.0 s. Runs:
-  zero-shot     released AMASS model, no fine-tuning
-  fine-tuned    starts from the AMASS weights   (lr 3e-4, 1e-3, 3e-3; chosen on val)
-  from scratch  same network, random start      (lr 1e-3, 1e-2; chosen on val) - shows what pre-training adds
+Runs, all scored on the same val windows as the other models (right elbow and wrist, up to 1.0 s):
+  zero-shot (released AMASS weights), fine-tuned (lr 3e-4/1e-3/3e-3), from scratch (lr 1e-3/1e-2).
 
 Usage
   python3 s5_stsgcn.py --manicast-dir ~/manicast           # 5 training runs, roughly 45-75 min on a laptop CPU
@@ -50,6 +24,8 @@ import torch
 
 from s5_data import ade_fde_px, eval_mask, load, windows
 
+# The released model is fixed: 10 frames in -> 25 frames out at 25 Hz (0.4 s history, 1.0 s forecast),
+# 7 joints in 3-D metres. Our raw detections are interpolated at 25 Hz; gaps > 0.25 s stay missing.
 FPS, DT, N_IN, N_OUT, MAX_GAP = 25, 0.04, 10, 25, 0.25
 CJ = ["BackTop", "LShoulderBack", "RShoulderBack", "LElbowOut", "RElbowOut", "LWristOut", "RWristOut"]
 OURS = [None, "L_shoulder", "R_shoulder", "L_elbow", "R_elbow", "L_wrist", "R_wrist"]   # None = shoulder midpoint
@@ -86,6 +62,8 @@ def comad_reference(manicast_dir):
 
 # ------------------------------------------------------------------ our tracks at 25 Hz
 class RawTracks:
+    """One session's raw detections, so they can be sampled at any time (here 25 Hz)."""
+
     def __init__(self, session_dir):
         meta = json.load(open(os.path.join(session_dir, "meta.json")))
         self.W, self.H = meta.get("actual_size", [1280, 720])
@@ -98,10 +76,12 @@ class RawTracks:
             obs = np.array([f[f"{name}_missing"] == "0" for f in fr]) & ~np.isnan(u)
             self.k[name] = (self.t[obs], u[obs], v[obs])
         reaches = list(csv.DictReader(open(os.path.join(session_dir, "reaches.csv"))))
+        # "transition" events: a reach starts, or a switch is cued (used to pick transition windows)
         ev = [fnum(r["t_depart"]) for r in reaches] + [fnum(r["t_switch_cue"]) for r in reaches]
         self.events = np.sort(np.array([e for e in ev if e == e]))
 
     def at(self, name, tq):
+        """Keypoint position at times tq, interpolated only across gaps <= MAX_GAP (else NaN)."""
         to, u, v = self.k[name]
         out = np.full(tq.shape + (2,), np.nan)
         if len(to) < 2:
@@ -135,13 +115,20 @@ def build(m, sess_dirs, prepared_t, setname):
         e = rt.events
         j = np.searchsorted(e, t0, side="right")
         nxt = np.where(j < len(e), e[np.clip(j, 0, len(e) - 1)], np.inf)
-        trans.append(nxt - t0 <= N_OUT * DT)
+        trans.append(nxt - t0 <= N_OUT * DT)          # a transition happens within the next 1.0 s
         names += [name] * len(idx); idxs.append(idx)
     return np.concatenate(P), np.concatenate(trans), np.array(names), np.concatenate(idxs)
 
 
 # ------------------------------------------------------------------ to and from the model's frame
 class Frame:
+    """Turns our 2-D pixels into the model's 3-D frame and back.
+
+    Image u, v become the two horizontal axes (x = person's right, z = backwards), scaled so the
+    median shoulder width matches CoMaD's; the vertical axis is held at each joint's average CoMaD
+    height. Only the horizontal axes are used in the loss and the score.
+    """
+
     def __init__(self, ref_rel, comad_width, train_P):
         self.ref = ref_rel                                       # (7,3)
         w = np.linalg.norm(train_P[:, N_IN - 1, 2] - train_P[:, N_IN - 1, 1], axis=-1)
@@ -150,6 +137,8 @@ class Frame:
         self.default_off = np.nanmedian(rel, axis=0)             # (7,2)
 
     def fill_history(self, P):
+        """Fill missing input joints with their nearest observation in the window, or, if never
+        seen, with their usual offset from BackTop."""
         h = P[:, :N_IN].copy()
         for j in range(7):
             x = h[:, :, j]
@@ -172,6 +161,7 @@ class Frame:
         return np.stack([x, y, z], -1)
 
     def to_px(self, xyz, origin):
+        """Inverse of to3d: model metres back to pixels."""
         u = origin[:, None, None, 0] - (xyz[..., 0] - self.ref[0, 0]) / self.s
         v = origin[:, None, None, 1] - (xyz[..., 2] - self.ref[0, 2]) / self.s
         return np.stack([u, v], -1)
@@ -192,15 +182,18 @@ def tensors(fr, P):
 
 # ------------------------------------------------------------------ model
 def make_model(manicast_dir, init):
+    """ManiCast's STS-GCN, from a released checkpoint (init) or random ("scratch")."""
     sys.path.insert(0, os.path.abspath(manicast_dir))
     from model.manicast import ManiCast                          # STS-GCN, as released with ManiCast
     net = ManiCast(3, N_IN, N_OUT, 0.1, 7, 4, [3, 3], 0.0)
     if init != "scratch":
-        net.load_state_dict(torch.load(os.path.join(manicast_dir, "model_checkpoints", init), map_location="cpu"))
+        net.load_state_dict(torch.load(os.path.join(manicast_dir, "model_checkpoints", init),
+                                       map_location="cpu"))
     return net
 
 
 def forward(net, X, bs=1024):
+    """Run the network in batches; output (N,25,7,3) metres."""
     net.eval(); out = []
     with torch.no_grad():
         for i in range(0, len(X), bs):
@@ -233,6 +226,8 @@ def score(pred16, wv, ks):
 
 
 def train(net, data, cfg, ks, log_path, seed, max_epochs, patience):
+    """ManiCast recipe: Adam (weight decay 1e-5); each update = one ordinary batch + one batch of
+    transition windows; both wrists weighted wrist_w (5x). Early stop on val ADE."""
     torch.manual_seed(seed); np.random.seed(seed)
     Xt, Yt, Mt, tr, fr, Xv, ov, cv, wv = data
     opt = torch.optim.Adam(net.parameters(), lr=cfg["lr"], weight_decay=1e-5)
@@ -288,7 +283,8 @@ def main():
     ap.add_argument("--quick", action="store_true")
     a = ap.parse_args()
     if not os.path.exists(os.path.join(a.manicast_dir, "model", "manicast.py")):
-        sys.exit(f"ManiCast not found in {a.manicast_dir}. Run: git clone https://github.com/portal-cornell/manicast {a.manicast_dir}")
+        sys.exit(f"ManiCast not found in {a.manicast_dir}. "
+                 f"Run: git clone https://github.com/portal-cornell/manicast {a.manicast_dir}")
     os.makedirs(a.out, exist_ok=True)
     torch.set_num_threads(max(1, os.cpu_count() or 1))
 
@@ -313,6 +309,7 @@ def main():
     data = (Xt, Yt, Mt, trt, fr, Xv, ov, cv, wv)
 
     def predict16(net):
+        # windows without a usable input pose fall back to "current pose"
         p = to_eval16(fr, forward(net, Xv), ov, cv)
         hold = np.repeat((cv[:, [R_ELBOW, R_WRIST]] / SIZE)[:, None], 16, 1)
         p[~uv, :, :2] = hold[~uv]
@@ -332,7 +329,8 @@ def main():
             name = f"{'finetune' if init == 'base' else 'scratch'}_lr{lr:g}"
             t0 = time.time()
             net, b, curve = train(make_model(a.manicast_dir, init), data, cfg, ks,
-                                  os.path.join(a.out, f"learning_curve_{name}.csv"), a.seed, a.max_epochs, a.patience)
+                                  os.path.join(a.out, f"learning_curve_{name}.csv"), a.seed,
+                                  a.max_epochs, a.patience)
             curves[name] = curve
             search.append((name, round(b, 3), len(curve)))
             print(f"  {name:<20} best val ADE {b:6.2f} px  ({len(curve)} epochs, {time.time() - t0:.0f} s)")
@@ -351,11 +349,13 @@ def main():
 
     # earlier models on the same windows, from their saved results
     prev = {}
-    for path, key in (("logs/forecast_results/baselines_val.csv", None), ("logs/forecast_results/gru/gru_val.csv", None)):
+    for path, key in (("logs/forecast_results/baselines_val.csv", None),
+                      ("logs/forecast_results/gru/gru_val.csv", None)):
         if os.path.exists(path):
             for r in csv.DictReader(open(path)):
                 nm = r["model"].split(" h")[0] if r["model"].startswith("GRU") else r["model"]
-                prev.setdefault(nm, {})[float(r["horizon_s"])] = (float(r["elbow_ade_px"]), float(r["wrist_ade_px"]))
+                prev.setdefault(nm, {})[float(r["horizon_s"])] = (float(r["elbow_ade_px"]),
+                                                                  float(r["wrist_ade_px"]))
 
     print(f"\nRight elbow / right wrist ADE (px) on the validation set")
     print(f"{'model':<32}" + "".join(f"{f'{h} s':>16}" for h in hz))
@@ -380,12 +380,15 @@ def main():
         line += f"  {c} {ad[:, 1].mean():.1f}"
     print("\n" + line)
 
+    # inference time, one window at a time on one CPU thread (first 20 runs are warm-up)
     best_ft.eval(); torch.set_num_threads(1); ts = []
     with torch.no_grad():
         for i in range(220):
-            t0 = time.perf_counter(); best_ft(torch.from_numpy(Xv[i % len(Xv)][None])); ts.append((time.perf_counter() - t0) * 1e3)
+            t0 = time.perf_counter(); best_ft(torch.from_numpy(Xv[i % len(Xv)][None]))
+            ts.append((time.perf_counter() - t0) * 1e3)
     ts = np.array(ts[20:])
-    print(f"Inference time, one window, 1 CPU thread: median {np.median(ts):.2f} ms, p95 {np.percentile(ts, 95):.2f} ms")
+    print(f"Inference time, one window, 1 CPU thread: median {np.median(ts):.2f} ms, "
+          f"p95 {np.percentile(ts, 95):.2f} ms")
     json.dump({"median_ms": round(float(np.median(ts)), 3), "p95_ms": round(float(np.percentile(ts, 95)), 3)},
               open(os.path.join(a.out, "stsgcn_inference_time.json"), "w"))
 
@@ -395,7 +398,8 @@ def main():
         for n, c in curves.items():
             c = np.array(c); ls = "-" if n.startswith("finetune") else "--"
             ax[0].plot(c[:, 0], c[:, 1], ls, label=n, lw=1.2); ax[1].plot(c[:, 0], c[:, 2], ls, label=n, lw=1.2)
-        zsv = np.mean([(results['zero-shot (AMASS weights)'][0][k]['elbow'] + results['zero-shot (AMASS weights)'][0][k]['wrist']) / 2 for k in ks])
+        zsv = np.mean([(results['zero-shot (AMASS weights)'][0][k]['elbow']
+                        + results['zero-shot (AMASS weights)'][0][k]['wrist']) / 2 for k in ks])
         ax[1].axhline(zsv, color="gray", lw=1, ls=":", label="zero-shot")
         ax[0].set(xlabel="epoch", ylabel="train loss (m)", yscale="log", title="Training loss")
         ax[1].set(xlabel="epoch", ylabel="val mean ADE, elbow + wrist (px)", title="Validation ADE")

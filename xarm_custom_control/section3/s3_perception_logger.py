@@ -1,20 +1,6 @@
 #!/usr/bin/env python3
 """
-Record what the camera and pose detector see, frame by frame, for Section III
-(and later as the raw input for the forecasting datasets).
-
-For every frame it saves:
-  * the raw RGB frame (frames/000123.jpg, or .png with --lossless)
-  * pixel coordinates (u, v) and detector confidence for the left and right
-    shoulder, elbow, wrist and hand, plus a missing flag per keypoint
-  * timing: when the read started/finished, when detection finished, and the
-    camera driver's own timestamp if it provides one
-
-Keypoints: MediaPipe Pose (shoulder 11/12, elbow 13/14, wrist 15/16; confidence =
-landmark visibility). "Hand" = MediaPipe Hands landmark 9 (base of the middle
-finger) of the hand nearest each pose wrist; confidence = hand detection score.
-Pose smoothing is OFF by default so jitter and latency are measured honestly
-(--smooth turns it on, matching arm_mimic.py, and is recorded in meta.json).
+Record what the camera and pose detector see, frame by frame (raw frames, arm keypoints, timing).
 
 Keys while recording (window focused)
   s   start/stop a STATIC HOLD segment (keep the arm still; used to measure jitter)
@@ -38,12 +24,14 @@ import cv2
 
 from s3_common import CAM_H, CAM_W, open_camera
 
+# MediaPipe Pose landmark numbers; confidence = the landmark's visibility score.
 POSE_IDS = {"L_shoulder": 11, "R_shoulder": 12, "L_elbow": 13, "R_elbow": 14, "L_wrist": 15, "R_wrist": 16}
 KEYPOINTS = ["L_shoulder", "L_elbow", "L_wrist", "L_hand", "R_shoulder", "R_elbow", "R_wrist", "R_hand"]
-HAND_CENTER = 9
+HAND_CENTER = 9   # "hand" = MediaPipe Hands landmark 9, the base knuckle of the middle finger
 
 
 def detect(pose, hands, rgb, w, h, conf_th):
+    """Keypoints {name: (u, v, conf)} in pixels, missing flags, and whether a body was found."""
     out = {k: (float("nan"), float("nan"), 0.0) for k in KEYPOINTS}
     pr = pose.process(rgb)
     pose_found = pr.pose_landmarks is not None
@@ -58,12 +46,14 @@ def detect(pose, hands, rgb, w, h, conf_th):
             for hl, hd in zip(hr.multi_hand_landmarks, hr.multi_handedness):
                 c = hl.landmark[HAND_CENTER]
                 cands.append((c.x * w, c.y * h, float(hd.classification[0].score)))
+            # Give each arm the detected hand closest to its pose wrist (within 15% of the image).
             for side in "LR":
                 wu, wv, _ = out[f"{side}_wrist"]
                 if pose_found and wu == wu:  # wrist known: take the closest hand
                     best = min(cands, key=lambda c: (c[0] - wu) ** 2 + (c[1] - wv) ** 2)
                     if (best[0] - wu) ** 2 + (best[1] - wv) ** 2 < (0.15 * max(w, h)) ** 2:
                         out[f"{side}_hand"] = best
+    # missing = confidence below the threshold, or no position at all (NaN != NaN)
     missing = {k: int(not (out[k][2] >= conf_th and out[k][0] == out[k][0])) for k in KEYPOINTS}
     return out, missing, pose_found
 
@@ -79,7 +69,7 @@ def main():
     ap.add_argument("--no-frames", action="store_true", help="do not save frames (NOT for paper data)")
     ap.add_argument("--no-view", action="store_true")
     ap.add_argument("--no-hands", action="store_true")
-    ap.add_argument("--smooth", action="store_true")
+    ap.add_argument("--smooth", action="store_true")   # off by default so jitter and latency are measured honestly
     ap.add_argument("--conf", type=float, default=0.5, help="confidence below this counts as missing")
     ap.add_argument("--model-complexity", type=int, default=1)
     a = ap.parse_args()
@@ -98,6 +88,7 @@ def main():
     if not cap.isOpened():
         raise SystemExit(f"Could not open camera {a.camera}")
 
+    # ---- output files: frames/, frames.csv (one row per frame), events.csv (key presses), meta.json
     os.makedirs(os.path.join(a.out, "frames"), exist_ok=True)
     ext = ".png" if a.lossless else ".jpg"
     fcsv = open(os.path.join(a.out, "frames.csv"), "w", newline="")
@@ -120,6 +111,7 @@ def main():
     t0, n = time.monotonic(), 0
     try:
         while True:
+            # read the frame (timed), detect, save the frame and its row
             t_rs = time.monotonic()
             ok, frame = cap.read()
             t_re = time.monotonic()
@@ -131,7 +123,7 @@ def main():
             h, w = frame.shape[:2]
             if n == 0:
                 meta["actual_size"] = [w, h]
-            cam_ms = cap.get(cv2.CAP_PROP_POS_MSEC)
+            cam_ms = cap.get(cv2.CAP_PROP_POS_MSEC)        # the camera driver's own timestamp, if any
             rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
             kp, miss, found = detect(pose, hands, rgb, w, h, a.conf)
             t_de = time.monotonic()
@@ -143,6 +135,7 @@ def main():
                 u, v, c = kp[k]
                 row += [round(u, 2) if u == u else "", round(v, 2) if v == v else "", round(c, 4), miss[k]]
             fw.writerow(row)
+            # live view: green = found, red = below the confidence threshold
             if not a.no_view:
                 view = frame.copy()
                 for k in KEYPOINTS:

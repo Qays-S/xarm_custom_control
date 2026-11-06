@@ -1,13 +1,9 @@
 #!/usr/bin/env python3
 """
-Figure for Section 6.6 (replaces the old Table 8): right-wrist error 1.0 s ahead while the hand is moving,
-on the validation set and in each E5 condition, for every forecaster. Errors are ADE in pixels of the
-1280 x 720 image (1 px is about 1.5 mm at the table). The multimodal GRU is scored on its most likely mode.
+Fig. 4 bar chart: right-wrist error 1.0 s ahead while the hand moves, on val and each E5 condition.
 
-Reads the numbers s5_eval_e5.py already saved; computes nothing new.
-  logs/forecast_results/e5/e5_results.csv      (validation, moving phase, 1.0 s)
-  logs/forecast_results/e5/e5_by_condition.csv (each E5 condition)
-Bars taller than the plot are cut at the top and their value is printed above them.
+Reads the numbers s5_eval_e5.py already saved (e5_results.csv, e5_by_condition.csv); computes
+nothing new. Bars taller than the plot are cut and their value is written above them.
 
 Usage
   python3 s5_e5_figure.py
@@ -21,15 +17,19 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
 D = "logs/forecast_results/e5"
+# (name in the CSV, label in the legend)
 MODELS = [("current pose", "Current pose"), ("constant velocity (n=2)", "Constant velocity"), ("GRU", "GRU"),
           ("multimodal GRU (top mode)", "Multimodal GRU"), ("STS-GCN fine-tuned", "STS-GCN, fine-tuned")]
 COLORS = ["#2a78d6", "#eb6834", "#1baf7a", "#eda100", "#e87ba4"]
-CONDS = [("none", "normal", "Normal reach"), ("cover", "normal", "Hand covered"), ("head", "normal", "Paper above head"),
+# (perturb, lighting, label) for the six E5 groups
+CONDS = [("none", "normal", "Normal reach"), ("cover", "normal", "Hand covered"),
+         ("head", "normal", "Paper above head"),
          ("none", "dim", "Normal reach"), ("cover", "dim", "Hand covered"), ("head", "dim", "Paper above head")]
-Y_MAX = 200.0
+Y_MAX = 200.0     # px; taller bars are cut
 
 
 def main():
+    # validation numbers (moving phase, 1.0 s), then each E5 condition
     val, n_val = {}, None
     for r in csv.DictReader(open(os.path.join(D, "e5_results.csv"))):
         if r["set"] == "val" and r["phase"] == "moving" and float(r["horizon_s"]) == 1.0:
@@ -67,7 +67,8 @@ def main():
     # block labels under the ticks
     for (a, b), txt in (((1, 3), "E5, room lights at half"), ((4, 6), "E5, all lights off")):
         ax.annotate(txt, xy=((centres[a] + centres[b]) / 2, 0), xycoords=("data", "axes fraction"),
-                    xytext=(0, -34), textcoords="offset points", ha="center", va="top", fontsize=9, fontweight="bold")
+                    xytext=(0, -34), textcoords="offset points", ha="center", va="top",
+                    fontsize=9, fontweight="bold")
     ax.legend(ncol=5, loc="upper left", frameon=False, fontsize=8.5, bbox_to_anchor=(0, 1.12))
     fig.tight_layout()
     out = os.path.join(D, "e5_by_condition.png")

@@ -1,17 +1,7 @@
 #!/usr/bin/env python3
 """
-Summarise recordings from s4_record_targets.py for blueprint Section IV.
-
-Gives the "required outputs" that can be computed before any model is trained:
-  * counts and durations by participant and condition (E1-E4)
-  * frame rate, dropped/failed reads, and missing-keypoint rates (overall and
-    during occlusion segments) for the reaching arm
-  * reach timing: reaction time (cue -> leaving the start dot) and movement time
-  * E3: time from leaving the start dot to the target being revealed
-  * E4: switch cue time vs the PHYSICAL change onset, measured from the keypoints
-    (first frame after the cue where the fingertip's direction of motion turns
-    more than --turn-deg away from the original goal), kept separate as required
-  * the dataset schema (every column written by the recorder)
+Summarise s4_record_targets.py recordings (Section IV): counts and minutes per condition,
+frame rate, missing keypoints, reach timing, E3 reveal time, E4 switch onsets, and the schema.
 
 Usage
   python3 s4_dataset_summary.py logs/E1_s01 logs/E2_s01 logs/E4_s01 [--out logs/summary]
@@ -26,6 +16,7 @@ import numpy as np
 
 
 def fnum(x):
+    """float(x), or NaN for blanks."""
     try:
         return float(x)
     except (TypeError, ValueError):
@@ -33,6 +24,7 @@ def fnum(x):
 
 
 def load(d):
+    """meta, frames, events and reaches of one session, with any later corrections applied."""
     meta = json.load(open(os.path.join(d, "meta.json")))
     frames = list(csv.DictReader(open(os.path.join(d, "frames.csv"))))
     events = list(csv.DictReader(open(os.path.join(d, "events.csv"))))
@@ -49,6 +41,7 @@ def load(d):
 
 
 def effector_track(frames, side):
+    """Time and pixel position of the fingertip per frame (hand point if the tip is missing)."""
     t = np.array([fnum(f["t_detect_end"]) for f in frames])
     xy = np.full((len(frames), 2), np.nan)
     for i, f in enumerate(frames):
@@ -60,14 +53,15 @@ def effector_track(frames, side):
 
 
 def switch_onset(t, xy, t_cue, old_px, turn_deg, win=1.5, smooth=3):
-    """First time after t_cue at which the direction of motion is > turn_deg away from old goal."""
+    """First time after t_cue at which the direction of motion is > turn_deg away from old goal.
+    This is the PHYSICAL change, measured from the keypoints, kept apart from the cue time."""
     m = (t >= t_cue - 0.2) & (t <= t_cue + win)
     tt, p = t[m], xy[m]
     ok = ~np.isnan(p[:, 0])
     tt, p = tt[ok], p[ok]
     if len(p) < smooth + 3:
         return None
-    k = np.ones(smooth) / smooth
+    k = np.ones(smooth) / smooth                     # 3-frame moving average
     ps = np.c_[np.convolve(p[:, 0], k, "valid"), np.convolve(p[:, 1], k, "valid")]
     ts = tt[smooth - 1:]
     for i in range(1, len(ps)):
@@ -76,7 +70,7 @@ def switch_onset(t, xy, t_cue, old_px, turn_deg, win=1.5, smooth=3):
         v = ps[i] - ps[i - 1]
         if np.linalg.norm(v) < 0.5:  # px per frame: not really moving
             continue
-        g = np.array(old_px) - ps[i]
+        g = np.array(old_px) - ps[i]                  # direction to the original goal
         ang = math.degrees(math.acos(np.clip(v @ g / (np.linalg.norm(v) * np.linalg.norm(g) + 1e-9), -1, 1)))
         if ang > turn_deg:
             return float(ts[i])
@@ -84,6 +78,7 @@ def switch_onset(t, xy, t_cue, old_px, turn_deg, win=1.5, smooth=3):
 
 
 def q(a, p):
+    """p-th percentile of the non-NaN values (None if empty)."""
     a = [x for x in a if x == x]
     return round(float(np.percentile(a, p)), 3) if a else None
 
@@ -118,17 +113,22 @@ def main():
             # only frames after the first touch: before it the participant may still be walking to the seat
             col = np.array([f[f"{side}_{k}_missing"] == "1" for f in frames if f.get("phase", "") != "setup"])
             miss[k] = {"all": round(float(col.mean()), 4) if len(col) else None,
-                       "occlusion": round(float(np.array([f[f"{side}_{k}_missing"] == "1" for f in frames])[occ].mean()), 4)
+                       "occlusion": round(float(np.array([f[f"{side}_{k}_missing"] == "1"
+                                                          for f in frames])[occ].mean()), 4)
                        if occ.any() else None}
+        # reach timing: reaction (cue -> leaving the start dot), movement (leaving -> arriving),
+        # and for E3 the time from leaving to the real target being revealed
         valid = [r for r in reaches if r["valid"] == "1"]
         rt = [fnum(r["t_depart"]) - fnum(r["t_cue"]) for r in valid]
         mt = [fnum(r["t_arrive"]) - fnum(r["t_depart"]) for r in valid]
         res = [fnum(r["t_resolve"]) - fnum(r["t_depart"]) for r in valid if r["t_resolve"]]
+        # E4: switch cue time vs the physical change onset
         for r in valid:
             if r["t_switch_cue"]:
                 tc = fnum(r["t_switch_cue"])
                 on = switch_onset(t, xy, tc, T[int(r["goal_cued"])]["px"], a.turn_deg)
-                onset_rows.append({"session": d, "reach": r["reach"], "kind": "reversal" if r["switch_to"] == r["start"] else "new target",
+                onset_rows.append({"session": d, "reach": r["reach"],
+                                   "kind": "reversal" if r["switch_to"] == r["start"] else "new target",
                                    "t_switch_cue": tc, "t_physical_onset": on,
                                    "delay_s": round(on - tc, 3) if on is not None else None})
         s = {"session": d, "participant": meta["participant"], "condition": mode, "duration_s": round(dur, 1),
@@ -140,8 +140,10 @@ def main():
              "e3_resolve_after_depart_s_median": q(res, 50) if res else None,
              "side": side, "missing_rate": miss, "robot_logged": os.path.exists(os.path.join(d, "robot.csv"))}
         per_session.append(s)
-        c = by_cond.setdefault((meta["participant"], mode), {"sessions": 0, "duration_s": 0, "frames": 0, "reaches_valid": 0})
+        c = by_cond.setdefault((meta["participant"], mode),
+                               {"sessions": 0, "duration_s": 0, "frames": 0, "reaches_valid": 0})
         c["sessions"] += 1; c["duration_s"] += dur; c["frames"] += len(frames); c["reaches_valid"] += len(valid)
+        # dataset schema: every column the recorder writes
         for fn in ("frames.csv", "events.csv", "reaches.csv"):
             schema[fn] = next(csv.reader(open(os.path.join(d, fn))))
         if os.path.exists(os.path.join(d, "robot.csv")):
@@ -158,6 +160,7 @@ def main():
             w = csv.DictWriter(f, onset_rows[0].keys()); w.writeheader(); w.writerows(onset_rows)
     json.dump({"sessions": per_session, "schema": schema}, open(os.path.join(a.out, "summary.json"), "w"), indent=2)
 
+    # ---- print
     print(f"{'participant':<12}{'cond':<6}{'sessions':>9}{'minutes':>9}{'frames':>8}{'reaches':>9}")
     for (p, m), c in sorted(by_cond.items()):
         print(f"{p:<12}{m:<6}{c['sessions']:>9}{c['duration_s'] / 60:>9.1f}{c['frames']:>8}{c['reaches_valid']:>9}")

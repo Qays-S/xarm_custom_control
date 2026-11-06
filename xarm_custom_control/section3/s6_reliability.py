@@ -1,37 +1,17 @@
 #!/usr/bin/env python3
 """
-Blueprint Section VI, steps 36-40 (and Algorithm 1, steps 3-6): learned forecast-reliability estimator.
+Steps 36-40: the learned reliability score r_t = f(o_t, u_t, e_t), in [0, 1]: a calibrated
+estimate that the next 1.0 s of forecast error stays below l_max. It is not a safety probability.
 
-  r_t = f_phi(o_t, u_t, e_t),  r_t in [0, 1],  a calibrated score that the next 1.0 s of forecast error
-  stays below l_max. It is a forecast-reliability score, not a probability that anything is safe.
-
-Data use (nothing here touches D_test, which stays locked until the planner is frozen too)
-  gate-training  D_val    fit phi; compare estimators by cross-validation over contiguous blocks of
-                          reaches within each session (5 folds), so overlapping windows of one reach
-                          never sit on both sides of a fold
-  calibration    D_cal    isotonic calibration of r_t, and the trust threshold tau for a declared
-                          false-trust budget (FTR <= 10% on D_cal)
-  stress test    E5       degraded viewing, never used for fitting or calibration
-Features and labels come from s6_features.py (frozen multimodal GRU). l_max = 32 px (about 4 cm at the
-table, at 1.27 mm per px) was fixed on D_val before any estimator was fitted.
-
-Estimators compared (step 38, H1): confidence-only (o_t), uncertainty-only (u_t), residual-only (e_t),
-combined (all). Each is fitted as a logistic regression and as a small gradient-boosted tree model;
-the one with the lower cross-validated log loss on D_val is kept. Single raw scores are also shown.
-Metrics (Section IX): Brier score and log loss for z_rel, AUROC/AUPRC for detecting high-loss moments,
-expected calibration error, false-trust rate at tau, Spearman correlation between r_t and the realised
-loss (with a reach-clustered bootstrap interval), results per condition (step 39), and detection delay
-for E4 target switches with false alarms per minute on E1 (Section IX).
+Data use (the test set is never touched here)
+  val   fit the estimators and compare them (5-fold cross-validation by blocks of reaches)
+  cal   isotonic calibration, and the trust threshold tau for a 10% false-trust budget
+  E5    stress test only, never used for fitting or calibration
 
 Usage
   python3 s6_reliability.py
-Outputs in logs/reliability/
-  features_dev.npz, features_e5.npz     the feature tables
-  estimators.csv                        cross-validated comparison on D_val, and E5 results
-  by_condition.csv                      combined estimator per condition / E5 condition
-  switch_detection.csv                  E4 switch detection delays
-  reliability_model.pkl, summary.json   the frozen estimator, calibration, l_max and tau
-  reliability_diagram.png, reliability_vs_loss.png
+Outputs in logs/reliability/: estimators.csv, by_condition.csv, switch_detection.csv,
+reliability_model.pkl, summary.json, scores_*.npz, reliability_diagram.png
 """
 import argparse
 import csv
@@ -51,33 +31,39 @@ from sklearn.preprocessing import StandardScaler
 
 from s6_features import E_COLS, O_COLS, U_COLS, build
 
-L_MAX = 32.0
-FTR_BUDGET = 0.10
+L_MAX = 32.0          # px, about 4 cm at the table; fixed on val before any estimator was fitted
+FTR_BUDGET = 0.10     # at most 10% of trusted moments may turn out unreliable (on cal)
+# The four estimators compared for H1: each feature group alone, and all three together.
 SETS = {"confidence-only (o)": O_COLS, "uncertainty-only (u)": U_COLS, "residual-only (e)": E_COLS,
         "combined (o+u+e)": O_COLS + U_COLS + E_COLS}
+# Single raw signals, shown for comparison (sign: +1 = higher means more reliable).
 RAW = {"detector confidence": ("conf_recent_mean", +1), "between-mode spread": ("between_hand_px", -1),
        "top-mode probability": ("top_prob", +1), "within-mode spread": ("within_std_hand_px", -1),
        "0.25 s residual": ("resid_4_px", -1)}
 
 
 def sub(T, m):
+    """Rows m of a feature table (dict of columns)."""
     return {k: v[m] for k, v in T.items()}
 
 
 def X(T, cols):
+    """Feature matrix with the given columns."""
     return np.stack([T[c] for c in cols], 1).astype(float)
 
 
 def make(kind):
+    """A fresh classifier: logistic regression (with missing-value fill) or small boosted trees."""
     if kind == "logistic":
         return make_pipeline(SimpleImputer(strategy="median", add_indicator=True), StandardScaler(),
                              LogisticRegression(C=1.0, max_iter=2000))
-    return HistGradientBoostingClassifier(max_depth=3, learning_rate=0.05, max_iter=200, l2_regularization=1.0,
-                                          random_state=0)
+    return HistGradientBoostingClassifier(max_depth=3, learning_rate=0.05, max_iter=200,
+                                          l2_regularization=1.0, random_state=0)
 
 
 def folds(T, n=5):
-    """Contiguous blocks of reaches within each session -> fold id."""
+    """Contiguous blocks of reaches within each session -> fold id, so overlapping windows
+    of one reach never sit on both sides of a fold."""
     f = np.zeros(len(T["reach"]), int)
     for s in np.unique(T["session"]):
         m = T["session"] == s
@@ -89,6 +75,7 @@ def folds(T, n=5):
 
 
 def ece(p, y, bins=10):
+    """Expected calibration error: average gap between predicted and observed share, over 10 bins."""
     e, n = 0.0, len(p)
     edges = np.linspace(0, 1, bins + 1)
     for lo, hi in zip(edges[:-1], edges[1:]):
@@ -99,6 +86,8 @@ def ece(p, y, bins=10):
 
 
 def metrics(r, z, L, tau=None):
+    """AUROC/AUPRC for finding unreliable moments, Brier, log loss, ECE, Spearman with the loss,
+    and with tau: trusted share, false-trust rate (FTR) and good moments missed."""
     bad = 1 - z
     out = {"n": int(len(z)), "unreliable_share": round(float(bad.mean()), 3),
            "AUROC": round(float(roc_auc_score(bad, 1 - r)), 3) if 0 < bad.sum() < len(bad) else None,
@@ -116,6 +105,7 @@ def metrics(r, z, L, tau=None):
 
 
 def boot_spearman(r, L, groups, B=500, seed=0):
+    """95% interval for Spearman's rho, resampling whole reaches (not single windows)."""
     rng = np.random.default_rng(seed)
     g = np.unique(groups)
     idx = {k: np.where(groups == k)[0] for k in g}
@@ -141,6 +131,7 @@ def main():
     a = ap.parse_args()
     os.makedirs(a.out, exist_ok=True)
 
+    # ---- features and labels (s6_features.py); z = 1 if the next 1.0 s error <= l_max
     dev = build("logs/prepared", ["val", "cal"])
     e5 = build("logs/prepared_e5", ["e5"])
     np.savez_compressed(os.path.join(a.out, "features_dev.npz"), **dev)
@@ -152,10 +143,12 @@ def main():
     for T in (V, C, E):
         T["z"] = (T["L_future"] <= L_MAX).astype(int)
     fv = fall[~np.isnan(Vall["L_future"])]
-    print(f"l_max = {L_MAX} px.  labelled windows: val {len(V['z'])} ({1 - V['z'].mean():.0%} unreliable), "
+    print(f"l_max = {L_MAX} px.  labelled windows: "
+          f"val {len(V['z'])} ({1 - V['z'].mean():.0%} unreliable), "
           f"cal {len(C['z'])} ({1 - C['z'].mean():.0%}), E5 {len(E['z'])} ({1 - E['z'].mean():.0%})")
 
-    # ---- step 38: compare estimators on D_val by cross-validation
+    # ---- step 38: compare estimators on val by cross-validation; for each feature set keep
+    # whichever model (logistic or trees) has the lower cross-validated log loss
     rows, chosen, oof_store, fold_store = [], {}, {}, {}
     for name, cols in SETS.items():
         best = None
@@ -175,25 +168,29 @@ def main():
         fold_store[name] = best[3]
         oof_store[name] = best[2]
         mtr = metrics(best[2], V["z"], V["L_future"])
-        rows.append(["val (cross-validated)", name, best[1]] + [mtr[k] for k in ("AUROC", "AUPRC", "Brier", "log_loss", "ECE", "spearman_r_vs_loss")])
+        rows.append(["val (cross-validated)", name, best[1]]
+                    + [mtr[k] for k in ("AUROC", "AUPRC", "Brier", "log_loss", "ECE", "spearman_r_vs_loss")])
     for name, (col, sign) in RAW.items():
         s = sign * V[col]
         s = np.where(np.isnan(s), np.nanmedian(s), s)
         bad = 1 - V["z"]
         rows.append(["val", f"raw score: {name}", "-", round(float(roc_auc_score(bad, -s)), 3),
-                     round(float(average_precision_score(bad, -s)), 3), "", "", "", round(float(spearmanr(s, -V["L_future"]).correlation), 3)])
+                     round(float(average_precision_score(bad, -s)), 3), "", "", "",
+                     round(float(spearmanr(s, -V["L_future"]).correlation), 3)])
 
     # ---- final estimators: fit on all of D_val, calibrate on D_cal, tau on D_cal
     final = {}
     for name, cols in SETS.items():
         mdl = make(chosen[name]).fit(X(V, cols), V["z"])
-        cal = IsotonicRegression(out_of_bounds="clip", y_min=0, y_max=1).fit(mdl.predict_proba(X(C, cols))[:, 1], C["z"])
+        cal = IsotonicRegression(out_of_bounds="clip", y_min=0, y_max=1).fit(
+            mdl.predict_proba(X(C, cols))[:, 1], C["z"])
         rc = cal.predict(mdl.predict_proba(X(C, cols))[:, 1])
         tau = choose_tau(rc, C["z"], FTR_BUDGET)
         final[name] = (mdl, cal, tau, cols)
         re = cal.predict(mdl.predict_proba(X(E, cols))[:, 1])
         mtr = metrics(re, E["z"], E["L_future"], tau)
-        rows.append(["E5 (held out)", name, chosen[name]] + [mtr[k] for k in ("AUROC", "AUPRC", "Brier", "log_loss", "ECE", "spearman_r_vs_loss")]
+        rows.append(["E5 (held out)", name, chosen[name]]
+                    + [mtr[k] for k in ("AUROC", "AUPRC", "Brier", "log_loss", "ECE", "spearman_r_vs_loss")]
                     + [round(tau, 3), mtr["trusted_share"], mtr["FTR"]])
         mo = metrics(oof_store[name], V["z"], V["L_future"], tau)
         rows[list(SETS).index(name)] += [round(tau, 3), mo["trusted_share"], mo["FTR"]]
@@ -201,10 +198,12 @@ def main():
            "tau (from cal)", "trusted_share", "FTR"]
     with open(os.path.join(a.out, "estimators.csv"), "w", newline="") as f:
         cw = csv.writer(f); cw.writerow(hdr); cw.writerows(rows)
-    print(f"\n{'data':<23}{'estimator':<38}{'model':<15}{'AUROC':>7}{'AUPRC':>7}{'Brier':>8}{'ECE':>7}{'rho':>7}{'tau':>7}{'trust':>7}{'FTR':>6}")
+    print(f"\n{'data':<23}{'estimator':<38}{'model':<15}{'AUROC':>7}{'AUPRC':>7}{'Brier':>8}{'ECE':>7}"
+          f"{'rho':>7}{'tau':>7}{'trust':>7}{'FTR':>6}")
     for r in rows:
         g = lambda i: (f"{r[i]:.3f}" if isinstance(r[i], float) else str(r[i])) if i < len(r) else ""
-        print(f"{r[0]:<23}{r[1]:<38}{r[2]:<15}{g(3):>7}{g(4):>7}{g(5):>8}{g(7):>7}{g(8):>7}{g(9):>7}{g(10):>7}{g(11):>6}")
+        print(f"{r[0]:<23}{r[1]:<38}{r[2]:<15}{g(3):>7}{g(4):>7}{g(5):>8}{g(7):>7}{g(8):>7}{g(9):>7}"
+              f"{g(10):>7}{g(11):>6}")
 
     # ---- step 39/40: combined estimator per condition, and association with the realised loss
     comb = "combined (o+u+e)"
@@ -214,28 +213,38 @@ def main():
     crow = []
     groups = [("val", c, V["cond"] == c) for c in sorted(set(V["cond"]))] + \
              [("val", "moving", V["phase"] == "moving"), ("val", "hold", V["phase"] == "hold")] + \
-             [("E5", f"{p}/{l}", (E["perturb"] == p) & (E["lighting"] == l)) for l in ("normal", "dim") for p in ("none", "cover", "head")]
+             [("E5", f"{p}/{l}", (E["perturb"] == p) & (E["lighting"] == l))
+              for l in ("normal", "dim") for p in ("none", "cover", "head")]
     print(f"\nCombined estimator per condition (val: cross-validated; E5: held out). tau = {tau:.3f}")
     print(f"{'':<18}{'n':>6}{'unrel.':>8}{'AUROC':>7}{'mean r':>8}{'trusted':>9}{'FTR':>6}")
     for src, nm, m in groups:
         T, r = (V, rv) if src == "val" else (E, re)
         mt = metrics(r[m], T["z"][m], T["L_future"][m], tau)
-        crow.append([src, nm, mt["n"], mt["unreliable_share"], mt["AUROC"], round(float(r[m].mean()), 3), mt["trusted_share"], mt["FTR"]])
-        print(f"{src + ' ' + nm:<18}{mt['n']:>6}{mt['unreliable_share']:>8.2f}{(mt['AUROC'] or float('nan')):>7.3f}{r[m].mean():>8.2f}"
+        crow.append([src, nm, mt["n"], mt["unreliable_share"], mt["AUROC"], round(float(r[m].mean()), 3),
+                     mt["trusted_share"], mt["FTR"]])
+        print(f"{src + ' ' + nm:<18}{mt['n']:>6}{mt['unreliable_share']:>8.2f}"
+              f"{(mt['AUROC'] or float('nan')):>7.3f}{r[m].mean():>8.2f}"
               f"{mt['trusted_share']:>9.2f}{(mt['FTR'] if mt['FTR'] is not None else float('nan')):>6.2f}")
     with open(os.path.join(a.out, "by_condition.csv"), "w", newline="") as f:
-        cw = csv.writer(f); cw.writerow(["data", "condition", "n", "unreliable_share", "AUROC", "mean_r", "trusted_share", "FTR"]); cw.writerows(crow)
+        cw = csv.writer(f)
+        cw.writerow(["data", "condition", "n", "unreliable_share", "AUROC", "mean_r", "trusted_share", "FTR"])
+        cw.writerows(crow)
     gv = np.array([f"{s}_{r}" for s, r in zip(V["session"], V["reach"])])
     ge = np.array([f"{s}_{r}" for s, r in zip(E["session"], E["reach"])])
-    assoc = {"val": {"spearman": round(float(spearmanr(rv, V["L_future"]).correlation), 3), "ci95_reach_bootstrap": boot_spearman(rv, V["L_future"], gv)},
-             "E5": {"spearman": round(float(spearmanr(re, E["L_future"]).correlation), 3), "ci95_reach_bootstrap": boot_spearman(re, E["L_future"], ge)}}
+    assoc = {"val": {"spearman": round(float(spearmanr(rv, V["L_future"]).correlation), 3),
+                     "ci95_reach_bootstrap": boot_spearman(rv, V["L_future"], gv)},
+             "E5": {"spearman": round(float(spearmanr(re, E["L_future"]).correlation), 3),
+                    "ci95_reach_bootstrap": boot_spearman(re, E["L_future"], ge)}}
     print(f"\nr_t vs realised 1.0 s loss (Spearman, 95% reach-bootstrap CI): val {assoc['val']}, E5 {assoc['E5']}")
 
     # ---- abrupt changes: E4 switches in D_val, detection delay; false alarms per minute on E1 val
     sw = switch_detection(dev, final[comb], tau)
     with open(os.path.join(a.out, "switch_detection.csv"), "w", newline="") as f:
-        cw = csv.writer(f); cw.writerow(["session", "reach", "t_switch_cue", "t_physical_onset", "t_detect", "delay_s"]); cw.writerows(sw["rows"])
-    print(f"\nE4 switches in D_val: {sw['n']}; r_t fell below tau within 1.5 s of the physical onset in {sw['detected']} "
+        cw = csv.writer(f)
+        cw.writerow(["session", "reach", "t_switch_cue", "t_physical_onset", "t_detect", "delay_s"])
+        cw.writerows(sw["rows"])
+    print(f"\nE4 switches in D_val: {sw['n']}; "
+          f"r_t fell below tau within 1.5 s of the physical onset in {sw['detected']} "
           f"(delay median {sw['median']} s, p90 {sw['p90']} s); on E1 val: {sw['alarms_per_min_E1']} alarms per minute, "
           f"{sw['unneeded_alarms_per_min_E1']} of them unneeded")
 
@@ -256,9 +265,11 @@ def main():
         scores[key] = {"val": rv_all, "cal": cal.predict(mdl.predict_proba(X(C_all, cols))[:, 1]),
                        "e5": cal.predict(mdl.predict_proba(X(e5, cols))[:, 1])}
     for setname, T in (("val", Vall), ("cal", C_all), ("e5", e5)):
-        np.savez_compressed(os.path.join(a.out, f"scores_{setname}.npz"), session=T["session"], anchor=T["anchor"],
-                            r_combined=scores["combined"][setname], r_uncertainty=scores["uncertainty"][setname])
+        np.savez_compressed(os.path.join(a.out, f"scores_{setname}.npz"), session=T["session"],
+                            anchor=T["anchor"], r_combined=scores["combined"][setname],
+                            r_uncertainty=scores["uncertainty"][setname])
 
+    # ---- save the frozen estimators, tau and the summary
     pickle.dump({"estimators": {k: (v[0], v[1], v[2], v[3]) for k, v in final.items()}, "l_max_px": L_MAX,
                  "ftr_budget": FTR_BUDGET}, open(os.path.join(a.out, "reliability_model.pkl"), "wb"))
     json.dump({"l_max_px": L_MAX, "l_max_note": "about 4 cm at the table (1.27 mm/px); fixed on D_val before fitting",
@@ -266,7 +277,8 @@ def main():
                "ftr_budget_on_cal": FTR_BUDGET, "chosen_models": chosen, "tau": {k: v[2] for k, v in final.items()},
                "association": assoc, "switch_detection": {k: v for k, v in sw.items() if k != "rows"},
                "counts": {"val": len(V["z"]), "cal": len(C["z"]), "e5": len(E["z"])},
-               "unreliable_share": {"val": round(float(1 - V["z"].mean()), 3), "cal": round(float(1 - C["z"].mean()), 3),
+               "unreliable_share": {"val": round(float(1 - V["z"].mean()), 3),
+                                    "cal": round(float(1 - C["z"].mean()), 3),
                                     "e5": round(float(1 - E["z"].mean()), 3)}},
               open(os.path.join(a.out, "summary.json"), "w"), indent=1)
     plots(a.out, V, rv, E, re, oof_store)
@@ -274,6 +286,7 @@ def main():
 
 
 def e5_labels(T):
+    """perturb (none / cover / head) and lighting (normal / dim) of each row's reach."""
     lab = {}
     for s in np.unique(T["session"]):
         lab[s] = list(csv.DictReader(open(os.path.join("logs", s, "reaches.csv"))))
@@ -315,7 +328,8 @@ def switch_detection(dev, est, tau, win=1.5):
             after = (ta >= on) & (ta <= on + win)
             hit = _np.where(after & (rr < tau))[0]
             td = float(ta[hit[0]]) if len(hit) else None
-            rows.append([s, r["reach"], round(tc, 3), round(on, 3), round(td, 3) if td else "", round(td - on, 3) if td else ""])
+            rows.append([s, r["reach"], round(tc, 3), round(on, 3), round(td, 3) if td else "",
+                         round(td - on, 3) if td else ""])
             if td is not None:
                 delays.append(td - on)
     # alarms on E1 val (no switches): an alarm episode is a run of consecutive steps with r_t < tau.
@@ -347,13 +361,15 @@ def switch_detection(dev, est, tau, win=1.5):
 
 
 def plots(out, V, rv, E, re, oof):
+    """Reliability diagram (predicted vs observed) and r_t vs the realised loss, val and E5."""
     try:
         import matplotlib; matplotlib.use("Agg"); import matplotlib.pyplot as plt
     except ImportError:
         return
     fig, ax = plt.subplots(1, 2, figsize=(10, 4))
     edges = np.linspace(0, 1, 11)
-    for nm, (r, z) in {"val, combined (cross-validated)": (rv, V["z"]), "E5, combined (held out)": (re, E["z"])}.items():
+    for nm, (r, z) in {"val, combined (cross-validated)": (rv, V["z"]),
+                       "E5, combined (held out)": (re, E["z"])}.items():
         xs, ys = [], []
         for lo, hi in zip(edges[:-1], edges[1:]):
             m = (r >= lo) & (r <= hi if hi == 1 else r < hi)
@@ -361,7 +377,8 @@ def plots(out, V, rv, E, re, oof):
                 xs.append(r[m].mean()); ys.append(z[m].mean())
         ax[0].plot(xs, ys, "o-", label=nm)
     ax[0].plot([0, 1], [0, 1], "k:", lw=1)
-    ax[0].set(xlabel="predicted reliability r_t", ylabel="observed share with loss <= l_max", title="Reliability diagram")
+    ax[0].set(xlabel="predicted reliability r_t", ylabel="observed share with loss <= l_max",
+              title="Reliability diagram")
     ax[0].legend(fontsize=8)
     for nm, (r, L) in {"val": (rv, V["L_future"]), "E5": (re, E["L_future"])}.items():
         xs, ys = [], []

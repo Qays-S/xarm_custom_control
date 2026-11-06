@@ -1,37 +1,16 @@
 #!/usr/bin/env python3
 """
-Blueprint Section IV (steps 25, leakage audit) and Section V (steps 26-27):
-turn the E1-E4 recordings into fixed-rate keypoint tracks and a frozen split manifest.
+Steps 25-27: turn the E1-E4 recordings into 16 Hz keypoint tracks and a frozen split manifest,
+plus a leakage audit.
 
-What it does
-  1. Resamples every session onto a fixed time grid (--dt, default 0.0625 s = 16 Hz, close
-     to the measured camera rate of 14-18 fps), using the frame capture time (t_read_end).
-     A keypoint is interpolated between two detections only if they are at most --max-gap
-     seconds apart; otherwise that step is marked missing. Nothing is filled across long gaps.
-  2. Normalises pixel coordinates by the image size (u/W, v/H) and keeps the camera metadata.
-  3. Saves, per session, logs/prepared/<session>.npz with
-        t        (T,)       grid times (s, time.monotonic clock of the recording)
-        y        (T,5,2)    normalised u,v for shoulder, elbow, wrist, hand, tip (NaN = missing)
-        conf     (T,5)      detector confidence (interpolated)
-        miss     (T,5)      1 = missing at that step
-        reach    (T,)       index of the reach the step belongs to (last cue at or before t; 0 = before the first cue)
-        goal     (T,)       current goal dot id shown on screen
-        phase    (T,)       recorder phase (cued / moving / hold)
-  4. Writes the split manifest (logs/prepared/split_manifest.json) and a leakage audit.
-
-Split (one participant, so the split is by session and by time, never by random windows)
-  * Round 1 sessions (*_s01)                     -> train
-  * Round 2 sessions (*_s02), split by reach into three contiguous blocks
-        first third -> val,  middle third -> cal,  last third -> test
-  A window (history L + future K) is only used if it lies entirely inside one block, so no
-  overlapping windows from one recording ever end up in two sets. The audit checks this.
-  * E5 sessions (degraded viewing)               -> one held-out set "e5", never trained or tuned on.
-    Prepare them into their own folder so the frozen E1-E4 manifest is not rewritten:
-      python3 s5_prepare.py logs/E5_s01 logs/E5_s02 --out logs/prepared_e5
+Split (one participant, so by session and time, never by random windows)
+  round 1 (*_s01) -> train;  round 2 (*_s02) split by reach into thirds: val, cal, test
+  E5 -> its own held-out set "e5" (prepare it into its own folder, see below)
 
 Usage
-  python3 s5_prepare.py logs/E1_s01 logs/E2_s01 logs/E3_s01 logs/E4_s01 \
+  python3 s5_prepare.py logs/E1_s01 logs/E2_s01 logs/E3_s01 logs/E4_s01 \\
                         logs/E1_s02 logs/E2_s02 logs/E3_s02 logs/E4_s02
+  python3 s5_prepare.py logs/E5_s01 logs/E5_s02 --out logs/prepared_e5
 """
 import argparse
 import csv
@@ -45,6 +24,7 @@ KP = ["shoulder", "elbow", "wrist", "hand", "tip"]
 
 
 def fnum(x):
+    """float(x), or NaN for blanks."""
     try:
         return float(x)
     except (TypeError, ValueError):
@@ -52,6 +32,7 @@ def fnum(x):
 
 
 def sha(path):
+    """SHA-256 of a file, saved in the manifest so we can prove the data never changed."""
     h = hashlib.sha256()
     with open(path, "rb") as f:
         for b in iter(lambda: f.read(1 << 20), b""):
@@ -60,6 +41,11 @@ def sha(path):
 
 
 def resample_session(d, dt, max_gap):
+    """Resample one session onto a fixed time grid (every dt s), using the frame capture time.
+
+    Returns per step: t (s), y (T,5,2) u/W and v/H (NaN = missing), conf, miss (1 = missing),
+    reach (0 = before the first cue), goal (dot shown on screen) and phase (cued / moving / hold).
+    """
     meta = json.load(open(os.path.join(d, "meta.json")))
     side = meta["side"]
     W, H = meta.get("actual_size", [1280, 720])
@@ -72,7 +58,7 @@ def resample_session(d, dt, max_gap):
     conf = np.zeros((T, len(KP)))
     miss = np.ones((T, len(KP)), np.uint8)
     for j, k in enumerate(KP):
-        u = np.array([fnum(f[f"{side}_{k}_u"]) for f in frames]) / W
+        u = np.array([fnum(f[f"{side}_{k}_u"]) for f in frames]) / W     # normalise by image size
         v = np.array([fnum(f[f"{side}_{k}_v"]) for f in frames]) / H
         c = np.array([fnum(f[f"{side}_{k}_conf"]) for f in frames])
         obs = np.array([f[f"{side}_{k}_missing"] == "0" for f in frames]) & ~np.isnan(u)
@@ -80,6 +66,8 @@ def resample_session(d, dt, max_gap):
         to = tr[obs]
         if len(to) < 2:
             continue
+        # Interpolate between two detections only if they are at most max_gap s apart;
+        # otherwise the step stays missing. Nothing is filled across long gaps.
         i = np.searchsorted(to, tg, side="right")          # first observed sample after tg
         prev_ok = i > 0
         nxt_ok = i < len(to)
@@ -105,7 +93,7 @@ def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("sessions", nargs="+")
     ap.add_argument("--out", default="logs/prepared")
-    ap.add_argument("--dt", type=float, default=0.0625)
+    ap.add_argument("--dt", type=float, default=0.0625)       # 16 Hz, close to the camera's 14-18 fps
     ap.add_argument("--max-gap", type=float, default=0.25)
     ap.add_argument("--history-s", type=float, default=1.0, help="L in seconds (used to size the split guard)")
     ap.add_argument("--horizon-s", type=float, default=1.5, help="longest K in seconds (used to size the split guard)")
