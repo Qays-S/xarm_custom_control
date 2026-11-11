@@ -22,6 +22,10 @@ Keys (camera window focused)
   o      start/stop an OCCLUSION segment     m  generic marker
   p      pause/resume cueing                  q  stop (everything is saved as you go)
 
+Live mode (H3): --live METHOD runs the robot with that planner while you reach (s9_live.py).
+  --robot dry (default) simulates the arm; --robot xarm moves the real one. 'h' = hold the robot.
+  The xArm ROS driver must NOT be running (the SDK controls the arm), so --arm is ignored.
+
 Usage
   python3 s4_record_targets.py --mode E1 --out logs/E1_s01 --targets 1 4 9 12
   python3 s4_record_targets.py --mode E4 --out logs/E4_s01 --reaches 40 --arm ros
@@ -264,7 +268,23 @@ def main():
                     help="run the detectors on a copy this wide (full-size frames are still saved); "
                          "keeps the frame rate up on a laptop CPU. 0 = detect on the full frame")
     ap.add_argument("--sim", action="store_true", help="no camera: a simulated hand follows the cues")
+    # ---- H3 live trials (s9_live.py)
+    ap.add_argument("--live", default=None, help="planner that drives the robot: reactive, cv, gru, mgru, sts, "
+                                                 "uncert, gate, full, full_nofb, full2")
+    ap.add_argument("--robot", default="dry", choices=["dry", "xarm"], help="dry = no arm (simulated loop)")
+    ap.add_argument("--ip", default="192.168.1.210")
+    ap.add_argument("--speed-scale", type=float, default=1.0, help="e.g. 0.33 for the first 50 mm/s runs")
+    ap.add_argument("--hard-stop-mm", type=float, default=20.0)
+    ap.add_argument("--delay-steps", type=int, default=3, help="perception delay the planners assume (steps)")
+    ap.add_argument("--results", default="logs/forecast_results")
+    ap.add_argument("--reliability", default="logs/reliability")
+    ap.add_argument("--replay-summary", default="logs/replay/summary.json")
+    ap.add_argument("--manicast-dir", default=os.path.expanduser("~/manicast"))
+    ap.add_argument("--prepared-train", default="logs/prepared", help="training data (sets STS-GCN's scale)")
+    ap.add_argument("--use-gripper", action="store_true", help="close/open the gripper at pick/place")
     a = ap.parse_args()
+    if a.live and a.arm == "ros":
+        a.arm = "none"   # the SDK owns the arm in live mode; robot state is logged to live.csv instead
 
     # ---- targets: dot pixel and robot positions from the calibration session
     calib = json.load(open(a.calib_session))
@@ -295,6 +315,7 @@ def main():
         if not cap.isOpened():
             raise SystemExit(f"Could not open camera {a.camera}")
         W = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH)) or 640
+        H = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT)) or 480
 
     if os.path.exists(os.path.join(a.out, "frames.csv")):
         raise SystemExit(f"{a.out} already has a recording; use a new --out (e.g. ..._s02)")
@@ -316,6 +337,17 @@ def main():
         except ImportError:
             raise SystemExit("rclpy not found: run `source ~/ros2_ws/install/setup.bash` first, "
                              "or use --arm none")
+
+    # live robot (H3): started now, moves only once cueing starts
+    ctl = None
+    if a.live:
+        from s9_live import LiveController
+        ctl = LiveController(a.out, calib, a.live, a.side, W, H, robot=a.robot, ip=a.ip, results=a.results,
+                             reliability=a.reliability, replay_summary=a.replay_summary,
+                             manicast_dir=a.manicast_dir, prepared_train=a.prepared_train,
+                             delay=a.delay_steps, hard_stop_mm=a.hard_stop_mm, v_scale=a.speed_scale,
+                             use_gripper=a.use_gripper)
+        ctl.start()
 
     # ---- output files; frames are saved by a background thread so the loop keeps its frame rate
     ext = ".png" if a.lossless else ".jpg"
@@ -349,7 +381,8 @@ def main():
             "timeout_s": a.timeout, "switch_prob": a.switch_prob if a.mode == "E4" else None,
             "e5_lighting": {"dim_at_reach": a.dim_at, "bright_at_reach": a.bright_at} if a.mode == "E5" else None,
             "arrival_marking": "manual (SPACE after uncovering; includes reaction time)" if manual else "auto",
-            "robot": "parked; read-only logging" if robot else "parked; not logged",
+            "robot": (f"live: {a.live} planner, {a.robot}" if a.live else
+                      "parked; read-only logging" if robot else "parked; not logged"),
             "gripper_state": a.gripper, "sim": a.sim, "conf_threshold": a.conf,
             "keypoint_source": "MediaPipe Pose 11-16, Hands landmark 9 (hand) and 8 (index tip); smoothing off",
             "clock": "time.monotonic (s)", "frame_format": ext}
@@ -390,6 +423,8 @@ def main():
         goal = R["goal"]
         phase = "cued"
         log(n, t, "cue", rid, goal, R["instruction"] + (f"; decoy {R['decoy']}" if R["decoy"] else ""))
+        if ctl:
+            ctl.add_cue(t)
         if a.sim:
             sim.set_goal(T[goal]["px"] if not R["decoy"] else
                          ((np.array(T[goal]["px"]) + T[R["decoy"]]["px"]) / 2), t)
@@ -505,6 +540,13 @@ def main():
                 u, v, c = kp[k]
                 row += [round(u, 2) if u == u else "", round(v, 2) if v == v else "", round(c, 4), miss[k]]
             fw.writerow(row + [goal if phase != "hold" else "", phase])
+            if ctl:
+                ctl.add_frame(t_re, kp, miss, phase, goal if phase != "hold" else "")
+                ctl.moving = phase != "setup" and not paused
+                if not ctl.running:
+                    log(n, t, "robot_stopped", "", "", ctl.status.get("override", ""))
+                    print(f"Robot loop ended: {ctl.status.get('override', '')}. Stopping the session.")
+                    break
 
             # ---- display: lit dots, the fingertip, and a banner strip under the image
             view = frame.copy()
@@ -540,6 +582,10 @@ def main():
                   f"   reaches {valid_n}/{a.reaches}   {n / max(t - t0, 1e-6):.0f} fps" + \
                   ("   OCCLUSION" if occl else "") + \
                   ("" if robot is None else f"   robot {robot.n}" if robot.n else "   ROBOT: NO DATA")
+            if ctl:
+                st = ctl.status
+                sub += f"   ROBOT {a.live} {st['a']:.2f}" + (f" [{st['override']}]" if st["override"] else "") + \
+                       ("  HELD (h)" if ctl.held else "")
             cv2.putText(strip, sub, (12, 98), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 255), 2)
             cv2.imshow(win, np.vstack([view, strip]))
             # ---- keys
@@ -563,6 +609,9 @@ def main():
                 log(n, t, f"occlusion_{'start' if occl else 'end'}")
             if key == ord("m"):
                 log(n, t, "marker")
+            if key == ord("h") and ctl:
+                ctl.held = not ctl.held
+                log(n, t, "robot_hold" if ctl.held else "robot_release")
             if key == ord("p"):
                 paused = not paused
                 log(n, t, "pause" if paused else "resume")
@@ -574,6 +623,8 @@ def main():
             R.update({"valid": 0, "note": (R["note"] + "; " if R["note"] else "") + "session ended mid-reach",
                       "goal_final": goal})
             rw.writerow([R[k] for k in RCOLS])
+        if ctl:
+            meta["live"] = ctl.close()           # stops the arm first
         saveq.put(None)
         writer.join()
         meta.update({"frames": n, "detect_width": a.detect_width, "duration_s": round(time.monotonic() - t0, 3),

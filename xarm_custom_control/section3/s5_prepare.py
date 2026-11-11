@@ -40,7 +40,7 @@ def sha(path):
     return h.hexdigest()
 
 
-def resample_session(d, dt, max_gap):
+def resample_session(d, dt, max_gap, causal=False):
     """Resample one session onto a fixed time grid (every dt s), using the frame capture time.
 
     Returns per step: t (s), y (T,5,2) u/W and v/H (NaN = missing), conf, miss (1 = missing),
@@ -57,7 +57,17 @@ def resample_session(d, dt, max_gap):
     y = np.full((T, len(KP), 2), np.nan)
     conf = np.zeros((T, len(KP)))
     miss = np.ones((T, len(KP)), np.uint8)
-    for j, k in enumerate(KP):
+    if causal:
+        # live recordings: the same rule the live controller uses (s9_online.causal_grid), so the
+        # models see identical inputs in training and on the robot
+        from s9_online import causal_grid
+        U = np.stack([[fnum(f[f"{side}_{k}_u"]) for k in KP] for f in frames])
+        V = np.stack([[fnum(f[f"{side}_{k}_v"]) for k in KP] for f in frames])
+        C = np.stack([[fnum(f[f"{side}_{k}_conf"]) for k in KP] for f in frames])
+        O = np.stack([[f[f"{side}_{k}_missing"] == "0" for k in KP] for f in frames]) & ~np.isnan(U)
+        u_, v_, conf, miss = causal_grid(tr, U, V, C, O, tg, max_gap)
+        y[..., 0], y[..., 1] = u_ / W, v_ / H
+    for j, k in enumerate(KP if not causal else []):
         u = np.array([fnum(f[f"{side}_{k}_u"]) for f in frames]) / W     # normalise by image size
         v = np.array([fnum(f[f"{side}_{k}_v"]) for f in frames]) / H
         c = np.array([fnum(f[f"{side}_{k}_conf"]) for f in frames])
@@ -95,27 +105,39 @@ def main():
     ap.add_argument("--out", default="logs/prepared")
     ap.add_argument("--dt", type=float, default=0.0625)       # 16 Hz, close to the camera's 14-18 fps
     ap.add_argument("--max-gap", type=float, default=0.25)
+    ap.add_argument("--split", default="original", choices=["original", "live"],
+                    help="live: the H3 rule (Phase A train/val/cal, Phase C sessions C_* = test)")
+    ap.add_argument("--causal", action="store_true",
+                    help="live (H3) recordings: fill a gap only from frames already seen, as the live controller does")
     ap.add_argument("--history-s", type=float, default=1.0, help="L in seconds (used to size the split guard)")
     ap.add_argument("--horizon-s", type=float, default=1.5, help="longest K in seconds (used to size the split guard)")
     a = ap.parse_args()
     os.makedirs(a.out, exist_ok=True)
     L, K = round(a.history_s / a.dt), round(a.horizon_s / a.dt)
 
-    manifest = {"version": 1, "dt": a.dt, "max_gap_s": a.max_gap, "history_steps": L, "max_horizon_steps": K,
+    manifest = {"version": 1, "dt": a.dt, "max_gap_s": a.max_gap, "causal": a.causal,
+                "history_steps": L, "max_horizon_steps": K,
                 "keypoints": KP, "coords": "u/W, v/H (normalised image coordinates)",
-                "rule": "round 1 (_s01) = train; round 2 (_s02) split by reach into thirds: val, cal, test; "
-                        "a window is used only if history and future lie inside one block",
+                "rule": ("live (H3): Phase A round 1 (_s01) = train, round 2 split by reach into halves: val, cal; "
+                         "E5 = e5; Phase C sessions (C_*) = test" if a.split == "live" else
+                         "round 1 (_s01) = train; round 2 (_s02) split by reach into thirds: val, cal, test")
+                        + "; a window is used only if history and future lie inside one block",
                 "sessions": {}}
     audit = []
     for d in a.sessions:
         name = os.path.basename(os.path.normpath(d))
-        s = resample_session(d, a.dt, a.max_gap)
+        s = resample_session(d, a.dt, a.max_gap, a.causal)
         np.savez_compressed(os.path.join(a.out, name + ".npz"), **{k: s[k] for k in
                             ("t", "y", "conf", "miss", "reach", "goal", "phase")})
         T, n = len(s["t"]), s["n_reaches"]
         # block per step
-        if s["mode"] == "E5":
+        if a.split == "live" and name.startswith("C_"):
+            blocks = [("test", 0, n)]           # H3 Phase C (planner comparison): test only, never fitted
+        elif s["mode"] == "E5":
             blocks = [("e5", 0, n)]
+        elif a.split == "live" and not name.endswith("_s01"):
+            b1 = round(n / 2)                   # H3 Phase A round 2: halves, val then cal
+            blocks = [("val", 0, b1), ("cal", b1, n)]
         elif name.endswith("_s01"):
             blocks = [("train", 0, n)]
         else:

@@ -365,6 +365,7 @@ def main():
     ap.add_argument("--results", default="logs/forecast_results")
     ap.add_argument("--out", default="logs/replay")
     ap.add_argument("--delay", type=int, default=3, help="perception delay in 16 Hz steps (0 = idealised)")
+    ap.add_argument("--calib", default="calib/calib_cam3d.json", help="calibration with dots 6 and 8 (the arm's loop)")
     a = ap.parse_args()
     global DELAY
     DELAY = a.delay
@@ -376,7 +377,7 @@ def main():
     tau2 = tau_smoothed(rel["ftr_budget_on_cal"], rel["l_max_px"])
     print(f"tau on D_cal (10% false-trust budget): raw score {tau:.3f}, smoothed score (v2) {tau2:.3f}")
 
-    path = Path(json.load(open("calib/calib_cam3d.json")))
+    path = Path(json.load(open(a.calib)))
     print(f"robot path: {path.length / 10:.0f} cm per cycle (pick dot {PICK} -> place dot {PLACE}), "
           f"IK solved at {path.ik_ok:.0%} of path samples, {path.length / V_NOM:.1f} s per cycle at full speed")
     Fv = forecasts("logs/prepared", "val", a.results, a.manicast_dir, "logs/reliability/scores_val.npz")

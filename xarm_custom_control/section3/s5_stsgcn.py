@@ -80,9 +80,13 @@ class RawTracks:
         ev = [fnum(r["t_depart"]) for r in reaches] + [fnum(r["t_switch_cue"]) for r in reaches]
         self.events = np.sort(np.array([e for e in ev if e == e]))
 
-    def at(self, name, tq):
-        """Keypoint position at times tq, interpolated only across gaps <= MAX_GAP (else NaN)."""
+    def at(self, name, tq, cut=None):
+        """Keypoint position at times tq, interpolated only across gaps <= MAX_GAP (else NaN).
+        cut (causal, live recordings): only detections up to this time may fill a gap."""
         to, u, v = self.k[name]
+        if cut is not None:
+            from s9_online import causal_at
+            return causal_at(to, u, v, tq, cut, MAX_GAP)
         out = np.full(tq.shape + (2,), np.nan)
         if len(to) < 2:
             return out
@@ -94,9 +98,9 @@ class RawTracks:
         out[ok, 1] = np.interp(tq[ok], to, v)
         return out
 
-    def joints(self, tq):
+    def joints(self, tq, cut=None):
         """(…,7,2) pixel positions in CoMaD joint order, NaN = missing."""
-        p = {n: self.at(n, tq) for n in self.k}
+        p = {n: self.at(n, tq, cut) for n in self.k}
         bt = (p["L_shoulder"] + p["R_shoulder"]) / 2
         return np.stack([bt] + [p[n] for n in OURS[1:]], axis=-2)
 
@@ -111,7 +115,14 @@ def build(m, sess_dirs, prepared_t, setname):
             continue
         rt = sess_dirs[name]
         t0 = prepared_t[name][idx]
-        P.append(rt.joints(t0[:, None] + offs[None]))
+        if m.get("causal"):
+            # live recordings: the input part may only use frames up to the first frame after t0,
+            # exactly as the live controller sees them (the future part is the label and uses all)
+            cut = rt.t[np.minimum(np.searchsorted(rt.t, t0, side="right"), len(rt.t) - 1)]
+            P.append(np.concatenate([rt.joints(t0[:, None] + offs[None, :N_IN], cut[:, None]),
+                                     rt.joints(t0[:, None] + offs[None, N_IN:])], 1))
+        else:
+            P.append(rt.joints(t0[:, None] + offs[None]))
         e = rt.events
         j = np.searchsorted(e, t0, side="right")
         nxt = np.where(j < len(e), e[np.clip(j, 0, len(e) - 1)], np.inf)
