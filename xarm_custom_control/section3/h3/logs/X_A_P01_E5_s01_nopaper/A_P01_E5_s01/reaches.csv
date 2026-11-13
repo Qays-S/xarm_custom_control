@@ -1,0 +1,9 @@
+reach,mode,start,goal_cued,decoy,instruction,t_cue,t_depart,t_resolve,switch_to,t_switch_cue,goal_final,t_arrive,arrival,valid,note,perturb,lighting
+1,E5,1,12,,"COVER your hand with the paper on the way, uncover at the dot",8426.787148,,,,,12,,timeout,0,timeout,cover,normal
+2,E5,1,9,,normal reach,8435.358889,8440.091403,,,,9,8440.569523,auto,1,,none,normal
+3,E5,9,1,,normal reach,8445.48521,8446.634137,,,,1,8447.299765,auto,1,,none,normal
+4,E5,1,4,,"hold the paper ABOVE your HEAD on the way, lower it at the dot",8451.413909,8459.071876,,,,4,8459.278469,auto,1,,head,normal
+5,E5,4,1,,"COVER your hand with the paper on the way, uncover at the dot",8463.079129,8465.305926,,,,1,8467.229359,auto,1,,cover,normal
+6,E5,1,9,,"hold the paper ABOVE your HEAD on the way, lower it at the dot",8472.171765,8478.23317,,,,9,,timeout,0,timeout,head,normal
+7,E5,1,9,,"hold the paper ABOVE your HEAD on the way, lower it at the dot",8480.763054,8480.841621,,,,9,,timeout,0,timeout,head,normal
+8,E5,1,12,,normal reach,8489.332514,8489.732756,,,,12,,,0,session ended mid-reach,none,normal

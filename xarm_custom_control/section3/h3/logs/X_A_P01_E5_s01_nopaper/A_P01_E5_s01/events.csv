@@ -1,0 +1,25 @@
+frame,t,event,reach,target,detail
+48,8425.760866,setup_touch,,1,
+70,8426.787148,cue,1,12,"COVER your hand with the paper on the way, uncover at the dot"
+233,8434.815067,timeout,1,12,
+244,8435.358889,cue,2,9,normal reach
+339,8440.091403,depart,2,1,
+349,8440.569523,arrive,2,9,auto
+451,8445.48521,cue,3,1,normal reach
+474,8446.634137,depart,3,9,
+488,8447.299765,arrive,3,1,auto
+575,8451.413909,cue,4,4,"hold the paper ABOVE your HEAD on the way, lower it at the dot"
+728,8459.071876,depart,4,1,
+731,8459.278469,arrive,4,4,auto
+790,8463.079129,cue,5,1,"COVER your hand with the paper on the way, uncover at the dot"
+825,8465.305926,depart,5,4,
+854,8467.229359,arrive,5,1,auto
+932,8472.171765,cue,6,9,"hold the paper ABOVE your HEAD on the way, lower it at the dot"
+1025,8478.23317,depart,6,1,
+1057,8480.193277,timeout,6,9,
+1066,8480.763054,cue,7,9,"hold the paper ABOVE your HEAD on the way, lower it at the dot"
+1067,8480.841621,depart,7,1,
+1172,8488.790129,timeout,7,9,
+1180,8489.332514,cue,8,12,normal reach
+1186,8489.732756,depart,8,1,
+1239,8493.418411,quit,,,

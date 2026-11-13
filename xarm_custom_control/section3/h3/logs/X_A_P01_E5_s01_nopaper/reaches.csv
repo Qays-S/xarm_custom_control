@@ -1,0 +1,4 @@
+reach,mode,start,goal_cued,decoy,instruction,t_cue,t_depart,t_resolve,switch_to,t_switch_cue,goal_final,t_arrive,arrival,valid,note,perturb,lighting
+1,E5,1,4,,normal reach,8318.387084,8320.022128,,,,4,8320.601759,auto,1,,none,normal
+2,E5,4,9,,"hold the paper ABOVE your HEAD on the way, lower it at the dot",8325.168799,8330.752014,,,,9,,timeout,0,timeout,head,normal
+3,E5,4,1,,"hold the paper ABOVE your HEAD on the way, lower it at the dot",8333.705126,,,,,1,,,0,session ended mid-reach,head,normal

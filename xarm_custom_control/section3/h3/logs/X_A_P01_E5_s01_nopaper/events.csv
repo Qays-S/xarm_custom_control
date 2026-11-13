@@ -1,0 +1,10 @@
+frame,t,event,reach,target,detail
+32,8317.310712,setup_touch,,1,
+46,8318.387084,cue,1,4,normal reach
+66,8320.022128,depart,1,1,
+73,8320.601759,arrive,1,4,auto
+130,8325.168799,cue,2,9,"hold the paper ABOVE your HEAD on the way, lower it at the dot"
+202,8330.752014,depart,2,4,
+231,8333.193293,timeout,2,9,
+236,8333.705126,cue,3,1,"hold the paper ABOVE your HEAD on the way, lower it at the dot"
+245,8334.586534,quit,,,
