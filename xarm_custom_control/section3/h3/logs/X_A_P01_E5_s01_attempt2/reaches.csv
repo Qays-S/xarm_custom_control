@@ -1,0 +1,28 @@
+reach,mode,start,goal_cued,decoy,instruction,t_cue,t_depart,t_resolve,switch_to,t_switch_cue,goal_final,t_arrive,arrival,valid,note,perturb,lighting
+1,E5,1,12,,"hold the paper ABOVE your HEAD on the way, lower it at the dot",8530.973798,8536.235164,,,,12,,timeout,0,timeout,head,normal
+2,E5,1,12,,"COVER your hand with the paper on the way, uncover at the dot",8539.511358,8539.703195,,,,12,8540.71479,auto,1,,cover,normal
+3,E5,12,9,,"COVER your hand with the paper on the way, uncover at the dot",8544.937817,8548.723488,,,,9,8551.142126,auto,1,,cover,normal
+4,E5,9,1,,normal reach,8556.194851,8558.180858,,,,1,8558.675743,auto,1,,none,normal
+5,E5,1,12,,"hold the paper ABOVE your HEAD on the way, lower it at the dot",8563.295175,8566.585746,,,,12,8567.927765,auto,1,,head,normal
+6,E5,12,1,,"hold the paper ABOVE your HEAD on the way, lower it at the dot",8572.56535,8576.653107,,,,1,8577.542897,auto,1,,head,normal
+7,E5,1,4,,normal reach,8581.708122,8583.593488,,,,4,8584.186154,auto,1,,none,normal
+8,E5,4,12,,"COVER your hand with the paper on the way, uncover at the dot",8588.623313,8590.949604,,,,12,8594.942245,auto,1,,cover,normal
+9,E5,12,4,,"COVER your hand with the paper on the way, uncover at the dot",8599.878086,8600.180923,,,,4,8605.798631,auto,1,,cover,normal
+10,E5,4,9,,"COVER your hand with the paper on the way, uncover at the dot",8610.534754,8612.376062,,,,9,8614.609382,auto,1,,cover,normal
+11,E5,9,4,,"COVER your hand with the paper on the way, uncover at the dot",8618.998067,8619.235228,,,,4,8622.732236,auto,1,,cover,normal
+12,E5,4,1,,"COVER your hand with the paper on the way, uncover at the dot",8626.427886,8628.26162,,,,1,8630.186375,auto,1,,cover,normal
+13,E5,1,4,,"hold the paper ABOVE your HEAD on the way, lower it at the dot",8634.014866,8637.149223,,,,4,8637.758173,auto,1,,head,normal
+14,E5,4,9,,"hold the paper ABOVE your HEAD on the way, lower it at the dot",8641.549479,8646.1988,,,,9,8647.515945,auto,1,,head,normal
+15,E5,9,1,,normal reach,8652.498877,8654.150537,,,,1,8654.567011,auto,1,,none,normal
+16,E5,1,12,,"hold the paper ABOVE your HEAD on the way, lower it at the dot",8658.870762,8661.445134,,,,12,8662.499492,auto,1,,head,normal
+17,E5,12,1,,"hold the paper ABOVE your HEAD on the way, lower it at the dot",8666.175083,8669.967265,,,,1,8671.205565,auto,1,,head,normal
+18,E5,1,4,,normal reach,8675.986768,8678.17352,,,,4,8678.799254,auto,1,,none,normal
+19,E5,4,9,,normal reach,8683.174147,8684.344377,,,,9,8685.911894,auto,1,,none,normal
+20,E5,9,12,,"hold the paper ABOVE your HEAD on the way, lower it at the dot",8689.720804,8691.325184,,,,12,8693.70308,auto,1,,head,normal
+21,E5,12,9,,"COVER your hand with the paper on the way, uncover at the dot",8714.475483,8715.23281,,,,9,,timeout,0,timeout,cover,dim
+22,E5,12,9,,normal reach,8723.10582,8724.000129,,,,9,8724.707551,auto,1,,none,dim
+23,E5,9,1,,"hold the paper ABOVE your HEAD on the way, lower it at the dot",8729.682502,8731.31475,,,,1,8732.374041,auto,1,,head,dim
+24,E5,1,12,,"hold the paper ABOVE your HEAD on the way, lower it at the dot",8737.160913,8744.366927,,,,12,,timeout,0,timeout,head,dim
+25,E5,1,9,,"COVER your hand with the paper on the way, uncover at the dot",8745.757291,8745.836149,,,,9,,timeout,0,timeout,cover,dim
+26,E5,1,12,,"hold the paper ABOVE your HEAD on the way, lower it at the dot",8754.302321,8754.980753,,,,12,8761.923452,auto,1,,head,dim
+27,E5,12,1,,"hold the paper ABOVE your HEAD on the way, lower it at the dot",8765.673999,8766.002585,,,,1,,,0,session ended mid-reach,head,dim
