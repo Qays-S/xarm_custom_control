@@ -1,0 +1,33 @@
+frame,t,event,reach,target,detail
+54,6041.014303,setup_touch,,1,
+64,6042.071876,cue,1,4,"fast, straight"
+80,6043.820144,depart,1,1,
+85,6044.285768,arrive,1,4,auto
+86,6044.38282,cue,2,12,"normal, curved"
+103,6046.081202,depart,2,4,
+109,6046.682647,arrive,2,12,auto
+110,6046.785065,cue,3,1,"normal, straight"
+124,6048.19462,depart,3,12,
+129,6048.703283,arrive,3,1,auto
+130,6048.811412,cue,4,9,"fast, straight"
+145,6050.374058,depart,4,1,
+150,6050.91014,arrive,4,9,auto
+151,6051.011517,cue,5,1,"slow, straight"
+167,6052.624549,depart,5,9,
+170,6052.920662,arrive,5,1,auto
+171,6053.020012,cue,6,4,"fast, curved"
+184,6054.369262,depart,6,1,
+189,6054.916693,arrive,6,4,auto
+190,6055.022016,cue,7,9,"slow, curved"
+206,6056.695977,depart,7,4,
+210,6057.107174,arrive,7,9,auto
+211,6057.209278,cue,8,4,"slow, curved"
+227,6058.84029,depart,8,9,
+232,6059.368188,arrive,8,4,auto
+233,6059.477842,cue,9,12,"fast, straight"
+262,6062.421092,depart,9,4,
+265,6062.720375,arrive,9,12,auto
+266,6062.821266,cue,10,4,"fast, straight"
+293,6065.563986,depart,10,12,
+297,6065.977229,arrive,10,4,auto
+298,6066.081455,session_complete,,,
