@@ -1,0 +1,7 @@
+reach,mode,start,goal_cued,decoy,instruction,t_cue,t_depart,t_resolve,switch_to,t_switch_cue,goal_final,t_arrive,arrival,valid,note,perturb,lighting
+1,E2,1,4,,"fast, straight",6472.672148,6474.249344,,,,4,6475.036218,auto,1,,,
+2,E2,4,9,,"normal, curved",6475.085032,6477.977044,,,,9,6479.984213,auto,1,,,
+3,E2,9,1,,"slow, curved",6480.03329,6481.403509,,,,1,6481.859173,auto,1,,,
+4,E2,1,4,,"slow, straight",6481.910088,6483.353637,,,,4,6483.894749,auto,1,,,
+5,E2,4,12,,"slow, straight",6483.941821,6486.755702,,,,12,,timeout,0,timeout,,
+6,E2,4,1,,"normal, straight",6490.484155,6492.017835,,,,1,6492.411875,auto,1,,,
