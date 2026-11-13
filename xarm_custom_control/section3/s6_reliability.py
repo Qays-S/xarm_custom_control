@@ -133,19 +133,24 @@ def main():
 
     # ---- features and labels (s6_features.py); z = 1 if the next 1.0 s error <= l_max
     dev = build("logs/prepared", ["val", "cal"])
-    e5 = build("logs/prepared_e5", ["e5"])
+    # E5 (the paper / dim-light stress test) was dropped from the live study; it is used only if prepared
+    has_e5 = os.path.isdir("logs/prepared_e5")
+    e5 = build("logs/prepared_e5", ["e5"]) if has_e5 else None
     np.savez_compressed(os.path.join(a.out, "features_dev.npz"), **dev)
-    np.savez_compressed(os.path.join(a.out, "features_e5.npz"), **e5)
+    if has_e5:
+        np.savez_compressed(os.path.join(a.out, "features_e5.npz"), **e5)
     lab = lambda T: sub(T, ~np.isnan(T["L_future"]))
     Vall = sub(dev, dev["set"] == "val")
     fall = folds(Vall)                                   # fold of every val row, labelled or not
-    V, C, E = lab(Vall), lab(sub(dev, dev["set"] == "cal")), lab(e5)
-    for T in (V, C, E):
+    V, C = lab(Vall), lab(sub(dev, dev["set"] == "cal"))
+    E = lab(e5) if has_e5 else None
+    for T in (V, C) + ((E,) if has_e5 else ()):
         T["z"] = (T["L_future"] <= L_MAX).astype(int)
     fv = fall[~np.isnan(Vall["L_future"])]
     print(f"l_max = {L_MAX} px.  labelled windows: "
           f"val {len(V['z'])} ({1 - V['z'].mean():.0%} unreliable), "
-          f"cal {len(C['z'])} ({1 - C['z'].mean():.0%}), E5 {len(E['z'])} ({1 - E['z'].mean():.0%})")
+          f"cal {len(C['z'])} ({1 - C['z'].mean():.0%})"
+          + (f", E5 {len(E['z'])} ({1 - E['z'].mean():.0%})" if has_e5 else ", no E5"))
 
     # ---- step 38: compare estimators on val by cross-validation; for each feature set keep
     # whichever model (logistic or trees) has the lower cross-validated log loss
@@ -187,11 +192,12 @@ def main():
         rc = cal.predict(mdl.predict_proba(X(C, cols))[:, 1])
         tau = choose_tau(rc, C["z"], FTR_BUDGET)
         final[name] = (mdl, cal, tau, cols)
-        re = cal.predict(mdl.predict_proba(X(E, cols))[:, 1])
-        mtr = metrics(re, E["z"], E["L_future"], tau)
-        rows.append(["E5 (held out)", name, chosen[name]]
-                    + [mtr[k] for k in ("AUROC", "AUPRC", "Brier", "log_loss", "ECE", "spearman_r_vs_loss")]
-                    + [round(tau, 3), mtr["trusted_share"], mtr["FTR"]])
+        if has_e5:
+            re = cal.predict(mdl.predict_proba(X(E, cols))[:, 1])
+            mtr = metrics(re, E["z"], E["L_future"], tau)
+            rows.append(["E5 (held out)", name, chosen[name]]
+                        + [mtr[k] for k in ("AUROC", "AUPRC", "Brier", "log_loss", "ECE", "spearman_r_vs_loss")]
+                        + [round(tau, 3), mtr["trusted_share"], mtr["FTR"]])
         mo = metrics(oof_store[name], V["z"], V["L_future"], tau)
         rows[list(SETS).index(name)] += [round(tau, 3), mo["trusted_share"], mo["FTR"]]
     hdr = ["data", "estimator", "model", "AUROC", "AUPRC", "Brier", "log_loss", "ECE", "spearman_r_vs_loss",
@@ -208,21 +214,27 @@ def main():
     # ---- step 39/40: combined estimator per condition, and association with the realised loss
     comb = "combined (o+u+e)"
     mdl, cal, tau, cols = final[comb]
-    rv, re = oof_store[comb], cal.predict(mdl.predict_proba(X(E, cols))[:, 1])
-    E["perturb"], E["lighting"] = e5_labels(E)
+    rv = oof_store[comb]
+    re = cal.predict(mdl.predict_proba(X(E, cols))[:, 1]) if has_e5 else None
+    if has_e5:
+        E["perturb"], E["lighting"] = e5_labels(E)
     crow = []
     groups = [("val", c, V["cond"] == c) for c in sorted(set(V["cond"]))] + \
              [("val", "moving", V["phase"] == "moving"), ("val", "hold", V["phase"] == "hold")] + \
-             [("E5", f"{p}/{l}", (E["perturb"] == p) & (E["lighting"] == l))
-              for l in ("normal", "dim") for p in ("none", "cover", "head")]
+             [("val", "clear view", V["miss_hist"] == 0),          # natural occlusion: a keypoint missing in the last 1 s
+              ("val", "partly hidden", V["miss_hist"] > 0)] + \
+             ([("E5", f"{p}/{l}", (E["perturb"] == p) & (E["lighting"] == l))
+               for l in ("normal", "dim") for p in ("none", "cover", "head")] if has_e5 else [])
     print(f"\nCombined estimator per condition (val: cross-validated; E5: held out). tau = {tau:.3f}")
-    print(f"{'':<18}{'n':>6}{'unrel.':>8}{'AUROC':>7}{'mean r':>8}{'trusted':>9}{'FTR':>6}")
+    print(f"{'':<22}{'n':>6}{'unrel.':>8}{'AUROC':>7}{'mean r':>8}{'trusted':>9}{'FTR':>6}")
     for src, nm, m in groups:
+        if m.sum() < 2:
+            continue                                     # e.g. no partly hidden moments at all
         T, r = (V, rv) if src == "val" else (E, re)
         mt = metrics(r[m], T["z"][m], T["L_future"][m], tau)
         crow.append([src, nm, mt["n"], mt["unreliable_share"], mt["AUROC"], round(float(r[m].mean()), 3),
                      mt["trusted_share"], mt["FTR"]])
-        print(f"{src + ' ' + nm:<18}{mt['n']:>6}{mt['unreliable_share']:>8.2f}"
+        print(f"{src + ' ' + nm:<22}{mt['n']:>6}{mt['unreliable_share']:>8.2f}"
               f"{(mt['AUROC'] or float('nan')):>7.3f}{r[m].mean():>8.2f}"
               f"{mt['trusted_share']:>9.2f}{(mt['FTR'] if mt['FTR'] is not None else float('nan')):>6.2f}")
     with open(os.path.join(a.out, "by_condition.csv"), "w", newline="") as f:
@@ -230,12 +242,14 @@ def main():
         cw.writerow(["data", "condition", "n", "unreliable_share", "AUROC", "mean_r", "trusted_share", "FTR"])
         cw.writerows(crow)
     gv = np.array([f"{s}_{r}" for s, r in zip(V["session"], V["reach"])])
-    ge = np.array([f"{s}_{r}" for s, r in zip(E["session"], E["reach"])])
     assoc = {"val": {"spearman": round(float(spearmanr(rv, V["L_future"]).correlation), 3),
-                     "ci95_reach_bootstrap": boot_spearman(rv, V["L_future"], gv)},
-             "E5": {"spearman": round(float(spearmanr(re, E["L_future"]).correlation), 3),
-                    "ci95_reach_bootstrap": boot_spearman(re, E["L_future"], ge)}}
-    print(f"\nr_t vs realised 1.0 s loss (Spearman, 95% reach-bootstrap CI): val {assoc['val']}, E5 {assoc['E5']}")
+                     "ci95_reach_bootstrap": boot_spearman(rv, V["L_future"], gv)}}
+    if has_e5:
+        ge = np.array([f"{s}_{r}" for s, r in zip(E["session"], E["reach"])])
+        assoc["E5"] = {"spearman": round(float(spearmanr(re, E["L_future"]).correlation), 3),
+                       "ci95_reach_bootstrap": boot_spearman(re, E["L_future"], ge)}
+    print(f"\nr_t vs realised 1.0 s loss (Spearman, 95% reach-bootstrap CI): " +
+          ", ".join(f"{k} {v}" for k, v in assoc.items()))
 
     # ---- abrupt changes: E4 switches in D_val, detection delay; false alarms per minute on E1 val
     sw = switch_detection(dev, final[comb], tau)
@@ -262,9 +276,10 @@ def main():
                 rv_all[m] = cal_k.predict(mdl_k.predict_proba(X(Vall, cols)[m])[:, 1])
         mdl, cal, _, _ = final[name]
         key = "combined" if name.startswith("combined") else "uncertainty"
-        scores[key] = {"val": rv_all, "cal": cal.predict(mdl.predict_proba(X(C_all, cols))[:, 1]),
-                       "e5": cal.predict(mdl.predict_proba(X(e5, cols))[:, 1])}
-    for setname, T in (("val", Vall), ("cal", C_all), ("e5", e5)):
+        scores[key] = {"val": rv_all, "cal": cal.predict(mdl.predict_proba(X(C_all, cols))[:, 1])}
+        if has_e5:
+            scores[key]["e5"] = cal.predict(mdl.predict_proba(X(e5, cols))[:, 1])
+    for setname, T in (("val", Vall), ("cal", C_all)) + ((("e5", e5),) if has_e5 else ()):
         np.savez_compressed(os.path.join(a.out, f"scores_{setname}.npz"), session=T["session"],
                             anchor=T["anchor"], r_combined=scores["combined"][setname],
                             r_uncertainty=scores["uncertainty"][setname])
@@ -276,10 +291,10 @@ def main():
                "label": "mean ADE of the most likely mode over elbow, wrist and hand for the next 1.0 s <= l_max",
                "ftr_budget_on_cal": FTR_BUDGET, "chosen_models": chosen, "tau": {k: v[2] for k, v in final.items()},
                "association": assoc, "switch_detection": {k: v for k, v in sw.items() if k != "rows"},
-               "counts": {"val": len(V["z"]), "cal": len(C["z"]), "e5": len(E["z"])},
-               "unreliable_share": {"val": round(float(1 - V["z"].mean()), 3),
-                                    "cal": round(float(1 - C["z"].mean()), 3),
-                                    "e5": round(float(1 - E["z"].mean()), 3)}},
+               "counts": dict({"val": len(V["z"]), "cal": len(C["z"])}, **({"e5": len(E["z"])} if has_e5 else {})),
+               "unreliable_share": dict({"val": round(float(1 - V["z"].mean()), 3),
+                                         "cal": round(float(1 - C["z"].mean()), 3)},
+                                        **({"e5": round(float(1 - E["z"].mean()), 3)} if has_e5 else {}))},
               open(os.path.join(a.out, "summary.json"), "w"), indent=1)
     plots(a.out, V, rv, E, re, oof_store)
     print(f"\nSaved in {a.out}/")
@@ -368,8 +383,10 @@ def plots(out, V, rv, E, re, oof):
         return
     fig, ax = plt.subplots(1, 2, figsize=(10, 4))
     edges = np.linspace(0, 1, 11)
-    for nm, (r, z) in {"val, combined (cross-validated)": (rv, V["z"]),
-                       "E5, combined (held out)": (re, E["z"])}.items():
+    sets = {"val, combined (cross-validated)": (rv, V["z"])}
+    if E is not None:
+        sets["E5, combined (held out)"] = (re, E["z"])
+    for nm, (r, z) in sets.items():
         xs, ys = [], []
         for lo, hi in zip(edges[:-1], edges[1:]):
             m = (r >= lo) & (r <= hi if hi == 1 else r < hi)
@@ -380,7 +397,7 @@ def plots(out, V, rv, E, re, oof):
     ax[0].set(xlabel="predicted reliability r_t", ylabel="observed share with loss <= l_max",
               title="Reliability diagram")
     ax[0].legend(fontsize=8)
-    for nm, (r, L) in {"val": (rv, V["L_future"]), "E5": (re, E["L_future"])}.items():
+    for nm, (r, L) in ({"val": (rv, V["L_future"])} | ({"E5": (re, E["L_future"])} if E is not None else {})).items():
         xs, ys = [], []
         for lo, hi in zip(edges[:-1], edges[1:]):
             m = (r >= lo) & (r <= hi if hi == 1 else r < hi)

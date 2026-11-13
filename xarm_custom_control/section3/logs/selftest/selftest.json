@@ -1,0 +1,64 @@
+{
+  "A_steps": {
+    "steps": 2439,
+    "times": true,
+    "positions": true,
+    "missing": true,
+    "confidence": true,
+    "phase": true,
+    "reach": true,
+    "step count": true,
+    "share_of_steps_where_causal_rule_differs_from_original": 0.0201
+  },
+  "B_models": {
+    "set": "val",
+    "steps_checked": 648,
+    "mismatches": {
+      "now": 0,
+      "reactive": 0,
+      "gru": 0,
+      "cv": 0,
+      "pi": 0,
+      "modes": 0,
+      "r": 0,
+      "r_u": 0,
+      "r_s": 0,
+      "sts": 0,
+      "visible": 0
+    },
+    "largest_difference": {
+      "now": 0.0,
+      "reactive": 0.0,
+      "gru": 0.0,
+      "cv": 0.0,
+      "pi": 0.0,
+      "modes": 0.0,
+      "r": 0.0,
+      "r_u": 0.0,
+      "r_s": 0.0,
+      "sts": 0.0
+    },
+    "sts_checked": true,
+    "compute_ms_per_step": {
+      "median": 16.4,
+      "p95": 17.4
+    }
+  },
+  "C_planners": {
+    "session": "E1_s02",
+    "steps": 694,
+    "identical": {
+      "reactive": true,
+      "cv": true,
+      "gru": true,
+      "mgru": true,
+      "sts": true,
+      "uncert": true,
+      "gate": true,
+      "full": true,
+      "full_nofb": true,
+      "full2": true
+    }
+  },
+  "all_pass": true
+}

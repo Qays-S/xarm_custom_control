@@ -6,9 +6,9 @@ participant reaches. Nothing is recorded with the arm parked.
 | Phase | Who | What | Time |
 |---|---|---|---|
 | 0. Setup and checks | Qays | calibration, self-tests, dry runs, slow runs | about 1.5 h |
-| A. Training data | Qays (P01) | E1–E5 with the reactive planner running the arm | about 35 min of reaching |
+| A. Training data | Qays (P01) | E1–E4 with the reactive planner running the arm | about 30 min of reaching |
 | B. Train and freeze | code | retrain everything on Phase A only, then freeze | a few hours of computer time |
-| C. Planner comparison | P01 and P02 | 10 planners × normal (E4) and degraded (E5) view | about 60 min of reaching each |
+| C. Planner comparison | P01 and P02 | 10 planners on E4 | about 60 min of reaching each |
 
 P02 never appears in Phases A or B, so their Phase C results test the method on a new person.
 
@@ -53,7 +53,8 @@ All commands below are run in `section3/h3`, as `python3 ../script.py`.
        --calib-session calib/calib_live.json
    ```
    The banner shows `ROBOT reactive 1.00` while moving and the stop reason in brackets.
-4. Real arm, nobody at the table (move the participant's chair away; use `x` to skip reaches):
+4. Real arm, nobody reaching. The arm only moves while it can see a person's arm, so sit back with your
+   forearm visible to the camera and do not reach (use `x` to skip reaches):
    ```bash
    python3 ../s4_record_targets.py --mode E2 --out logs/empty_01 --reaches 5 --live reactive \
        --robot xarm --speed-scale 0.33 --calib-session calib/calib_live.json
@@ -74,23 +75,30 @@ Common options: `--live reactive --robot xarm --calib-session calib/calib_live.j
 | `logs/A_P01_E2_s01` | `--mode E2` |
 | `logs/A_P01_E3_s01` | `--mode E3` |
 | `logs/A_P01_E4_s01` | `--mode E4` |
-| `logs/A_P01_E5_s01` | `--mode E5 --dim-at 21 --bright-at 31` |
 | `logs/A_P01_E1_s02` ... `E4_s02` | same as round 1 |
-| `logs/A_P01_E5_s02` | `--mode E5 --reaches 20 --dim-at 1 --bright-at 99` |
 
-40 reaches each unless stated (the default). Round 1 (`_s01`) is training; round 2 is split in
-halves into validation and calibration; E5 is only used for testing, as before.
+40 reaches each (the default). Round 1 (`_s01`) is training; round 2 is split in halves into
+validation and calibration.
+
+E5 (covering the hand with paper, dimming the lights) was dropped on 2026-11-12: it was hard to run
+and not a realistic workspace condition. Degraded views are studied instead where they happen on their
+own, e.g. when the robot arm passes between the camera and the hand (`s6_reliability.py` reports
+"clear view" vs "partly hidden" moments). A stray attempt is kept as `logs/X_A_P01_E5_s01_nopaper`;
+names starting with `X_` are never used.
+
+Before every session: charger plugged in, `powerprofilesctl set performance`, RViz and the ROS
+driver closed (the camera should run at about 14 frames per second). If the drift check says MOVED
+by a small, uniform shift, `python3 ../s3_reregister.py calib/calib_live.json` fixes the calibration
+without touching the dots again (it refuses if the dots did not all move together).
 
 ## B. Train and freeze (in `section3/h3`)
 
 ```bash
 python3 ../s5_prepare.py logs/A_P01_E[1-4]_s0[12] --causal --split live
-python3 ../s5_prepare.py logs/A_P01_E5_s0[12] --causal --split live --out logs/prepared_e5
 python3 ../s5_baselines.py
 python3 ../s5_gru.py
 python3 ../s5_mgru.py
 python3 ../s5_stsgcn.py --manicast-dir ~/manicast
-python3 ../s5_eval_e5.py --manicast-dir ~/manicast
 python3 ../s6_reliability.py
 python3 ../s7_replay.py --manicast-dir ~/manicast --calib calib/calib_live.json
 python3 ../s9_selftest.py --manicast-dir ~/manicast --session logs/A_P01_E4_s02 --calib calib/calib_live.json
@@ -101,7 +109,7 @@ python3 ../s9_freeze.py
 seen). The self-test must pass before freezing. After `s9_freeze.py`, nothing in `logs/prepared`,
 `logs/forecast_results`, `logs/reliability` or `logs/replay` may change.
 
-## C. Planner comparison (P01 and P02)
+## C. Planner comparison (P01 and P02) — to be updated now that E5 is dropped
 
 Each session: one planner, one condition. Common options:
 `--robot xarm --calib-session calib/calib_live.json --participant P0x --live <planner>`

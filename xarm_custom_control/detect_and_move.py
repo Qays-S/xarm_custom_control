@@ -48,7 +48,7 @@ DROP_Y_MM = 206.14       # confirmed - drop location
 DROP_Z_MM = GRIP_Z_MM    # release at the same height as the grip
 
 GRIPPER_OPEN_REAL = 0.0        # fully open
-GRIPPER_GRAB_BOX_REAL = 0.3    # confirmed - grips the box
+GRIPPER_GRAB_BOX_REAL = 0.855    # confirmed - grips the box when opened.
 GRIPPER_ACTION_REAL = "/xarm_gripper/gripper_action"
 GRIPPER_MAX_EFFORT = 10.0
 

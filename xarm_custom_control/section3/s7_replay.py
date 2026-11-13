@@ -381,7 +381,10 @@ def main():
     print(f"robot path: {path.length / 10:.0f} cm per cycle (pick dot {PICK} -> place dot {PLACE}), "
           f"IK solved at {path.ik_ok:.0%} of path samples, {path.length / V_NOM:.1f} s per cycle at full speed")
     Fv = forecasts("logs/prepared", "val", a.results, a.manicast_dir, "logs/reliability/scores_val.npz")
-    Fe = forecasts("logs/prepared_e5", "e5", a.results, a.manicast_dir, "logs/reliability/scores_e5.npz")
+    # E5 was dropped from the live study; it is replayed only if it was prepared and scored
+    has_e5 = os.path.isdir("logs/prepared_e5") and os.path.isfile("logs/reliability/scores_e5.npz")
+    Fe = (forecasts("logs/prepared_e5", "e5", a.results, a.manicast_dir, "logs/reliability/scores_e5.npz")
+          if has_e5 else {})
     has_sts = all(F["sts"] is not None for F in list(Fv.values()) + list(Fe.values()))
     methods = [m for m in METHODS if m != "sts" or has_sts]
 
@@ -406,7 +409,7 @@ def main():
 
     # ---- run every method with its chosen settings on val and E5
     rows, cond_rows, results = [], [], {}
-    for setname, Fs in (("val", Fv), ("E5", Fe)):
+    for setname, Fs in (("val", Fv),) + ((("E5", Fe),) if has_e5 else ()):
         for mth in methods:
             recs = run_set(path, Fs, mth, best[mth])
             sm = summarise(recs, path)
