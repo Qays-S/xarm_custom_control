@@ -1,0 +1,139 @@
+frame,t,event,reach,target,detail
+68,6669.156534,setup_touch,,1,
+88,6670.189833,cue,1,12,comfortable speed
+108,6671.516845,depart,1,1,
+145,6673.634324,arrive,1,12,auto
+158,6674.569692,cue,2,9,comfortable speed
+176,6675.629218,depart,2,12,
+222,6678.355967,arrive,2,9,auto
+232,6679.177743,cue,3,4,comfortable speed
+249,6680.575131,depart,3,9,
+258,6681.312593,arrive,3,4,auto
+271,6682.413708,cue,4,12,comfortable speed
+288,6683.801654,depart,4,4,
+290,6683.968667,switch_cue,4,1,new target
+321,6686.455234,arrive,4,1,auto
+329,6687.173783,cue,5,12,comfortable speed
+348,6688.229491,depart,5,1,
+354,6688.564818,switch_cue,5,1,reversal
+392,6691.175738,arrive,5,1,auto
+407,6692.409499,cue,6,4,comfortable speed
+422,6693.663089,depart,6,1,
+427,6694.046302,switch_cue,6,9,new target
+458,6696.423077,arrive,6,9,auto
+467,6697.177539,cue,7,1,comfortable speed
+483,6698.423442,depart,7,9,
+486,6698.664804,arrive,7,1,auto
+496,6699.405148,cue,8,4,comfortable speed
+518,6700.629191,depart,8,1,
+523,6700.984214,switch_cue,8,12,new target
+556,6703.548358,arrive,8,12,auto
+569,6704.614094,cue,9,4,comfortable speed
+584,6705.735643,depart,9,12,
+598,6706.633769,arrive,9,4,auto
+608,6707.316712,cue,10,1,comfortable speed
+622,6708.264814,depart,10,4,
+628,6708.672646,switch_cue,10,4,reversal
+658,6710.682241,arrive,10,4,auto
+668,6711.352223,cue,11,9,comfortable speed
+688,6712.670936,depart,11,4,
+690,6712.815193,switch_cue,11,4,reversal
+736,6715.605273,arrive,11,4,auto
+752,6716.673084,cue,12,1,comfortable speed
+766,6717.607149,depart,12,4,
+775,6718.201488,arrive,12,1,auto
+790,6719.187522,cue,13,4,comfortable speed
+809,6720.459598,depart,13,1,
+817,6720.987164,arrive,13,4,auto
+833,6722.052183,cue,14,12,comfortable speed
+847,6722.990994,depart,14,4,
+852,6723.289421,switch_cue,14,1,new target
+894,6725.897301,arrive,14,1,auto
+906,6726.695601,cue,15,12,comfortable speed
+926,6728.058473,depart,15,1,
+944,6729.169719,arrive,15,12,auto
+962,6730.359246,cue,16,1,comfortable speed
+977,6731.35214,depart,16,12,
+988,6732.020227,arrive,16,1,auto
+1000,6732.835807,cue,17,4,comfortable speed
+1020,6734.151869,depart,17,1,
+1022,6734.298173,switch_cue,17,9,new target
+1066,6737.154456,arrive,17,9,auto
+1078,6737.950409,cue,18,12,comfortable speed
+1079,6738.016913,depart,18,9,
+1112,6739.83715,arrive,18,12,auto
+1128,6740.90842,cue,19,1,comfortable speed
+1147,6742.179825,depart,19,12,
+1159,6742.894634,arrive,19,1,auto
+1173,6743.831756,cue,20,12,comfortable speed
+1207,6745.964141,depart,20,1,
+1211,6746.226882,arrive,20,12,auto
+1223,6747.026081,cue,21,9,comfortable speed
+1240,6748.071687,depart,21,12,
+1247,6748.414651,switch_cue,21,4,new target
+1290,6751.047528,arrive,21,4,auto
+1300,6751.867824,cue,22,1,comfortable speed
+1313,6752.950622,depart,22,4,
+1319,6753.442825,arrive,22,1,auto
+1333,6754.573971,cue,23,4,comfortable speed
+1349,6755.838253,depart,23,1,
+1357,6756.299223,arrive,23,4,auto
+1373,6757.19152,cue,24,12,comfortable speed
+1391,6758.543898,depart,24,4,
+1393,6758.70219,switch_cue,24,4,reversal
+1440,6762.204413,arrive,24,4,auto
+1454,6763.341122,cue,25,9,comfortable speed
+1471,6764.692698,depart,25,4,
+1496,6766.476037,arrive,25,9,auto
+1507,6767.401224,cue,26,12,comfortable speed
+1523,6768.749301,depart,26,9,
+1526,6768.958461,switch_cue,26,1,new target
+1564,6771.862712,arrive,26,1,auto
+1577,6772.916602,cue,27,9,comfortable speed
+1596,6774.244595,depart,27,1,
+1602,6774.641261,arrive,27,9,auto
+1616,6775.553172,cue,28,1,comfortable speed
+1625,6776.147937,depart,28,9,
+1639,6777.040563,arrive,28,1,auto
+1652,6777.912133,cue,29,12,comfortable speed
+1676,6779.490355,depart,29,1,
+1683,6779.861746,switch_cue,29,9,new target
+1720,6782.132798,arrive,29,9,auto
+1736,6783.195263,cue,30,12,comfortable speed
+1741,6783.526132,depart,30,9,
+1766,6784.982566,arrive,30,12,auto
+1776,6785.645734,cue,31,4,comfortable speed
+1790,6786.654342,depart,31,12,
+1810,6787.891823,arrive,31,4,auto
+1831,6789.046543,cue,32,1,comfortable speed
+1847,6790.106812,depart,32,4,
+1852,6790.503621,switch_cue,32,9,new target
+1880,6792.77512,arrive,32,9,auto
+1893,6793.832571,cue,33,4,comfortable speed
+1894,6793.909901,depart,33,9,
+1922,6795.980153,arrive,33,4,auto
+1934,6796.98755,cue,34,9,comfortable speed
+1950,6798.304941,depart,34,4,
+1967,6799.550124,arrive,34,9,auto
+1981,6800.645947,cue,35,12,comfortable speed
+1996,6801.66689,depart,35,9,
+1998,6801.79784,switch_cue,35,9,reversal
+2068,6806.120401,arrive,35,9,auto
+2085,6807.245206,cue,36,4,comfortable speed
+2103,6808.433327,depart,36,9,
+2108,6808.760477,switch_cue,36,1,new target
+2145,6811.228282,arrive,36,1,auto
+2162,6812.348538,cue,37,9,comfortable speed
+2189,6814.086853,depart,37,1,
+2192,6814.29703,arrive,37,9,auto
+2209,6815.461806,cue,38,4,comfortable speed
+2211,6815.597327,depart,38,9,
+2216,6815.937128,switch_cue,38,12,new target
+2274,6819.666823,arrive,38,12,auto
+2291,6820.820133,cue,39,1,comfortable speed
+2314,6822.285909,depart,39,12,
+2318,6822.548428,arrive,39,1,auto
+2331,6823.403796,cue,40,12,comfortable speed
+2349,6824.594073,depart,40,1,
+2364,6825.528724,arrive,40,12,auto
+2375,6826.258998,session_complete,,,
