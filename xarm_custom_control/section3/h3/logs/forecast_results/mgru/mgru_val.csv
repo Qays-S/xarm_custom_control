@@ -1,0 +1,5 @@
+set,model,horizon_s,n_windows,elbow_ade_px,wrist_ade_px,hand_ade_px,elbow_fde_px,wrist_fde_px,hand_fde_px,mean_ade_px,mean_fde_px,mixture_mean_ade_px,min_ade_oracle_px,nll_nats_per_point_px
+val,MGRU M5_h128_l2_lr0.001,0.25,4009,5.15,7.03,5.8,7.57,10.91,9.52,5.99,9.33,5.67,4.26,4.817
+val,MGRU M5_h128_l2_lr0.001,0.5,3731,7.87,11.44,10.48,12.92,20.04,19.6,9.93,17.52,9.71,6.49,5.361
+val,MGRU M5_h128_l2_lr0.001,1.0,3255,12.55,19.87,20.46,21.21,36.46,40.41,17.63,32.69,18.73,10.64,6.095
+val,MGRU M5_h128_l2_lr0.001,1.5,2834,17.56,29.48,32.28,30.16,54.72,63.11,26.44,49.33,27.75,15.19,6.746

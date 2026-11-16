@@ -105,7 +105,7 @@ def main():
     # ---- B. forecasts and reliability on causally prepared data
     prep = os.path.join(a.out, "prepared_causal")
     shutil.rmtree(prep, ignore_errors=True)
-    subprocess.run([sys.executable, "s5_prepare.py", a.session, "--out", prep, "--causal"], check=True,
+    subprocess.run([sys.executable, os.path.join(os.path.dirname(os.path.abspath(__file__)), "s5_prepare.py"), a.session, "--out", prep, "--causal"], check=True,
                    stdout=subprocess.DEVNULL)
     from s5_data import load
     from s6_features import build

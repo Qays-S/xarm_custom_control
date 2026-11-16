@@ -1,0 +1,41 @@
+set,condition,method,cycles_per_min,violations_per_min,decision_loss,regret
+val,E1,reactive,5.261,11.63,0.8047,1.3581
+val,E2,reactive,5.984,16.21,0.7773,1.5471
+val,E3,reactive,5.431,10.33,0.7571,1.2366
+val,E4,reactive,5.886,11.08,0.6974,1.8083
+val,E1,constant velocity,5.825,23.25,0.9639,2.1586
+val,E2,constant velocity,6.698,9.39,0.5478,1.7392
+val,E3,constant velocity,6.116,7.75,0.5916,1.4698
+val,E4,constant velocity,6.345,18.99,0.798,2.4929
+val,E1,GRU,4.41,0.83,0.7362,0.995
+val,E2,GRU,5.859,7.68,0.6476,1.5838
+val,E3,GRU,4.935,7.75,0.7858,1.1634
+val,E4,GRU,4.992,10.29,0.8382,1.1098
+val,E1,multimodal GRU,2.679,0.0,1.0017,0.6092
+val,E2,multimodal GRU,3.213,1.71,0.9327,0.5558
+val,E3,multimodal GRU,2.989,2.58,0.9972,0.869
+val,E4,multimodal GRU,2.627,4.75,1.0866,0.6283
+val,E1,ManiCast-style (STS-GCN),3.008,0.0,0.9645,0.6192
+val,E2,ManiCast-style (STS-GCN),3.845,18.77,1.2149,0.4775
+val,E3,ManiCast-style (STS-GCN),3.452,4.13,0.9913,0.7102
+val,E4,ManiCast-style (STS-GCN),4.188,5.54,0.8912,0.591
+val,E1,uncertainty-only adaptation,2.716,0.0,0.9968,0.6534
+val,E2,uncertainty-only adaptation,3.431,14.51,1.1629,0.6766
+val,E3,uncertainty-only adaptation,3.333,8.78,1.0674,0.8074
+val,E4,uncertainty-only adaptation,2.913,2.37,0.9734,1.071
+val,E1,binary gate,2.595,0.0,1.0197,0.6456
+val,E2,binary gate,2.513,0.0,1.042,0.4968
+val,E3,binary gate,2.214,2.07,1.1337,0.939
+val,E4,binary gate,2.178,2.37,1.135,0.6274
+val,E1,reliability-guided (ours),2.665,0.0,0.9903,0.6583
+val,E2,reliability-guided (ours),3.384,7.68,1.032,0.6828
+val,E3,reliability-guided (ours),2.647,2.58,1.0608,0.775
+val,E4,reliability-guided (ours),2.751,13.45,1.2432,1.1312
+val,E1,"reliability-guided, no fallback (A11)",2.71,0.0,0.9827,0.6179
+val,E2,"reliability-guided, no fallback (A11)",3.449,5.97,0.9742,0.75
+val,E3,"reliability-guided, no fallback (A11)",3.329,11.88,1.1202,0.889
+val,E4,"reliability-guided, no fallback (A11)",3.282,3.96,0.9408,1.0512
+val,E1,"reliability-guided v2 (smoothed, GRU)",3.411,0.0,0.894,0.6714
+val,E2,"reliability-guided v2 (smoothed, GRU)",4.004,0.0,0.7871,0.8001
+val,E3,"reliability-guided v2 (smoothed, GRU)",3.308,2.07,0.9598,0.8136
+val,E4,"reliability-guided v2 (smoothed, GRU)",3.84,0.0,0.8149,1.0075

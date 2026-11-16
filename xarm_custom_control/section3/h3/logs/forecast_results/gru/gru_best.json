@@ -1,0 +1,21 @@
+{
+ "config": {
+  "hidden": 128,
+  "layers": 2,
+  "lr": 0.003,
+  "batch": 256
+ },
+ "name": "h128_l2_lr0.003",
+ "n_in": 18,
+ "K": 24,
+ "keypoints": [
+  "elbow",
+  "wrist",
+  "hand"
+ ],
+ "dt": 0.0625,
+ "history_steps": 16,
+ "seed": 0,
+ "chosen_on": "val",
+ "val_mean_ade_px": 14.066
+}

@@ -1,0 +1,16 @@
+{
+ "name": "finetune_lr0.001",
+ "config": {
+  "lr": 0.001,
+  "wrist_w": 5
+ },
+ "start": "ManiCast checkpoint 'base' (AMASS)",
+ "frames_in": 10,
+ "frames_out": 25,
+ "fps": 25,
+ "scale_mm_per_px": 1.1810392139840589,
+ "comad_shoulder_width_m": 0.3383548421970878,
+ "chosen_on": "val",
+ "val_mean_ade_px": 10.781,
+ "seed": 0
+}

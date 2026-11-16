@@ -1,0 +1,9 @@
+set,model,horizon_s,n_windows,elbow_ade_px,wrist_ade_px,hand_ade_px,elbow_fde_px,wrist_fde_px,hand_fde_px,mean_ade_px,mean_fde_px
+val,current pose,0.25,4009,5.69,8.86,8.41,8.41,13.42,13.24,7.66,11.69
+val,current pose,0.5,3731,8.42,13.56,13.66,13.68,22.74,23.91,11.88,20.11
+val,current pose,1.0,3255,13.57,22.84,24.57,23.11,40.45,44.96,20.33,36.17
+val,current pose,1.5,2834,18.97,32.91,36.83,33.03,59.75,68.76,29.57,53.85
+val,constant velocity (n=2),0.25,4009,6.3,8.89,6.59,9.99,14.64,11.51,7.26,12.05
+val,constant velocity (n=2),0.5,3731,11.26,16.81,13.92,20.65,32.18,28.63,13.99,27.15
+val,constant velocity (n=2),1.0,3255,22.35,35.72,33.17,44.11,73.23,71.58,30.41,62.97
+val,constant velocity (n=2),1.5,2834,35.19,57.68,57.19,70.79,119.29,122.99,50.02,104.35
