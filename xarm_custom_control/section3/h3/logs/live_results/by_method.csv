@@ -1,0 +1,41 @@
+method,participant,condition,sessions,minutes,cycles_per_min,near_misses_per_min,wait_share
+constant velocity,P01,E4,1,2.62,7.139,6.11,0.112
+constant velocity,P01,all,1,2.62,7.139,6.11,0.112
+constant velocity,all,E4,1,2.62,7.139,6.11,0.112
+constant velocity,all,all,1,2.62,7.139,6.11,0.112
+reliability-guided (ours),P01,E4,1,4.51,4.273,9.75,0.324
+reliability-guided (ours),P01,all,1,4.51,4.273,9.75,0.324
+reliability-guided (ours),all,E4,1,4.51,4.273,9.75,0.324
+reliability-guided (ours),all,all,1,4.51,4.273,9.75,0.324
+"reliability-guided v2 (smoothed, GRU)",P01,E4,1,3.7,4.788,4.86,0.356
+"reliability-guided v2 (smoothed, GRU)",P01,all,1,3.7,4.788,4.86,0.356
+"reliability-guided v2 (smoothed, GRU)",all,E4,1,3.7,4.788,4.86,0.356
+"reliability-guided v2 (smoothed, GRU)",all,all,1,3.7,4.788,4.86,0.356
+"reliability-guided, no fallback (A11)",P01,E4,1,3.54,4.048,18.65,0.338
+"reliability-guided, no fallback (A11)",P01,all,1,3.54,4.048,18.65,0.338
+"reliability-guided, no fallback (A11)",all,E4,1,3.54,4.048,18.65,0.338
+"reliability-guided, no fallback (A11)",all,all,1,3.54,4.048,18.65,0.338
+binary gate,P01,E4,1,3.32,2.832,12.36,0.514
+binary gate,P01,all,1,3.32,2.832,12.36,0.514
+binary gate,all,E4,1,3.32,2.832,12.36,0.514
+binary gate,all,all,1,3.32,2.832,12.36,0.514
+GRU,P01,E4,1,3.5,5.576,9.72,0.22
+GRU,P01,all,1,3.5,5.576,9.72,0.22
+GRU,all,E4,1,3.5,5.576,9.72,0.22
+GRU,all,all,1,3.5,5.576,9.72,0.22
+multimodal GRU,P01,E4,1,3.16,4.099,7.27,0.397
+multimodal GRU,P01,all,1,3.16,4.099,7.27,0.397
+multimodal GRU,all,E4,1,3.16,4.099,7.27,0.397
+multimodal GRU,all,all,1,3.16,4.099,7.27,0.397
+reactive,P01,E4,1,3.19,7.092,15.99,0.117
+reactive,P01,all,1,3.19,7.092,15.99,0.117
+reactive,all,E4,1,3.19,7.092,15.99,0.117
+reactive,all,all,1,3.19,7.092,15.99,0.117
+ManiCast-style (STS-GCN),P01,E4,1,3.37,3.455,9.78,0.559
+ManiCast-style (STS-GCN),P01,all,1,3.37,3.455,9.78,0.559
+ManiCast-style (STS-GCN),all,E4,1,3.37,3.455,9.78,0.559
+ManiCast-style (STS-GCN),all,all,1,3.37,3.455,9.78,0.559
+uncertainty-only adaptation,P01,E4,1,3.25,3.945,20.29,0.349
+uncertainty-only adaptation,P01,all,1,3.25,3.945,20.29,0.349
+uncertainty-only adaptation,all,E4,1,3.25,3.945,20.29,0.349
+uncertainty-only adaptation,all,all,1,3.25,3.945,20.29,0.349
