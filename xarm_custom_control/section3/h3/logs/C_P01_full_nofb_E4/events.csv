@@ -1,0 +1,165 @@
+frame,t,event,reach,target,detail
+74,7391.94639,setup_touch,,1,
+87,7392.982063,cue,1,12,comfortable speed
+103,7394.412427,depart,1,1,
+106,7394.654345,switch_cue,1,9,new target
+129,7396.4649,arrive,1,9,auto
+142,7397.649431,cue,2,1,comfortable speed
+143,7397.744878,depart,2,9,
+145,7397.919302,switch_cue,2,9,reversal
+218,7403.700032,timeout,2,9,
+225,7404.211532,cue,3,1,comfortable speed
+241,7405.407111,depart,3,9,
+244,7405.689507,arrive,3,1,auto
+259,7406.852035,cue,4,9,comfortable speed
+277,7407.910919,depart,4,1,
+282,7408.276067,switch_cue,4,12,new target
+304,7410.066913,arrive,4,12,auto
+312,7410.755144,cue,5,4,comfortable speed
+327,7412.077526,depart,5,12,
+341,7413.253156,arrive,5,4,auto
+355,7414.444064,cue,6,1,comfortable speed
+367,7415.495268,depart,6,4,
+373,7416.029289,arrive,6,1,auto
+387,7417.155706,cue,7,9,comfortable speed
+402,7418.127427,depart,7,1,
+431,7419.798563,arrive,7,9,auto
+443,7420.848189,cue,8,1,comfortable speed
+454,7421.83463,depart,8,9,
+457,7422.097515,switch_cue,8,9,reversal
+518,7426.866032,timeout,8,9,
+525,7427.40703,cue,9,4,comfortable speed
+542,7428.676649,depart,9,9,
+549,7429.353311,arrive,9,4,auto
+558,7430.188748,cue,10,12,comfortable speed
+573,7431.531561,depart,10,4,
+636,7436.201765,timeout,10,12,
+645,7436.711437,cue,11,9,comfortable speed
+674,7438.416969,depart,11,4,
+679,7438.765556,arrive,11,9,auto
+688,7439.399767,cue,12,4,comfortable speed
+711,7440.73251,depart,12,9,
+719,7441.286158,arrive,12,4,auto
+730,7442.046931,cue,13,9,comfortable speed
+755,7443.516393,depart,13,4,
+797,7446.623196,arrive,13,9,auto
+809,7447.685547,cue,14,4,comfortable speed
+826,7449.190992,depart,14,9,
+833,7449.798103,arrive,14,4,auto
+840,7450.416632,cue,15,1,comfortable speed
+851,7451.379455,depart,15,4,
+853,7451.581277,switch_cue,15,4,reversal
+880,7453.948262,arrive,15,4,auto
+888,7454.646557,cue,16,12,comfortable speed
+903,7455.927284,depart,16,4,
+907,7456.271946,switch_cue,16,4,reversal
+933,7458.601116,arrive,16,4,auto
+940,7459.233445,cue,17,1,comfortable speed
+953,7460.429217,depart,17,4,
+956,7460.691962,switch_cue,17,4,reversal
+985,7463.175985,arrive,17,4,auto
+998,7464.310126,cue,18,12,comfortable speed
+1014,7465.676926,depart,18,4,
+1018,7466.017223,switch_cue,18,1,new target
+1046,7468.487955,arrive,18,1,auto
+1058,7469.571095,cue,19,12,comfortable speed
+1158,7475.594125,timeout,19,12,
+1167,7476.104461,cue,20,12,comfortable speed
+1190,7477.670729,depart,20,1,
+1193,7477.928805,arrive,20,12,auto
+1205,7479.017259,cue,21,1,comfortable speed
+1217,7480.064097,depart,21,12,
+1224,7480.687901,arrive,21,1,auto
+1234,7481.577048,cue,22,12,comfortable speed
+1263,7484.015276,depart,22,1,
+1266,7484.272235,arrive,22,12,auto
+1279,7485.409696,cue,23,4,comfortable speed
+1293,7486.692847,depart,23,12,
+1306,7487.872667,arrive,23,4,auto
+1318,7488.963256,cue,24,12,comfortable speed
+1333,7490.291534,depart,24,4,
+1347,7491.524015,arrive,24,12,auto
+1361,7492.604786,cue,25,1,comfortable speed
+1386,7494.175556,depart,25,12,
+1389,7494.333926,switch_cue,25,12,reversal
+1427,7497.144205,arrive,25,12,auto
+1439,7498.199941,cue,26,4,comfortable speed
+1457,7499.708249,depart,26,12,
+1459,7499.881124,switch_cue,26,9,new target
+1487,7502.290038,arrive,26,9,auto
+1501,7503.484853,cue,27,4,comfortable speed
+1517,7504.883583,depart,27,9,
+1521,7505.222742,switch_cue,27,1,new target
+1542,7507.030552,arrive,27,1,auto
+1552,7507.774782,cue,28,9,comfortable speed
+1573,7509.256808,depart,28,1,
+1630,7512.716131,arrive,28,9,auto
+1646,7513.867316,cue,29,4,comfortable speed
+1662,7515.056551,depart,29,9,
+1666,7515.33669,switch_cue,29,9,reversal
+1698,7517.638904,arrive,29,9,auto
+1709,7518.307042,cue,30,12,comfortable speed
+1737,7520.090429,depart,30,9,
+1740,7520.347336,switch_cue,30,9,reversal
+1792,7524.313145,timeout,30,9,
+1799,7524.817684,cue,31,12,comfortable speed
+1891,7530.491432,depart,31,9,
+1894,7530.647077,switch_cue,31,4,new target
+1898,7530.868627,timeout,31,4,
+1907,7531.437958,cue,32,12,comfortable speed
+1908,7531.509291,depart,32,9,
+1910,7531.662789,switch_cue,32,1,new target
+1929,7533.234421,arrive,32,1,auto
+1941,7534.295283,cue,33,12,comfortable speed
+1967,7536.287208,depart,33,1,
+1970,7536.500843,arrive,33,12,auto
+1987,7537.713489,cue,34,9,comfortable speed
+2018,7539.58392,depart,34,12,
+2021,7539.81188,arrive,34,9,auto
+2033,7540.800921,cue,35,4,comfortable speed
+2049,7542.216674,depart,35,9,
+2051,7542.403208,switch_cue,35,1,new target
+2071,7544.206975,arrive,35,1,auto
+2081,7545.062519,cue,36,9,comfortable speed
+2096,7546.369372,depart,36,1,
+2154,7550.106015,arrive,36,9,auto
+2168,7551.113738,cue,37,4,comfortable speed
+2184,7552.26421,depart,37,9,
+2193,7552.9262,arrive,37,4,auto
+2208,7553.976036,cue,38,9,comfortable speed
+2225,7554.967379,depart,38,4,
+2227,7555.088523,switch_cue,38,1,new target
+2256,7557.243305,arrive,38,1,auto
+2268,7558.291374,cue,39,9,comfortable speed
+2284,7559.675187,depart,39,1,
+2352,7563.724486,arrive,39,9,auto
+2368,7564.865163,cue,40,4,comfortable speed
+2385,7566.088976,depart,40,9,
+2395,7566.817566,arrive,40,4,auto
+2404,7567.460625,cue,41,1,comfortable speed
+2418,7568.475242,depart,41,4,
+2424,7568.898856,arrive,41,1,auto
+2441,7570.11168,cue,42,9,comfortable speed
+2454,7571.051395,depart,42,1,
+2533,7575.740105,arrive,42,9,auto
+2548,7576.804145,cue,43,1,comfortable speed
+2563,7577.866834,depart,43,9,
+2566,7578.079526,switch_cue,43,9,reversal
+2639,7582.830656,timeout,43,9,
+2648,7583.337089,cue,44,4,comfortable speed
+2668,7584.485749,depart,44,9,
+2677,7585.131392,arrive,44,4,auto
+2686,7585.779683,cue,45,9,comfortable speed
+2702,7586.91421,depart,45,4,
+2706,7587.187462,switch_cue,45,12,new target
+2785,7591.83284,timeout,45,12,
+2794,7592.350631,cue,46,1,comfortable speed
+2802,7592.820194,depart,46,4,
+2816,7593.800503,arrive,46,1,auto
+2826,7594.514765,cue,47,12,comfortable speed
+2844,7595.802537,depart,47,1,
+2858,7596.661786,arrive,47,12,auto
+2870,7597.524514,cue,48,9,comfortable speed
+2887,7598.526362,depart,48,12,
+2960,7603.521857,arrive,48,9,auto
+2968,7604.230608,session_complete,,,
