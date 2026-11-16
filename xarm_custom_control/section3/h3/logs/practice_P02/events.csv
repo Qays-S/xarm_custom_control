@@ -1,0 +1,24 @@
+frame,t,event,reach,target,detail
+79,9757.654714,setup_touch,,1,
+100,9758.682041,cue,1,4,comfortable speed
+121,9759.773171,depart,1,1,
+128,9760.134301,switch_cue,1,1,reversal
+160,9761.739748,arrive,1,1,auto
+176,9762.542751,cue,2,4,comfortable speed
+198,9763.647379,depart,2,1,
+201,9763.796563,switch_cue,2,1,reversal
+238,9765.659657,arrive,2,1,auto
+260,9766.768778,cue,3,12,comfortable speed
+280,9767.770916,depart,3,1,
+402,9772.788069,timeout,3,12,
+412,9773.292949,cue,4,12,comfortable speed
+412,9773.292949,arrive,4,12,auto
+428,9774.106,cue,5,9,comfortable speed
+450,9775.22136,depart,5,12,
+456,9775.48574,switch_cue,5,12,reversal
+502,9777.40663,arrive,5,12,auto
+524,9778.519669,cue,6,1,comfortable speed
+544,9779.553839,depart,6,12,
+550,9779.870783,switch_cue,6,4,new target
+580,9781.953834,arrive,6,4,auto
+596,9783.054625,session_complete,,,
