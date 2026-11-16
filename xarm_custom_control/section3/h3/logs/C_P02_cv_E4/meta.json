@@ -1,0 +1,93 @@
+{
+  "started_wall": "2026-11-16 15:53:02",
+  "mode": "E4",
+  "participant": "P02",
+  "side": "R",
+  "seed": 62372,
+  "targets": {
+    "1": {
+      "px": [
+        731.0,
+        435.0
+      ],
+      "robot_mm": [
+        681.459,
+        80.063,
+        7.288
+      ]
+    },
+    "4": {
+      "px": [
+        555.0,
+        545.0
+      ],
+      "robot_mm": [
+        674.132,
+        -201.359,
+        5.765
+      ]
+    },
+    "9": {
+      "px": [
+        649.0,
+        303.0
+      ],
+      "robot_mm": [
+        457.316,
+        96.437,
+        3.375
+      ]
+    },
+    "12": {
+      "px": [
+        469.0,
+        401.0
+      ],
+      "robot_mm": [
+        441.431,
+        -192.625,
+        4.38
+      ]
+    }
+  },
+  "calib_session": "calib/calib_live2.json",
+  "radius_px": 30.0,
+  "dwell_s": 0.2,
+  "timeout_s": 6.0,
+  "switch_prob": 0.5,
+  "e5_lighting": null,
+  "arrival_marking": "auto",
+  "robot": "live: cv planner, xarm",
+  "gripper_state": "closed",
+  "sim": false,
+  "conf_threshold": 0.5,
+  "keypoint_source": "MediaPipe Pose 11-16, Hands landmark 9 (hand) and 8 (index tip); smoothing off",
+  "clock": "time.monotonic (s)",
+  "frame_format": ".jpg",
+  "live": {
+    "method": "cv",
+    "params": {
+      "d_fix": 40.0,
+      "l_fix": 10.0,
+      "tau": 0.7333
+    },
+    "robot": "xarm",
+    "delay_steps": 3,
+    "hard_stop_mm": 20.0,
+    "v_nom_mm_s": 150.0,
+    "cycle_mm": 1010.0,
+    "ik_ok": 1.0,
+    "models": true,
+    "ticks": 2810,
+    "cycles": 18.485
+  },
+  "frames": 2626,
+  "detect_width": 640,
+  "duration_s": 175.967,
+  "valid_reaches": 40,
+  "reaches_cued": 42,
+  "actual_size": [
+    1280,
+    720
+  ]
+}
