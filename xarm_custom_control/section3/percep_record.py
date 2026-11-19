@@ -10,7 +10,7 @@ Keys while recording (window focused)
 Every key press is written to events.csv with its frame index and time.
 
 Usage
-  python3 s3_perception_logger.py --out logs/session01 [--camera 0] [--duration 120]
+  python3 percep_record.py --out logs/session01 [--camera 0] [--duration 120]
        [--width 1280 --height 720] [--lossless] [--no-view] [--conf 0.5] [--smooth]
 Requires: pip install --user "mediapipe==0.10.21" "numpy<2" opencv-python
 """
@@ -22,7 +22,7 @@ import time
 
 import cv2
 
-from s3_common import CAM_H, CAM_W, open_camera
+from cam_common import CAM_H, CAM_W, open_camera
 
 # MediaPipe Pose landmark numbers; confidence = the landmark's visibility score.
 POSE_IDS = {"L_shoulder": 11, "R_shoulder": 12, "L_elbow": 13, "R_elbow": 14, "L_wrist": 15, "R_wrist": 16}

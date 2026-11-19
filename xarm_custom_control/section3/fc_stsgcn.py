@@ -8,8 +8,8 @@ Runs, all scored on the same val windows as the other models (right elbow and wr
   zero-shot (released AMASS weights), fine-tuned (lr 3e-4/1e-3/3e-3), from scratch (lr 1e-3/1e-2).
 
 Usage
-  python3 s5_stsgcn.py --manicast-dir ~/manicast           # 5 training runs, roughly 45-75 min on a laptop CPU
-  python3 s5_stsgcn.py --manicast-dir ~/manicast --quick   # one run per start (about 25 min), for a quick check
+  python3 fc_stsgcn.py --manicast-dir ~/manicast           # 5 training runs, roughly 45-75 min on a laptop CPU
+  python3 fc_stsgcn.py --manicast-dir ~/manicast --quick   # one run per start (about 25 min), for a quick check
 """
 import argparse
 import csv
@@ -22,7 +22,7 @@ import time
 import numpy as np
 import torch
 
-from s5_data import ade_fde_px, eval_mask, load, windows
+from data_windows import ade_fde_px, eval_mask, load, windows
 
 # The released model is fixed: 10 frames in -> 25 frames out at 25 Hz (0.4 s history, 1.0 s forecast),
 # 7 joints in 3-D metres. Our raw detections are interpolated at 25 Hz; gaps > 0.25 s stay missing.
@@ -85,7 +85,7 @@ class RawTracks:
         cut (causal, live recordings): only detections up to this time may fill a gap."""
         to, u, v = self.k[name]
         if cut is not None:
-            from s9_online import causal_at
+            from live_models import causal_at
             return causal_at(to, u, v, tq, cut, MAX_GAP)
         out = np.full(tq.shape + (2,), np.nan)
         if len(to) < 2:

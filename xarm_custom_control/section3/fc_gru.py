@@ -6,8 +6,8 @@ Takes 1.0 s of elbow, wrist and hand history and predicts the next 1.5 s (24 ste
 so one model gives the 0.25, 0.5, 1.0 and 1.5 s forecasts.
 
 Usage
-  python3 s5_gru.py                    # grid search, about 5-15 min on a laptop CPU
-  python3 s5_gru.py --quick            # one small config, for a quick check
+  python3 fc_gru.py                    # grid search, about 5-15 min on a laptop CPU
+  python3 fc_gru.py --quick            # one small config, for a quick check
 Outputs in logs/forecast_results/gru/: learning curves, search.csv, gru_best.pt/.json, gru_val.csv
 """
 import argparse
@@ -20,7 +20,7 @@ import numpy as np
 import torch
 import torch.nn as nn
 
-from s5_data import FORECAST_KP, HORIZONS_S, ade_fde_px, eval_mask, load, windows
+from data_windows import FORECAST_KP, HORIZONS_S, ade_fde_px, eval_mask, load, windows
 
 SIZE = np.array([1280.0, 720.0])        # image size, to turn normalised units into pixels
 
@@ -180,7 +180,7 @@ def main():
               open(os.path.join(a.out, "gru_best.json"), "w"), indent=1)
     print(f"\nChosen on val: {name}")
 
-    # ---- val report, same layout as s5_baselines.py
+    # ---- val report, same layout as fc_baselines.py
     p = predict(model, xv, cv)
     print(f"\n{'model':<28}{'horizon':>8}{'n':>7}" + "".join(f"{k + ' ADE':>12}" for k in FORECAST_KP)
           + f"{'mean ADE':>10}{'mean FDE':>10}")

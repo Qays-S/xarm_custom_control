@@ -2,9 +2,9 @@
 """
 H3 live trials: the planner drives the real xArm7 along the pick-and-place loop while a person reaches.
 
-Used by s4_record_targets.py --live METHOD (the recorder keeps the cues and the logging; this file
+Used by data_record_reaches.py --live METHOD (the recorder keeps the cues and the logging; this file
 adds the robot). Every 0.0625 s the chosen planner picks a speed (0, 0.25, 0.5 or 1 x 150 mm/s) with
-exactly the same code as the offline replay (s7_replay.py), and the arm is moved that far along the
+exactly the same code as the offline replay (plan_replay.py), and the arm is moved that far along the
 fixed loop with the SDK's online trajectory mode (mode 7).
 
 Safety, for EVERY planner (these are not part of any method and are logged as overrides):
@@ -25,8 +25,8 @@ import time
 
 import numpy as np
 
-import s7_replay as R
-from s9_online import DT, OnlineGrid, OnlineModels
+import plan_replay as R
+from live_models import DT, OnlineGrid, OnlineModels
 
 TOOL_RPY = (180.0, 0.0, 0.0)          # gripper pointing straight down (as in arm_mimic.py)
 START_SPEED = 50.0                    # mm/s for the move to the start pose
@@ -37,7 +37,7 @@ METHODS = list(R.METHODS)             # reactive, cv, gru, mgru, sts, uncert, ga
 
 
 def cached_path(calib, cache_dir="logs/cache"):
-    """s7_replay.Path for this calibration, saved after the first build (it runs IK for every point,
+    """plan_replay.Path for this calibration, saved after the first build (it runs IK for every point,
     about a minute on a laptop). The cache key is the calibration's points and the loop settings."""
     import hashlib
     import pickle
@@ -45,7 +45,10 @@ def cached_path(calib, cache_dir="logs/cache"):
                                      R.H_BAND], sort_keys=True).encode()).hexdigest()[:16]
     f = os.path.join(cache_dir, f"path_{key}.pkl")
     if os.path.exists(f):
-        return pickle.load(open(f, "rb"))
+        try:
+            return pickle.load(open(f, "rb"))
+        except (ModuleNotFoundError, AttributeError):   # a cache saved under an old script name: rebuild it
+            pass
     print("Building the pick-and-place loop for this calibration (about a minute, only the first time)...")
     path = R.Path(calib)
     os.makedirs(cache_dir, exist_ok=True)
@@ -53,7 +56,7 @@ def cached_path(calib, cache_dir="logs/cache"):
     return path
 
 
-# ------------------------------------------------------------------ the planner (mirrors s7_replay.simulate)
+# ------------------------------------------------------------------ the planner (mirrors plan_replay.simulate)
 class LivePlanner:
     """One planning step at a time, with the same rules and settings as the offline replay."""
 
@@ -64,7 +67,7 @@ class LivePlanner:
                                   p.get("d_fix", p.get("d_min", 0) + p.get("dd", 0) / 2))
 
     def step(self, F):
-        """F: the newest record (s9_online.OnlineModels.record or one anchor of s7_replay.forecasts).
+        """F: the newest record (live_models.OnlineModels.record or one anchor of plan_replay.forecasts).
         Returns the chosen speed and what went into it. Does not advance s (the caller does)."""
         method, p, D = self.method, self.p, self.D
         rkey = "r_s" if method == "full2" else "r"
@@ -257,8 +260,8 @@ class XArmRobot:
 # ------------------------------------------------------------------ real-arm separation
 def arm_separation(q_deg, pts_mm, table_z):
     """Planar distance (mm) from the real arm's low capsules to the nearest of pts_mm (J,2), the same
-    measure as the replay (s7_replay.Path.dist) but from the measured joint angles."""
-    from s7_robot import capsules
+    measure as the replay (plan_replay.Path.dist) but from the measured joint angles."""
+    from plan_robot_model import capsules
     pts = pts_mm[np.isfinite(pts_mm).all(1)]
     if q_deg is None or not len(pts):
         return np.nan
@@ -291,7 +294,7 @@ class LiveController(threading.Thread):
         chosen = settings.get("chosen_on_val", {})
         if method not in chosen:
             if method != "reactive":
-                raise SystemExit(f"No tuned settings for {method} in {replay_summary}; run s7_replay.py first.")
+                raise SystemExit(f"No tuned settings for {method} in {replay_summary}; run plan_replay.py first.")
             chosen[method] = {"d_fix": 60.0, "l_fix": 2.5, "tau": 0.0}      # Phase A default (replay's choice)
         p = dict(chosen[method])
         if method in ("full", "gate"):
@@ -300,7 +303,7 @@ class LiveController(threading.Thread):
             p["tau"] = settings.get("tau_smoothed_from_cal", p.get("tau"))
         self.params, self.method, self.v_scale = p, method, v_scale
         if method != "reactive" and robot == "xarm" and not os.path.exists("logs/live_freeze.json"):
-            print("\n  NOTE: logs/live_freeze.json is missing. Run s9_freeze.py before Phase C sessions,\n"
+            print("\n  NOTE: logs/live_freeze.json is missing. Run live_freeze.py before Phase C sessions,\n"
                   "  so the paper can show the models and settings were fixed before the comparison.\n")
         self.grid = OnlineGrid(side, W, H)
         need = (("sts",) if method == "sts" else ()) + \

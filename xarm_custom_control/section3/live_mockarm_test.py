@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 """
-Tests the real-arm code path of s9_live.py without an arm: a stand-in for the SDK's XArmAPI follows
+Tests the real-arm code path of live_run.py without an arm: a stand-in for the SDK's XArmAPI follows
 the commands (at the commanded speed) while a recorded session is played back in real time.
 Checks that the commanded and followed positions never jump, that safety stops halt the arm and
 re-arm it, and that the loop keeps its 16 Hz timing. Nothing connects to a robot.
 
-  python3 s9_mockarm_test.py [--session logs/E4_s02] [--seconds 60] [--method full2]
+  python3 live_mockarm_test.py [--session logs/E4_s02] [--seconds 60] [--method full2]
 """
 import argparse
 import builtins
@@ -22,10 +22,10 @@ import numpy as np
 
 
 class FakeArm:
-    """Enough of xarm.wrapper.XArmAPI for s9_live.XArmRobot; moves toward the last target at its speed."""
+    """Enough of xarm.wrapper.XArmAPI for live_run.XArmRobot; moves toward the last target at its speed."""
 
     def __init__(self, ip, is_radian=False):
-        from s7_robot import ik_down
+        from plan_robot_model import ik_down
         self.ik = ik_down
         self.error_code, self.warn_code, self.mode, self.state, self.connected = 0, 0, 0, 0, True
         self._p = np.array([300.0, 0.0, 300.0]); self._t = time.monotonic()
@@ -34,7 +34,7 @@ class FakeArm:
         self.calls = []
         self.lock = threading.Lock()
 
-    # ---- SDK calls used by s9_live
+    # ---- SDK calls used by live_run
     def clean_warn(self): return 0
     def clean_error(self): return 0
     def motion_enable(self, enable=True): return 0
@@ -98,9 +98,9 @@ def main():
     wrapper = types.ModuleType("xarm.wrapper"); wrapper.XArmAPI = FakeArm
     sys.modules["xarm.wrapper"] = wrapper
     builtins.input = lambda *x: "y"                     # answer the "move to start?" question
-    import s7_replay as R
-    from s9_live import LiveController
-    from s9_selftest import frames_of
+    import plan_replay as R
+    from live_run import LiveController
+    from live_selftest import frames_of
     meta, frames, cues = frames_of(a.session)
     out = tempfile.mkdtemp(prefix="mockarm_")
     ctl = LiveController(out, R.calib_for(a.session), a.method, meta["side"], *meta.get("actual_size", [1280, 720]),

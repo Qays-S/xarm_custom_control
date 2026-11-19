@@ -8,7 +8,7 @@ condition (perturb: none / cover / head; lighting: normal = half, dim = off). In
 is the camera's own detection, so a left/right swap corrupts the target too.
 
 Usage
-  python3 s5_eval_e5.py --manicast-dir ~/manicast
+  python3 fc_eval_degraded.py --manicast-dir ~/manicast
 Outputs in logs/forecast_results/e5/: e5_results.csv, e5_by_condition.csv, e5_summary.json
 """
 import argparse
@@ -19,9 +19,9 @@ import os
 import numpy as np
 import torch
 
-from s5_baselines import const_vel, current_pose
-from s5_data import ade_fde_px, eval_mask, load, windows
-from s5_gru import GRUForecaster, features, predict
+from fc_baselines import const_vel, current_pose
+from data_windows import ade_fde_px, eval_mask, load, windows
+from fc_gru import GRUForecaster, features, predict
 
 HZ = [0.25, 0.5, 1.0]                 # STS-GCN forecasts 1.0 s, so all models are compared up to 1.0 s
 KS = [4, 8, 16]
@@ -82,10 +82,10 @@ def tracking_quality(m, jump_px=60.0):
 
 
 class StsGcn:
-    """Runs the fine-tuned STS-GCN on any set, with s5_stsgcn's own helpers and training-set scale."""
+    """Runs the fine-tuned STS-GCN on any set, with fc_stsgcn's own helpers and training-set scale."""
 
     def __init__(self, manicast_dir, m_train, sess_train, ckpt):
-        import s5_stsgcn as S
+        import fc_stsgcn as S
         self.S = S
         raw = {n: S.RawTracks(i["path"]) for n, i in m_train["sessions"].items()}
         pt = {n: sess_train[n]["t"] for n in m_train["sessions"]}
@@ -151,7 +151,7 @@ def main():
     gru.load_state_dict(torch.load(os.path.join(a.results, "gru", "gru_best.pt"), map_location="cpu"))
     mgru = None
     if os.path.exists(os.path.join(a.results, "mgru", "mgru_best.pt")):
-        from s5_mgru import MixtureGRU, run as mrun, to_positions
+        from fc_mgru import MixtureGRU, run as mrun, to_positions
         mc = json.load(open(os.path.join(a.results, "mgru", "mgru_best.json")))
         mgru = MixtureGRU(mc["n_in"], mc["config"]["hidden"], mc["config"]["layers"], mc["K"], mc["M"])
         mgru.load_state_dict(torch.load(os.path.join(a.results, "mgru", "mgru_best.pt"), map_location="cpu"))

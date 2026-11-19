@@ -9,7 +9,7 @@ put the laptop under it, screen facing up. Click two opposite corners of the scr
 live view (r = redo), then SPACE.
 
 Usage
-  python3 s3_latency_test.py --out logs/latency01 [--camera 0] [--flips 40]
+  python3 percep_latency_test.py --out logs/latency01 [--camera 0] [--flips 40]
        [--width 1280 --height 720]
 Writes flips.csv, frames.csv, summary.json (and roi.png, the camera view with the marked area).
 """
@@ -24,7 +24,7 @@ import time
 import cv2
 import numpy as np
 
-from s3_common import CAM_H, CAM_W, open_camera
+from cam_common import CAM_H, CAM_W, open_camera
 
 
 class Grabber(threading.Thread):

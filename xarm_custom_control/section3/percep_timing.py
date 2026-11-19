@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 """
 Step 17 (timing): frame rate, detection time, keypoint jitter and the end-to-end perception delay,
-from the existing E1-E4 recordings plus one s3_latency_test.py run.
+from the existing E1-E4 recordings plus one percep_latency_test.py run.
 
 End-to-end estimate = camera latency + detection time + forecast time (medians, and p95s).
 
 Usage
-  python3 s3_timing_summary.py logs/E1_s01 ... logs/E4_s02 [--latency logs/latency01] [--out logs/timing]
+  python3 percep_timing.py logs/E1_s01 ... logs/E4_s02 [--latency logs/latency01] [--out logs/timing]
 """
 import argparse
 import csv
@@ -36,7 +36,7 @@ def stats(a):
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("sessions", nargs="+")
-    ap.add_argument("--latency", help="folder written by s3_latency_test.py")
+    ap.add_argument("--latency", help="folder written by percep_latency_test.py")
     ap.add_argument("--results", default="logs/forecast_results")
     ap.add_argument("--side", default="R")
     ap.add_argument("--out", default="logs/timing")
@@ -123,7 +123,7 @@ def main():
     for k, v in out["jitter_rms_px_during_holds"].items():
         print(f"  {k:<9} median {v['median']:.2f}  p95 {v['p95']:.2f}  ({v['n']} holds)")
     if cam is None:
-        print("\n(no --latency folder given: run s3_latency_test.py for the camera latency and end-to-end total)")
+        print("\n(no --latency folder given: run percep_latency_test.py for the camera latency and end-to-end total)")
     print(f"\nSaved {a.out}/timing_summary.json")
 
 

@@ -8,8 +8,8 @@ Step 28 (first half): the two non-learned baselines, scored on the validation se
 ADE/FDE in pixels of the 1280x720 image at 0.25, 0.5, 1.0 and 1.5 s. The test set is not touched.
 
 Usage
-  python3 s5_baselines.py                 # after s5_prepare.py
-  python3 s5_baselines.py --set train     # e.g. to compare with val
+  python3 fc_baselines.py                 # after data_prepare.py
+  python3 fc_baselines.py --set train     # e.g. to compare with val
 """
 import argparse
 import csv
@@ -19,7 +19,7 @@ import time
 
 import numpy as np
 
-from s5_data import FORECAST_KP, HORIZONS_S, ade_fde_px, eval_mask, load, windows
+from data_windows import FORECAST_KP, HORIZONS_S, ade_fde_px, eval_mask, load, windows
 
 
 def current_pose(w, K):

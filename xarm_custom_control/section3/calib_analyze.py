@@ -3,8 +3,8 @@
 Fit the camera-to-table homography H robustly and report its error on held-out dots.
 
 Usage
-  python3 s3_calib_analyze.py calib_session.json --holdout 4 [--seed 0] [--ransac-mm 10]
-  python3 s3_calib_analyze.py calib_session.json --holdout-ids 3 8 14 17
+  python3 calib_analyze.py calib_session.json --holdout 4 [--seed 0] [--ransac-mm 10]
+  python3 calib_analyze.py calib_session.json --holdout-ids 3 8 14 17
 Writes <session>_analysis/: calibration_error.csv, summary.json, error_map.png, error_ecdf.png
 and camera_calibration_s3.json (the file pixel_to_world.py reads).
 """
@@ -14,7 +14,7 @@ import os
 
 import numpy as np
 
-from s3_common import errors_mm, fit_homography, load_json, robust_fit, save_json, stats
+from cam_common import errors_mm, fit_homography, load_json, robust_fit, save_json, stats
 
 
 def main():

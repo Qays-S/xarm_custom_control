@@ -8,9 +8,9 @@ Split (one participant, so by session and time, never by random windows)
   E5 -> its own held-out set "e5" (prepare it into its own folder, see below)
 
 Usage
-  python3 s5_prepare.py logs/E1_s01 logs/E2_s01 logs/E3_s01 logs/E4_s01 \\
+  python3 data_prepare.py logs/E1_s01 logs/E2_s01 logs/E3_s01 logs/E4_s01 \\
                         logs/E1_s02 logs/E2_s02 logs/E3_s02 logs/E4_s02
-  python3 s5_prepare.py logs/E5_s01 logs/E5_s02 --out logs/prepared_e5
+  python3 data_prepare.py logs/E5_s01 logs/E5_s02 --out logs/prepared_e5
 """
 import argparse
 import csv
@@ -58,9 +58,9 @@ def resample_session(d, dt, max_gap, causal=False):
     conf = np.zeros((T, len(KP)))
     miss = np.ones((T, len(KP)), np.uint8)
     if causal:
-        # live recordings: the same rule the live controller uses (s9_online.causal_grid), so the
+        # live recordings: the same rule the live controller uses (live_models.causal_grid), so the
         # models see identical inputs in training and on the robot
-        from s9_online import causal_grid
+        from live_models import causal_grid
         U = np.stack([[fnum(f[f"{side}_{k}_u"]) for k in KP] for f in frames])
         V = np.stack([[fnum(f[f"{side}_{k}_v"]) for k in KP] for f in frames])
         C = np.stack([[fnum(f[f"{side}_{k}_conf"]) for k in KP] for f in frames])

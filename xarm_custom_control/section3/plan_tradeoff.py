@@ -3,11 +3,11 @@
 E6 trade-off: sweep each planner's caution and plot near-misses per minute against pick-and-place
 cycles per minute. Better = fewer near-misses at the same task progress.
 
-Everything else stays as chosen on val in s7_replay.py (0.19 s perception delay). Results on val
+Everything else stays as chosen on val in plan_replay.py (0.19 s perception delay). Results on val
 and E5; the test set stays locked.
 
 Usage
-  python3 s7_tradeoff.py --manicast-dir ~/manicast
+  python3 plan_tradeoff.py --manicast-dir ~/manicast
 Outputs in logs/replay/: tradeoff.csv, tradeoff_matched.csv, tradeoff.png
 """
 import argparse
@@ -17,8 +17,8 @@ import os
 
 import numpy as np
 
-import s7_replay as R
-from s6_reliability import choose_tau
+import plan_replay as R
+from rel_train import choose_tau
 
 # What is swept: the margin for fixed-margin planners, d_min for uncertainty-only, and for the
 # reliability planners and the gate the false-trust budget that sets tau on cal (plus no fallback).

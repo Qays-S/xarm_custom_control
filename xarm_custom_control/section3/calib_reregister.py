@@ -2,13 +2,13 @@
 """
 Re-register a calibration after a small camera shift, instead of touching all the dots again.
 
-Finds every calibration dot in a fresh camera frame (same template matching as s3_check_drift.py),
+Finds every calibration dot in a fresh camera frame (same template matching as calib_drift_check.py),
 checks that the dots all moved together (a plain shift, no rotation or zoom), moves the clicked
 pixel positions by that shift, and saves the fresh frame as the new reference. The robot X, Y, Z
 of each dot do not change. The old files are kept with an _before_rr suffix.
 
-  python3 s3_reregister.py calib/calib_live.json [--camera 0] [--max-spread 1.0]
-Afterwards rerun s3_calib_analyze.py and s3_check_drift.py (it should then say OK).
+  python3 calib_reregister.py calib/calib_live.json [--camera 0] [--max-spread 1.0]
+Afterwards rerun calib_analyze.py and calib_drift_check.py (it should then say OK).
 """
 import argparse
 import json
@@ -19,8 +19,8 @@ import sys
 import cv2
 import numpy as np
 
-from s3_check_drift import dot_shifts
-from s3_common import CAM_H, CAM_W, open_camera
+from calib_drift_check import dot_shifts
+from cam_common import CAM_H, CAM_W, open_camera
 
 
 def main():

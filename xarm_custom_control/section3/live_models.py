@@ -2,12 +2,12 @@
 """
 H3 live trials: online perception -> 16 Hz steps -> forecasts -> reliability, while the arm runs.
 
-Matches the offline pipeline (s5_prepare, s5_gru, s5_mgru, s5_stsgcn, s6_features) step for step,
+Matches the offline pipeline (data_prepare, fc_gru, fc_mgru, fc_stsgcn, rel_features) step for step,
 so a model trained on prepared recordings sees the same inputs live. The one rule that differs from
-the original s5_prepare.py: a 16 Hz step may only use detections up to the first camera frame after
+the original data_prepare.py: a 16 Hz step may only use detections up to the first camera frame after
 it (causal), since live there is no later frame yet. Live recordings are prepared with
-`s5_prepare.py --causal`, which uses causal_grid() below, so training and live inputs are identical.
-Checked against the offline code by s9_selftest.py.
+`data_prepare.py --causal`, which uses causal_grid() below, so training and live inputs are identical.
+Checked against the offline code by live_selftest.py.
 """
 import json
 import os
@@ -19,7 +19,7 @@ import torch
 
 DT = 0.0625            # s per step (16 Hz)
 MAX_GAP = 0.25         # s; gaps longer than this stay missing
-KP = ["shoulder", "elbow", "wrist", "hand", "tip"]     # same order as s5_prepare.KP
+KP = ["shoulder", "elbow", "wrist", "hand", "tip"]     # same order as data_prepare.KP
 RAW_KP = ["L_shoulder", "R_shoulder", "L_elbow", "R_elbow", "L_wrist", "R_wrist"]   # read by STS-GCN
 KEEP_STEPS = 40        # 16 Hz steps kept: 1.0 s history + 1.0 s of older forecasts for e_t + margin
 KEEP_FRAMES_S = 2.0    # raw frames kept (s)
@@ -30,7 +30,7 @@ def causal_grid(tr, U, V, C, OBS, tg, max_gap=MAX_GAP):
     """Detections -> 16 Hz steps, using only frames up to the first frame after each step.
 
     tr (F,) frame times; U, V, C (F,J) pixels and confidence; OBS (F,J) observed flags; every tg < tr[-1].
-    Same as s5_prepare.resample_session, except a missing point is only filled between two
+    Same as data_prepare.resample_session, except a missing point is only filled between two
     detections if the second one is in the very next frame. Returns u, v (NaN = missing), conf, miss.
     """
     T, J = len(tg), U.shape[1]
@@ -57,7 +57,7 @@ def causal_grid(tr, U, V, C, OBS, tg, max_gap=MAX_GAP):
 
 def causal_at(to, u, v, tq, cut, max_gap=MAX_GAP):
     """One raw keypoint at times tq (STS-GCN input), using only detections at or before `cut`
-    (broadcastable to tq) to fill a gap. Same as s5_stsgcn.RawTracks.at otherwise."""
+    (broadcastable to tq) to fill a gap. Same as fc_stsgcn.RawTracks.at otherwise."""
     out = np.full(tq.shape + (2,), np.nan)
     if len(to) < 2:
         return out
@@ -91,7 +91,7 @@ class OnlineGrid:
     def add_frame(self, t, kp, miss, phase, goal):
         """kp {name: (u, v, conf)} in full-size pixels, miss {name: 0/1}, the phase and goal written
         to frames.csv for this frame. Rounded exactly as frames.csv stores them."""
-        if phase == "setup":          # s5_prepare drops the frames before the first touch
+        if phase == "setup":          # data_prepare drops the frames before the first touch
             return 0
         t = round(t, 6)
 
@@ -146,7 +146,7 @@ class OnlineModels:
 
     def __init__(self, calib, results=None, reliability=None, manicast_dir=None, prepared_train=None,
                  side="R", need=("sts", "rel")):
-        from s7_replay import homography
+        from plan_replay import homography
         self.H = homography(calib)
         self.side = side
         self.L, self.K = 16, 24
@@ -157,8 +157,8 @@ class OnlineModels:
         self.sts = None
         if not self.have_models:
             return
-        from s5_gru import GRUForecaster
-        from s6_features import load_mgru
+        from fc_gru import GRUForecaster
+        from rel_features import load_mgru
         self.mg, c = load_mgru(results)
         self.mg.eval()
         self.L = 16
@@ -172,21 +172,21 @@ class OnlineModels:
             import pickle
             self.rel = pickle.load(open(os.path.join(reliability, "reliability_model.pkl"), "rb"))
         if "sts" in need and manicast_dir and os.path.exists(os.path.join(manicast_dir, "model", "manicast.py")):
-            from s5_data import load
-            from s5_eval_e5 import StsGcn
+            from data_windows import load
+            from fc_eval_degraded import StsGcn
             m0, s0 = load(prepared_train)
             self.sts = StsGcn(manicast_dir, m0, s0, os.path.join(results, "stsgcn", "stsgcn_finetuned_best.pt"))
             self.sts.net.eval()
 
     def mm(self, a):
-        from s7_replay import to_mm
+        from plan_replay import to_mm
         return to_mm(a, self.H)
 
     def record(self, steps, frames):
-        """The planner's inputs for the newest step: the same fields s7_replay.forecasts() gives for
+        """The planner's inputs for the newest step: the same fields plan_replay.forecasts() gives for
         one anchor (now, visible, pi, modes, gru, cv, reactive, sts, r, r_u, r_s), plus its time."""
-        from s5_baselines import const_vel, current_pose
-        from s5_gru import ffill
+        from fc_baselines import const_vel, current_pose
+        from fc_gru import ffill
         if len(steps) < self.L:
             return None
         n = len(steps)
@@ -194,7 +194,7 @@ class OnlineModels:
              "conf": np.stack([q["conf"] for q in steps]), "miss": np.stack([q["miss"] for q in steps]),
              "phase": np.array([q["phase"] for q in steps]), "reach": np.array([q["reach"] for q in steps])}
         last = steps[-1]
-        # the single window ending at the newest step, as s5_data.windows builds it
+        # the single window ending at the newest step, as data_windows.windows builds it
         hi = np.arange(n - self.L, n)
         w = {"hist": s["y"][hi][:, self.jidx][None], "hmiss": s["miss"][hi][:, self.jidx][None],
              "hconf": s["conf"][hi][:, self.jidx][None]}
@@ -204,8 +204,8 @@ class OnlineModels:
                "reactive": self.mm(current_pose(wf, 24)[0])}
         if not self.have_models:
             return rec
-        from s5_gru import features, predict
-        from s5_mgru import run as mrun, to_positions
+        from fc_gru import features, predict
+        from fc_mgru import run as mrun, to_positions
         with torch.no_grad():
             x, cur = features(w)
             rec["gru"] = self.mm(predict(self.gru, x, cur)[0])
@@ -220,9 +220,9 @@ class OnlineModels:
 
     def _reliability(self, rec, s, steps):
         """r (combined), r_u (uncertainty only) and r_s (smoothed r, for v2) for the newest step,
-        from s6_features.session_table run over the kept steps (it only looks back in time)."""
-        from s6_features import session_table
-        from s6_reliability import X
+        from rel_features.session_table run over the kept steps (it only looks back in time)."""
+        from rel_features import session_table
+        from rel_train import X
         T = len(s["t"])
         glob = [q["anchor"] for q in steps]
         new = [i for i in range(self.L - 1, T) if glob[i] > self.last_anchor] or [T - 1]
@@ -236,8 +236,8 @@ class OnlineModels:
         for key, name in (("r", "combined (o+u+e)"), ("r_u", "uncertainty-only (u)")):
             mdl, cal, tau, cols = self.rel["estimators"][name]
             out[key] = cal.predict(mdl.predict_proba(X(f, cols))[:, 1])
-        # smoothed score: update once per new step, in order (as s7_replay.ema does offline)
-        from s7_replay import EMA_A
+        # smoothed score: update once per new step, in order (as plan_replay.ema does offline)
+        from plan_replay import EMA_A
         for i in new:
             v = out["r"][row[i]]
             if v == v:
@@ -248,7 +248,7 @@ class OnlineModels:
 
     def sts_one(self, last, frames):
         """Fine-tuned STS-GCN forecast for the newest step, (24,3,2) normalised (hand = wrist)."""
-        import s5_stsgcn as S
+        import fc_stsgcn as S
         offs = np.arange(-(S.N_IN - 1), S.N_OUT + 1) * S.DT
         tq = last["t"] + offs[:S.N_IN]
         fr = [f for f in frames if f[0] <= last["cut"]]

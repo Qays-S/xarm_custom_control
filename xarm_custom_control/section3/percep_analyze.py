@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 """
-Perception statistics from s3_perception_logger.py sessions: frame rate, dropped frames,
+Perception statistics from percep_record.py sessions: frame rate, dropped frames,
 missing keypoints (overall and while occluded), jitter during still holds, and latency.
 
 Usage
-  python3 s3_perception_analyze.py logs/session01 [logs/session02 ...]
+  python3 percep_analyze.py logs/session01 [logs/session02 ...]
        [--side R] [--latency logs/latency01] [--out logs/perception_report]
 --side picks the reaching arm for the headline numbers (both arms are in the CSVs).
---latency adds the camera latency from s3_latency_test.py to give the end-to-end latency.
+--latency adds the camera latency from percep_latency_test.py to give the end-to-end latency.
 """
 import argparse
 import csv
@@ -129,7 +129,7 @@ def main():
                "processing_ms": {"median": pct(all_proc, 50), "p95": pct(all_proc, 95), "p99": pct(all_proc, 99)},
                "jitter_static_rms_radius_px_median": {k: (float(np.median(v)) if v else None)
                                                       for k, v in all_jit.items()}}
-    # End-to-end latency = camera latency (s3_latency_test.py) + detection time.
+    # End-to-end latency = camera latency (percep_latency_test.py) + detection time.
     if a.latency:
         lat = json.load(open(os.path.join(a.latency, "summary.json")))
         cam = lat.get("latency_ms", {})

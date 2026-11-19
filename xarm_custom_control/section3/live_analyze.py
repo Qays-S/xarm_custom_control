@@ -9,7 +9,7 @@ taken from the camera frames captured at that moment (read time minus the measur
 not from the delayed data the planner had.
 
 Usage
-  python3 s9_analyze_live.py logs/C_P01_* logs/C_P02_* [--out logs/live_results] [--cam-latency 0.114]
+  python3 live_analyze.py logs/C_P01_* logs/C_P02_* [--out logs/live_results] [--cam-latency 0.114]
 Writes per_session.csv, by_method.csv (per participant and condition too) and summary.json.
 """
 import argparse
@@ -20,8 +20,8 @@ from collections import defaultdict
 
 import numpy as np
 
-import s7_replay as R
-from s9_live import arm_separation, cached_path
+import plan_replay as R
+from live_run import arm_separation, cached_path
 
 FKP = ["elbow", "wrist", "hand"]
 MOVING_MM_S = 10.0
@@ -126,7 +126,7 @@ def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("sessions", nargs="+")
     ap.add_argument("--out", default="logs/live_results")
-    ap.add_argument("--cam-latency", type=float, default=0.114, help="s, camera latency (s3_latency_test.py)")
+    ap.add_argument("--cam-latency", type=float, default=0.114, help="s, camera latency (percep_latency_test.py)")
     a = ap.parse_args()
     os.makedirs(a.out, exist_ok=True)
     per = [m for m in (session_metrics(s, a.cam_latency) for s in a.sessions) if m]

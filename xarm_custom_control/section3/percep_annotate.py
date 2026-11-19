@@ -2,8 +2,8 @@
 """
 Step 15: hand-click the true arm points on recorded frames, then score MediaPipe against them.
 
-  python3 s3_annotate.py annotate logs/E1_s01 logs/E2_s01 ... --n 15 [--side R] [--repeat 0.1]
-  python3 s3_annotate.py evaluate logs/E1_s01 logs/E2_s01 ... [--out logs/keypoint_eval]
+  python3 percep_annotate.py annotate logs/E1_s01 logs/E2_s01 ... --n 15 [--side R] [--repeat 0.1]
+  python3 percep_annotate.py evaluate logs/E1_s01 logs/E2_s01 ... [--out logs/keypoint_eval]
 
 Annotate: click SHOULDER, ELBOW, WRIST (joint centres), HAND (middle-finger base knuckle)
 and TIP (index fingertip) on the reaching arm. Keys: n = not visible, b = back one point,

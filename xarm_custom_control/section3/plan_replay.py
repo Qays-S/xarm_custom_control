@@ -2,15 +2,15 @@
 """
 Steps 41-51 and E6: reliability-guided planning, tested by OFFLINE REPLAY (no real arm moves).
 
-The recorded reaches are played back at 16 Hz while a simulated xArm 7 (s7_robot.py) does
+The recorded reaches are played back at 16 Hz while a simulated xArm 7 (plan_robot_model.py) does
 pick-and-place between dot 6 and dot 8 on a fixed path. Every step, each planner picks a speed
 (0, 0.25, 0.5 or 1) for the next 1.0 s; only the first step is carried out. The person was recorded
 with the arm parked, so they never react to the robot (open loop, a limitation in the paper).
 Settings are chosen on val (lowest decision loss), tau comes from cal, E5 is the stress test.
 
 Usage
-  python3 s7_replay.py --manicast-dir ~/manicast            # tune on val, then report val and E5
-  python3 s7_replay.py --delay 0                            # idealised, no perception delay
+  python3 plan_replay.py --manicast-dir ~/manicast            # tune on val, then report val and E5
+  python3 plan_replay.py --delay 0                            # idealised, no perception delay
 Outputs in logs/replay/: tuning.csv, results.csv, per_condition.csv, summary.json, traces.pkl
 """
 import argparse
@@ -22,12 +22,12 @@ import pickle
 import cv2
 import numpy as np
 
-from s5_baselines import const_vel, current_pose
-from s5_data import FORECAST_KP, load, windows
-from s5_gru import GRUForecaster, SIZE, features, ffill, predict
-from s5_mgru import run as mrun, to_positions
-from s6_features import load_mgru
-from s7_robot import capsules, ik_down
+from fc_baselines import const_vel, current_pose
+from data_windows import FORECAST_KP, load, windows
+from fc_gru import GRUForecaster, SIZE, features, ffill, predict
+from fc_mgru import run as mrun, to_positions
+from rel_features import load_mgru
+from plan_robot_model import capsules, ik_down
 
 DT = 0.0625               # s per step (16 Hz)
 K = 16                    # planning horizon: 16 steps = 1.0 s
@@ -172,7 +172,7 @@ def forecasts(prepared, setname, results, manicast_dir, scores_file):
     rea = current_pose(wf, 24)
     sts = None
     if manicast_dir and os.path.exists(os.path.join(manicast_dir, "model", "manicast.py")):
-        from s5_eval_e5 import StsGcn
+        from fc_eval_degraded import StsGcn
         m0, s0 = load("logs/prepared")
         S = StsGcn(manicast_dir, m0, s0, os.path.join(results, "stsgcn", "stsgcn_finetuned_best.pt"))
         sts = S.run(m, sess, setname, w)
@@ -215,7 +215,7 @@ def ema(r):
 
 def tau_smoothed(budget, l_max):
     """tau on D_cal for the smoothed score (each cal session smoothed in time order)."""
-    from s6_reliability import choose_tau
+    from rel_train import choose_tau
     dev = np.load("logs/reliability/features_dev.npz", allow_pickle=True)
     sc = np.load("logs/reliability/scores_cal.npz", allow_pickle=True)
     cal = dev["set"] == "cal"

@@ -4,7 +4,7 @@ import sys
 sys.path.insert(0, '..')
 import cv2
 import mediapipe as mp
-from s3_common import open_camera
+from cam_common import open_camera
 
 cam = int(sys.argv[1]) if len(sys.argv) > 1 else 0
 cap = open_camera(cam)

@@ -17,7 +17,7 @@ P02 never appears in Phases A or B, so their Phase C results test the method on 
 - Someone other than the participant holds the E-stop for the whole session and watches the arm.
 - The xArm ROS driver is NOT running (the SDK script controls the arm). Close UFactory Studio's
   control page too.
-- Built into `s9_live.py` (all planners): the arm stops if no arm keypoint is seen for 0.25 s, if the
+- Built into `live_run.py` (all planners): the arm stops if no arm keypoint is seen for 0.25 s, if the
   camera stalls for 0.3 s, if the real arm comes within 20 mm of a keypoint, on any controller error,
   or when `h` is pressed; it waits 3 clear steps before moving again. Speed is capped at 150 mm/s in
   software and in the controller (reduced mode), and collision detection is on.
@@ -39,24 +39,24 @@ All commands below are run in `section3/h3`, as `python3 ../script.py`.
 1. Calibrate the camera to the table. Touch the dots **in order 1 to 12**, so that each id matches
    the dot number (6 = pick, 8 = place):
    ```bash
-   python3 ../s3_collect.py calib --out calib/calib_live.json
-   python3 ../s3_calib_analyze.py calib/calib_live.json --holdout 4
+   python3 ../calib_collect.py calib --out calib/calib_live.json
+   python3 ../calib_analyze.py calib/calib_live.json --holdout 4
    ```
 2. Check the code on this laptop (nothing moves). From `section3` (it uses the original data):
    ```bash
-   cd .. && python3 s9_selftest.py --manicast-dir ~/manicast && python3 s9_mockarm_test.py && cd h3
+   cd .. && python3 live_selftest.py --manicast-dir ~/manicast && python3 live_mockarm_test.py && cd h3
    ```
    Both must print PASS. The self-test also prints the compute time per step; it must stay well under 62.5 ms.
 3. Dry run with the camera, robot not connected (`--robot dry` is the default):
    ```bash
-   python3 ../s4_record_targets.py --mode E2 --out logs/dry_01 --reaches 10 --live reactive \
+   python3 ../data_record_reaches.py --mode E2 --out logs/dry_01 --reaches 10 --live reactive \
        --calib-session calib/calib_live.json
    ```
    The banner shows `ROBOT reactive 1.00` while moving and the stop reason in brackets.
 4. Real arm, nobody reaching. The arm only moves while it can see a person's arm, so sit back with your
    forearm visible to the camera and do not reach (use `x` to skip reaches):
    ```bash
-   python3 ../s4_record_targets.py --mode E2 --out logs/empty_01 --reaches 5 --live reactive \
+   python3 ../data_record_reaches.py --mode E2 --out logs/empty_01 --reaches 5 --live reactive \
        --robot xarm --speed-scale 0.33 --calib-session calib/calib_live.json
    ```
    It asks before moving to the start pose (150 mm above dot 6). Watch one full loop.
@@ -65,7 +65,7 @@ All commands below are run in `section3/h3`, as `python3 ../script.py`.
 ## A. Training data (P01, reactive planner, full speed)
 
 Drift check at the start and end of each sitting:
-`python3 ../s3_check_drift.py calib/calib_live_reference_frame.png --dots calib/calib_live.json`
+`python3 ../calib_drift_check.py calib/calib_live_reference_frame.png --dots calib/calib_live.json`
 
 Common options: `--live reactive --robot xarm --calib-session calib/calib_live.json --participant P01`
 
@@ -82,31 +82,31 @@ validation and calibration.
 
 E5 (covering the hand with paper, dimming the lights) was dropped on 2026-11-12: it was hard to run
 and not a realistic workspace condition. Degraded views are studied instead where they happen on their
-own, e.g. when the robot arm passes between the camera and the hand (`s6_reliability.py` reports
+own, e.g. when the robot arm passes between the camera and the hand (`rel_train.py` reports
 "clear view" vs "partly hidden" moments). A stray attempt is kept as `logs/X_A_P01_E5_s01_nopaper`;
 names starting with `X_` are never used.
 
 Before every session: charger plugged in, `powerprofilesctl set performance`, RViz and the ROS
 driver closed (the camera should run at about 14 frames per second). If the drift check says MOVED
-by a small, uniform shift, `python3 ../s3_reregister.py calib/calib_live.json` fixes the calibration
+by a small, uniform shift, `python3 ../calib_reregister.py calib/calib_live.json` fixes the calibration
 without touching the dots again (it refuses if the dots did not all move together).
 
 ## B. Train and freeze (in `section3/h3`)
 
 ```bash
-python3 ../s5_prepare.py logs/A_P01_E[1-4]_s0[12] --causal --split live
-python3 ../s5_baselines.py
-python3 ../s5_gru.py
-python3 ../s5_mgru.py
-python3 ../s5_stsgcn.py --manicast-dir ~/manicast
-python3 ../s6_reliability.py
-python3 ../s7_replay.py --manicast-dir ~/manicast --calib calib/calib_live.json
-python3 ../s9_selftest.py --manicast-dir ~/manicast --session logs/A_P01_E4_s02 --calib calib/calib_live.json
-python3 ../s9_freeze.py
+python3 ../data_prepare.py logs/A_P01_E[1-4]_s0[12] --causal --split live
+python3 ../fc_baselines.py
+python3 ../fc_gru.py
+python3 ../fc_mgru.py
+python3 ../fc_stsgcn.py --manicast-dir ~/manicast
+python3 ../rel_train.py
+python3 ../plan_replay.py --manicast-dir ~/manicast --calib calib/calib_live.json
+python3 ../live_selftest.py --manicast-dir ~/manicast --session logs/A_P01_E4_s02 --calib calib/calib_live.json
+python3 ../live_freeze.py
 ```
 
 `--causal` makes training use exactly what the robot sees live (a step only uses frames already
-seen). The self-test must pass before freezing. After `s9_freeze.py`, nothing in `logs/prepared`,
+seen). The self-test must pass before freezing. After `live_freeze.py`, nothing in `logs/prepared`,
 `logs/forecast_results`, `logs/reliability` or `logs/replay` may change.
 
 ## C. Planner comparison (P01 and P02) — to be updated now that E5 is dropped
@@ -136,10 +136,10 @@ to get used to the arm moving; practice sessions are not analysed.
 ## Results
 
 ```bash
-python3 ../s9_analyze_live.py logs/C_P0*_* --out logs/live_results
+python3 ../live_analyze.py logs/C_P0*_* --out logs/live_results
 ```
 
 Near-misses use the real arm pose (logged joint angles) and where the person actually was at each
 step, not the delayed data the planner had. Forecast and reliability accuracy on Phase C can be
 recomputed offline from the recorded frames with the frozen models
-(`python3 ../s5_prepare.py logs/C_* --causal --split live --out logs/prepared_c`).
+(`python3 ../data_prepare.py logs/C_* --causal --split live --out logs/prepared_c`).

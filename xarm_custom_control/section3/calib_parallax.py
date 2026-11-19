@@ -2,11 +2,11 @@
 """
 How wrong the table homography gets for points held above the table (parallax).
 
-Each point from `s3_collect.py parallax` is projected through H as if it were on the table;
+Each point from `calib_collect.py parallax` is projected through H as if it were on the table;
 the distance to the arm's true (X, Y) is the error, and height = Z minus that spot's table touch.
 
 Usage
-  python3 s3_parallax_analyze.py parallax_session.json --calib camera_calibration_s3.json
+  python3 calib_parallax.py parallax_session.json --calib camera_calibration_s3.json
                                  [--calib-error-mm 7.5]
 Writes <session>_analysis/: parallax_points.csv, parallax_by_height.csv, summary.json,
 parallax_vs_height.png, parallax_vectors.png.
@@ -19,7 +19,7 @@ import os
 
 import numpy as np
 
-from s3_common import apply_h, load_json, save_json, stats
+from cam_common import apply_h, load_json, save_json, stats
 
 
 def main():

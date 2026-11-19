@@ -1,4 +1,4 @@
-"""Shared loading for Section V: windows from logs/prepared (made by s5_prepare.py)."""
+"""Shared loading for Section V: windows from logs/prepared (made by data_prepare.py)."""
 import json
 import os
 

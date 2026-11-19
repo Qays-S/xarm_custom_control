@@ -22,14 +22,14 @@ Keys (camera window focused)
   o      start/stop an OCCLUSION segment     m  generic marker
   p      pause/resume cueing                  q  stop (everything is saved as you go)
 
-Live mode (H3): --live METHOD runs the robot with that planner while you reach (s9_live.py).
+Live mode (H3): --live METHOD runs the robot with that planner while you reach (live_run.py).
   --robot dry (default) simulates the arm; --robot xarm moves the real one. 'h' = hold the robot.
   The xArm ROS driver must NOT be running (the SDK controls the arm), so --arm is ignored.
 
 Usage
-  python3 s4_record_targets.py --mode E1 --out logs/E1_s01 --targets 1 4 9 12
-  python3 s4_record_targets.py --mode E4 --out logs/E4_s01 --reaches 40 --arm ros
-  python3 s4_record_targets.py --mode E2 --out /tmp/test --sim        # no camera: dry run
+  python3 data_record_reaches.py --mode E1 --out logs/E1_s01 --targets 1 4 9 12
+  python3 data_record_reaches.py --mode E4 --out logs/E4_s01 --reaches 40 --arm ros
+  python3 data_record_reaches.py --mode E2 --out /tmp/test --sim        # no camera: dry run
 Targets are dot ids from --calib-session, so each is known in pixels and robot mm.
 """
 import argparse
@@ -44,7 +44,7 @@ import time
 import cv2
 import numpy as np
 
-from s3_common import CAM_H, CAM_W, open_camera
+from cam_common import CAM_H, CAM_W, open_camera
 
 POSE_IDS = {"L_shoulder": 11, "R_shoulder": 12, "L_elbow": 13, "R_elbow": 14, "L_wrist": 15, "R_wrist": 16}
 KEYPOINTS = ["L_shoulder", "L_elbow", "L_wrist", "L_hand", "L_tip",
@@ -55,7 +55,7 @@ SPEEDS, PATHS = ["slow", "normal", "fast"], ["straight", "curved"]
 
 # --------------------------------------------------------------- perception
 def detect(pose, hands, rgb, w, h, conf_th):
-    """Same keypoints as s3_perception_logger.py, plus the index fingertip per side."""
+    """Same keypoints as percep_record.py, plus the index fingertip per side."""
     out = {k: (float("nan"), float("nan"), 0.0) for k in KEYPOINTS}
     pr = pose.process(rgb)
     found = pr.pose_landmarks is not None
@@ -112,7 +112,7 @@ class RosRobotLog(threading.Thread):
         from sensor_msgs.msg import JointState
         self.rclpy = rclpy
         rclpy.init()
-        self.node = rclpy.create_node("s4_record_targets_reader")
+        self.node = rclpy.create_node("data_record_reaches_reader")
         self.f = open(path, "w", newline="")
         self.w = csv.writer(self.f)
         # one row per message: joint angles q1-q7, velocities v1-v7, TCP pose, state and error code
@@ -268,7 +268,7 @@ def main():
                     help="run the detectors on a copy this wide (full-size frames are still saved); "
                          "keeps the frame rate up on a laptop CPU. 0 = detect on the full frame")
     ap.add_argument("--sim", action="store_true", help="no camera: a simulated hand follows the cues")
-    # ---- H3 live trials (s9_live.py)
+    # ---- H3 live trials (live_run.py)
     ap.add_argument("--live", default=None, help="planner that drives the robot: reactive, cv, gru, mgru, sts, "
                                                  "uncert, gate, full, full_nofb, full2")
     ap.add_argument("--robot", default="dry", choices=["dry", "xarm"], help="dry = no arm (simulated loop)")
@@ -341,7 +341,7 @@ def main():
     # live robot (H3): started now, moves only once cueing starts
     ctl = None
     if a.live:
-        from s9_live import LiveController
+        from live_run import LiveController
         ctl = LiveController(a.out, calib, a.live, a.side, W, H, robot=a.robot, ip=a.ip, results=a.results,
                              reliability=a.reliability, replay_summary=a.replay_summary,
                              manicast_dir=a.manicast_dir, prepared_train=a.prepared_train,

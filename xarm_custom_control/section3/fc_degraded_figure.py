@@ -2,11 +2,11 @@
 """
 Fig. 4 bar chart: right-wrist error 1.0 s ahead while the hand moves, on val and each E5 condition.
 
-Reads the numbers s5_eval_e5.py already saved (e5_results.csv, e5_by_condition.csv); computes
+Reads the numbers fc_eval_degraded.py already saved (e5_results.csv, e5_by_condition.csv); computes
 nothing new. Bars taller than the plot are cut and their value is written above them.
 
 Usage
-  python3 s5_e5_figure.py
+  python3 fc_degraded_figure.py
 Output: logs/forecast_results/e5/e5_by_condition.png
 """
 import csv

@@ -7,14 +7,14 @@ the robot parked.
 
 | Blueprint step / required output | Tool | What you get |
 |---|---|---|
-| 12. Camera rigidly mounted, not moved during a session | `s3_check_drift.py` | OK / MOVED check against the calibration's reference frame (run at start and end of every session) |
-| 13. 12–20 planar fiducials, several held out | `s3_collect.py calib` | point list + reference frame |
-| 14. Robust H_CB, held-out metric error → **calibration-error distribution** | `s3_calib_analyze.py` | held-out, leave-one-out and in-sample errors, ECDF plot, error map, `camera_calibration_s3.json` |
-| 16. Markers at known heights → **height/parallax sensitivity** | `s3_collect.py parallax` + `s3_parallax_analyze.py` | error vs height table and plots, height at which parallax exceeds calibration error |
-| 15. Elbow/wrist/hand (+shoulder), raw frames, pixels, confidence, missingness | `s3_perception_logger.py` | `frames/`, `frames.csv`, `events.csv`, `meta.json` |
-| 17. Frame rate, dropped frames, detection failures, jitter → **visibility/missingness statistics** | `s3_perception_analyze.py` | `summary.json`, per-frame visibility CSV, plots |
-| 17. End-to-end perception latency → **latency distribution** | `s3_latency_test.py` (+ analyze `--latency`) | camera latency distribution + detection time = end-to-end estimate |
-| **Manually annotated keypoint subset** | `s3_annotate.py` | your clicks on ~100 frames, pixel error, PCK, missed-when-visible rates |
+| 12. Camera rigidly mounted, not moved during a session | `calib_drift_check.py` | OK / MOVED check against the calibration's reference frame (run at start and end of every session) |
+| 13. 12–20 planar fiducials, several held out | `calib_collect.py calib` | point list + reference frame |
+| 14. Robust H_CB, held-out metric error → **calibration-error distribution** | `calib_analyze.py` | held-out, leave-one-out and in-sample errors, ECDF plot, error map, `camera_calibration_s3.json` |
+| 16. Markers at known heights → **height/parallax sensitivity** | `calib_collect.py parallax` + `calib_parallax.py` | error vs height table and plots, height at which parallax exceeds calibration error |
+| 15. Elbow/wrist/hand (+shoulder), raw frames, pixels, confidence, missingness | `percep_record.py` | `frames/`, `frames.csv`, `events.csv`, `meta.json` |
+| 17. Frame rate, dropped frames, detection failures, jitter → **visibility/missingness statistics** | `percep_analyze.py` | `summary.json`, per-frame visibility CSV, plots |
+| 17. End-to-end perception latency → **latency distribution** | `percep_latency_test.py` (+ analyze `--latency`) | camera latency distribution + detection time = end-to-end estimate |
+| **Manually annotated keypoint subset** | `percep_annotate.py` | your clicks on ~100 frames, pixel error, PCK, missed-when-visible rates |
 
 Install (same pins as `arm_mimic.py`):
 ```
@@ -29,7 +29,7 @@ Run everything from this folder. Keep the camera resolution the same for every s
 laptop screen into the camera's view instead, e.g. lay the laptop on the table under the camera
 with the lid opened back so the screen faces up. Then:
 ```
-python3 s3_latency_test.py --out logs/latency01 --flips 40 --camera 0
+python3 percep_latency_test.py --out logs/latency01 --flips 40 --camera 0
 ```
 The window shows the live camera view: click two opposite corners of the laptop screen as it
 appears there (r = redo), press SPACE, and keep everything still for about 40 s while the
@@ -37,14 +37,14 @@ window flips black/white full screen. The result includes the screen's refresh d
 slightly overestimates the camera's latency. Put the laptop back afterwards and run the drift
 check before the next recording. Then the timing summary (also uses the E1-E4 recordings):
 ```
-python3 s3_timing_summary.py logs/E1_s01 logs/E2_s01 logs/E3_s01 logs/E4_s01 logs/E1_s02 logs/E2_s02 logs/E3_s02 logs/E4_s02 --latency logs/latency01
+python3 percep_timing.py logs/E1_s01 logs/E2_s01 logs/E3_s01 logs/E4_s01 logs/E1_s02 logs/E2_s02 logs/E3_s02 logs/E4_s02 --latency logs/latency01
 ```
 
 **B. Mount the camera rigidly** in its final reach-view position. Do not touch it again this session.
 
 **C. Calibration points (12–20).**
 ```
-python3 s3_collect.py calib --out calib/calib_session.json        # add --arm manual if the SDK can't connect
+python3 calib_collect.py calib --out calib/calib_session.json        # add --arm manual if the SDK can't connect
 ```
 - Keep the gripper pointing straight down (roll 180, pitch 0) so the tip is directly below the TCP.
 - For each point: jog the tip until it **touches the table**, click the tip in the image (use the
@@ -56,7 +56,7 @@ python3 s3_collect.py calib --out calib/calib_session.json        # add --arm ma
 
 Then:
 ```
-python3 s3_calib_analyze.py calib/calib_session.json --holdout 4
+python3 calib_analyze.py calib/calib_session.json --holdout 4
 ```
 The 4 held-out points are chosen at random with `--seed 0` before fitting and written to
 `summary.json`. Report the **held-out** numbers as the headline, and leave-one-out as secondary.
@@ -65,13 +65,13 @@ To use the new calibration in your other scripts, copy
 
 **D. Drift check at the start and end of every recording session:**
 ```
-python3 s3_check_drift.py calib/calib_session_reference_frame.png --calib calib/calib_session_analysis/camera_calibration_s3.json
+python3 calib_drift_check.py calib/calib_session_reference_frame.png --calib calib/calib_session_analysis/camera_calibration_s3.json
 ```
 If it says MOVED, recalibrate before using that session's data.
 
 **E. Parallax (known heights).**
 ```
-python3 s3_collect.py parallax --out calib/parallax_session.json
+python3 calib_collect.py parallax --out calib/parallax_session.json
 ```
 - Pick at least 3 table spots spread over the workspace (near, middle, far from the camera).
 - At each spot, first touch the table and record (`r`). Then raise the tip **straight up**,
@@ -81,12 +81,12 @@ python3 s3_collect.py parallax --out calib/parallax_session.json
 
 Then:
 ```
-python3 s3_parallax_analyze.py calib/parallax_session.json --calib calib/calib_session_analysis/camera_calibration_s3.json
+python3 calib_parallax.py calib/parallax_session.json --calib calib/calib_session_analysis/camera_calibration_s3.json
 ```
 
 **F. Perception recordings (robot parked).**
 ```
-python3 s3_perception_logger.py --out logs/session01 --duration 300
+python3 percep_record.py --out logs/session01 --duration 300
 ```
 - Do normal reaches with the arm you'll study (the right arm unless you choose otherwise).
 - Include at least 3 **static holds** of 5–10 s with the arm still: press `s` to start and `s`
@@ -98,8 +98,8 @@ python3 s3_perception_logger.py --out logs/session01 --duration 300
 **G. Manual annotation (15 frames from each E1-E4 session, about 130 frames in total):**
 ```
 S="logs/E1_s01 logs/E2_s01 logs/E3_s01 logs/E4_s01 logs/E1_s02 logs/E2_s02 logs/E3_s02 logs/E4_s02"
-python3 s3_annotate.py annotate $S        # q saves and quits; run it again to continue
-python3 s3_annotate.py evaluate $S
+python3 percep_annotate.py annotate $S        # q saves and quits; run it again to continue
+python3 percep_annotate.py evaluate $S
 ```
 Frames are sampled evenly over each recording with a fixed seed (pre-start frames left out),
 and the sample is saved before you start, in `logs/keypoint_eval/`. On the reaching arm click:
@@ -110,7 +110,7 @@ twice to measure your own click consistency. MediaPipe's points are never shown 
 
 **H. Statistics:**
 ```
-python3 s3_perception_analyze.py logs/session01 [logs/session02 ...] --side R --latency logs/latency01
+python3 percep_analyze.py logs/session01 [logs/session02 ...] --side R --latency logs/latency01
 ```
 
 ## What goes in the paper (Section III outputs)
@@ -136,15 +136,15 @@ taped calibration dots (default #1, #4, #9, #12), so each target is known in pix
 robot millimetres. Run from `section3`, with the xArm driver running and the workspace sourced
 (`source ~/ros2_ws/install/setup.bash`) so the robot's joint states are logged. The recorder checks this at the start: it prints "robot logging OK" or a WARNING listing the topics it can see, and the banner shows "ROBOT: NO DATA" if nothing arrives.
 
-**Before and after every session:** `python3 s3_check_drift.py calib/now_E5_median.png --camera 2 --dots calib/calib_cam3d.json` must say OK. `--dots` decides on the post-it dots themselves; the whole-scene number is printed for information only, because the parked arm in a slightly different pose can make it look as if the camera moved (this happened on 2026-10-29).
+**Before and after every session:** `python3 calib_drift_check.py calib/now_E5_median.png --camera 2 --dots calib/calib_cam3d.json` must say OK. `--dots` decides on the post-it dots themselves; the whole-scene number is printed for information only, because the parked arm in a slightly different pose can make it look as if the camera moved (this happened on 2026-10-29).
 
 | Set | Command | What you do |
 |---|---|---|
-| E1 | `python3 s4_record_targets.py --mode E1 --out logs/E1_s01` | Touch the dot shown ("GO TO 9") at a comfortable speed, hold until the next cue |
-| E2 | `python3 s4_record_targets.py --mode E2 --out logs/E2_s01` | Keep moving: the next dot appears the moment you arrive. Follow the speed/path hint at the bottom |
-| E3 | `python3 s4_record_targets.py --mode E3 --out logs/E3_s01` | Two dots light up ("4 OR 12 ?"). Start moving toward both; the real one is revealed once you are moving |
-| E4 | `python3 s4_record_targets.py --mode E4 --out logs/E4_s01` | Go to the dot shown; on about half the reaches the goal changes just after you start moving. Follow the new one |
-| E5 | `python3 s4_record_targets.py --mode E5 --out logs/E5_s01 --calib-session calib/calib_cam3c.json` | Hold a sheet of paper in your left hand. "GO TO 4 - COVER": cover your right hand with the paper on the way and uncover it at the dot. "GO TO 4 - HEAD": hold the paper flat above your head like a roof on the way (you can still see the table), lower it at the dot. Arrival is automatic, so HOLD can appear while the paper is still up: put the paper down as soon as HOLD shows. Before reach 21 the screen asks you to dim the room lights (press p when done) and before reach 31 to turn them back on |
+| E1 | `python3 data_record_reaches.py --mode E1 --out logs/E1_s01` | Touch the dot shown ("GO TO 9") at a comfortable speed, hold until the next cue |
+| E2 | `python3 data_record_reaches.py --mode E2 --out logs/E2_s01` | Keep moving: the next dot appears the moment you arrive. Follow the speed/path hint at the bottom |
+| E3 | `python3 data_record_reaches.py --mode E3 --out logs/E3_s01` | Two dots light up ("4 OR 12 ?"). Start moving toward both; the real one is revealed once you are moving |
+| E4 | `python3 data_record_reaches.py --mode E4 --out logs/E4_s01` | Go to the dot shown; on about half the reaches the goal changes just after you start moving. Follow the new one |
+| E5 | `python3 data_record_reaches.py --mode E5 --out logs/E5_s01 --calib-session calib/calib_cam3c.json` | Hold a sheet of paper in your left hand. "GO TO 4 - COVER": cover your right hand with the paper on the way and uncover it at the dot. "GO TO 4 - HEAD": hold the paper flat above your head like a roof on the way (you can still see the table), lower it at the dot. Arrival is automatic, so HOLD can appear while the paper is still up: put the paper down as soon as HOLD shows. Before reach 21 the screen asks you to dim the room lights (press p when done) and before reach 31 to turn them back on |
 
 - Each session stops after 40 valid reaches (`--reaches`), about 2–4 minutes.
 - Start: the screen says "TOUCH 1 TO START". Touch it with your index fingertip.
@@ -155,14 +155,14 @@ robot millimetres. Run from `section3`, with the xArm driver running and the wor
 
 **Summary (counts, durations, missing keypoints, timing, E4 switch onsets):**
 ```
-python3 s4_dataset_summary.py logs/E1_s01 logs/E2_s01 logs/E3_s01 logs/E4_s01
+python3 data_summary.py logs/E1_s01 logs/E2_s01 logs/E3_s01 logs/E4_s01
 ```
 
 ## Section V: forecasting (runs on the laptop, no camera or arm needed)
 
 **1. Prepare the tracks and freeze the split** (once, after recording):
 ```
-python3 s5_prepare.py logs/E1_s01 logs/E2_s01 logs/E3_s01 logs/E4_s01 logs/E1_s02 logs/E2_s02 logs/E3_s02 logs/E4_s02
+python3 data_prepare.py logs/E1_s01 logs/E2_s01 logs/E3_s01 logs/E4_s01 logs/E1_s02 logs/E2_s02 logs/E3_s02 logs/E4_s02
 ```
 Resamples every session to 16 Hz (0.0625 s steps), normalises pixels by the image size, and
 writes `logs/prepared/` with one `.npz` per session, `split_manifest.json` and
@@ -172,14 +172,14 @@ must say PASS. Commit `logs/prepared/` so the split stays frozen.
 
 **2. Baselines on the validation set** (current pose and constant velocity):
 ```
-python3 s5_baselines.py
+python3 fc_baselines.py
 ```
 ADE/FDE in pixels at 0.25, 0.5, 1.0 and 1.5 s, saved in `logs/forecast_results/`. The test
 set is not used.
 
 **3. Deterministic GRU** (needs `pip install torch`; about 5 min on a laptop CPU):
 ```
-python3 s5_gru.py            # small grid search, chosen on val; --quick for one config
+python3 fc_gru.py            # small grid search, chosen on val; --quick for one config
 ```
 Saves the learning curves, the chosen model (`gru_best.pt`), val ADE/FDE (`gru_val.csv`) and
 the one-window inference time in `logs/forecast_results/gru/`. The test set is not used.
@@ -187,7 +187,7 @@ the one-window inference time in `logs/forecast_results/gru/`. The test set is n
 **4. Pre-trained STS-GCN, fine-tuned (ManiCast recipe)** (needs the ManiCast repository, about 2 GB):
 ```
 git clone https://github.com/portal-cornell/manicast ~/manicast
-python3 s5_stsgcn.py --manicast-dir ~/manicast      # 5 runs, roughly 45-75 min; --quick for 2 runs
+python3 fc_stsgcn.py --manicast-dir ~/manicast      # 5 runs, roughly 45-75 min; --quick for 2 runs
 ```
 Starts from ManiCast's released STS-GCN weights (pre-trained on AMASS), fine-tunes on round 1
 with their recipe (half the updates on transition windows, wrists weighted 5x), tunes the

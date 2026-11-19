@@ -3,7 +3,7 @@
 H3: freeze everything before Phase C. Saves the SHA-256 of every model, setting and script that the
 live planners use, so the paper can show nothing changed after the comparison started.
 
-  python3 ../s9_freeze.py            (run in the h3 folder, after Phase B)
+  python3 ../live_freeze.py            (run in the h3 folder, after Phase B)
 Writes logs/live_freeze.json; refuses to overwrite an existing one.
 """
 import glob
@@ -37,8 +37,8 @@ def main():
         raise SystemExit(f"Missing (finish Phase B first): {missing}")
     st = json.load(open("logs/selftest/selftest.json"))
     if not st.get("all_pass"):
-        raise SystemExit("The last s9_selftest.py run did not pass; fix that before freezing.")
-    scripts = sorted(glob.glob(os.path.join(HERE, "s*.py")))
+        raise SystemExit("The last live_selftest.py run did not pass; fix that before freezing.")
+    scripts = sorted(glob.glob(os.path.join(HERE, "*.py")))
     rec = {"frozen_at": time.strftime("%Y-%m-%d %H:%M:%S"),
            "note": "Fixed before the first Phase C (planner comparison) session.",
            "sha256": {**{f: sha(f) for f in FILES}, **{os.path.basename(s): sha(s) for s in scripts}}}

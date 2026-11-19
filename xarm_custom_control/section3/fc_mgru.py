@@ -2,13 +2,13 @@
 """
 Steps 29 and 31: the multimodal GRU, which predicts M possible futures, each with a probability.
 
-Same inputs as s5_gru.py. Output: M whole-trajectory modes over the next 1.5 s, each a mean path
+Same inputs as fc_gru.py. Output: M whole-trajectory modes over the next 1.5 s, each a mean path
 plus a 2x2 spread per point. Trained on the likelihood of the observed future; tuned on val
 (M in {1, 3, 5} x hidden {64, 128}). M = 1 shows whether more than one mode helps.
 
 Usage
-  python3 s5_mgru.py            # 6 runs, about 15-30 min on a laptop CPU
-  python3 s5_mgru.py --quick    # one run, for a quick check
+  python3 fc_mgru.py            # 6 runs, about 15-30 min on a laptop CPU
+  python3 fc_mgru.py --quick    # one run, for a quick check
 Outputs in logs/forecast_results/mgru/: mgru_best.pt/.json, mgru_val.csv, mgru_calibration.csv, ...
 """
 import argparse
@@ -23,8 +23,8 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-from s5_data import FORECAST_KP, HORIZONS_S, ade_fde_px, eval_mask, load, windows
-from s5_gru import SIZE, features, targets
+from data_windows import FORECAST_KP, HORIZONS_S, ade_fde_px, eval_mask, load, windows
+from fc_gru import SIZE, features, targets
 
 MIN_STD = 0.01            # 1 px, in the model's units (pixels / 100)
 LN100 = math.log(100.0)   # model units are px/100, so a density per px^2 is 100^2 smaller

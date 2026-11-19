@@ -2,12 +2,12 @@
 """
 Check that the camera has not moved since calibration. Run at the start and end of every session.
 
-Compares a live frame (or an image) with the reference frame saved by s3_collect.py.
+Compares a live frame (or an image) with the reference frame saved by calib_collect.py.
 --dots CALIB (recommended) finds each calibration dot in both images and decides on the dots
 alone; CALIB's pixel positions must belong to the reference image.
 
 Usage
-  python3 s3_check_drift.py calib_session_reference_frame.png [--camera 0 | --image now.png]
+  python3 calib_drift_check.py calib_session_reference_frame.png [--camera 0 | --image now.png]
                             [--calib camera_calibration_s3.json] [--max-px 1.0]
                             [--dots calib/calib_cam3d.json] [--save now.png]
 Exit code 0 = OK, 1 = camera moved (recalibrate), 2 = could not decide.
@@ -18,7 +18,7 @@ import sys
 import cv2
 import numpy as np
 
-from s3_common import CAM_H, CAM_W, open_camera
+from cam_common import CAM_H, CAM_W, open_camera
 
 
 def shift(ref, cur):

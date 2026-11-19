@@ -1,15 +1,15 @@
 #!/usr/bin/env python3
 """
-Checks that the live code (s9_online.py, s9_live.py) gives exactly what the offline pipeline gives,
+Checks that the live code (live_models.py, live_run.py) gives exactly what the offline pipeline gives,
 by feeding a recorded session to it frame by frame. Run it on the lab laptop before the first live
 session, and again after retraining. Nothing moves; no camera is needed.
 
-  A. 16 Hz steps: OnlineGrid fed frame by frame == s5_prepare.py --causal on the whole session
-  B. forecasts and reliability: OnlineModels.record == s7_replay.forecasts on causally prepared data
-  C. planners: LivePlanner == s7_replay.simulate for every method, on the replay's own inputs
+  A. 16 Hz steps: OnlineGrid fed frame by frame == data_prepare.py --causal on the whole session
+  B. forecasts and reliability: OnlineModels.record == plan_replay.forecasts on causally prepared data
+  C. planners: LivePlanner == plan_replay.simulate for every method, on the replay's own inputs
 
 Usage
-  python3 s9_selftest.py --manicast-dir ~/manicast [--session logs/E4_s02] [--every 5]
+  python3 live_selftest.py --manicast-dir ~/manicast [--session logs/E4_s02] [--every 5]
 Writes logs/selftest/selftest.json; prints PASS/FAIL per check and the live compute time per step.
 """
 import argparse
@@ -23,9 +23,9 @@ import time
 
 import numpy as np
 
-import s7_replay as R
-from s9_live import LivePlanner
-from s9_online import KP, RAW_KP, OnlineGrid, OnlineModels
+import plan_replay as R
+from live_run import LivePlanner
+from live_models import KP, RAW_KP, OnlineGrid, OnlineModels
 
 
 def frames_of(session):
@@ -79,7 +79,7 @@ def main():
     W, H = meta.get("actual_size", [1280, 720])
 
     # ---- A. 16 Hz steps
-    from s5_prepare import resample_session
+    from data_prepare import resample_session
     off = resample_session(a.session, 0.0625, 0.25, causal=True)
     old = resample_session(a.session, 0.0625, 0.25, causal=False)
     g = OnlineGrid(meta["side"], W, H)
@@ -105,12 +105,12 @@ def main():
     # ---- B. forecasts and reliability on causally prepared data
     prep = os.path.join(a.out, "prepared_causal")
     shutil.rmtree(prep, ignore_errors=True)
-    subprocess.run([sys.executable, os.path.join(os.path.dirname(os.path.abspath(__file__)), "s5_prepare.py"), a.session, "--out", prep, "--causal"], check=True,
+    subprocess.run([sys.executable, os.path.join(os.path.dirname(os.path.abspath(__file__)), "data_prepare.py"), a.session, "--out", prep, "--causal"], check=True,
                    stdout=subprocess.DEVNULL)
-    from s5_data import load
-    from s6_features import build
+    from data_windows import load
+    from rel_features import build
     import pickle
-    from s6_reliability import X
+    from rel_train import X
     m, _ = load(prep)
     setname = next(k for k, v in m["sessions"][name]["anchors"].items() if v[2] > 0)
     T = build(prep, [setname], a.results)
@@ -124,7 +124,7 @@ def main():
     have_sts = os.path.exists(os.path.join(a.manicast_dir, "model", "manicast.py"))
     F = R.forecasts(prep, setname, a.results, a.manicast_dir if have_sts else None, sfile)[name]
     want = {int(t): i for i, t in enumerate(F["anchor"])}
-    calib = R.calib_for(a.session)                  # the session's own calibration, as s7_replay uses
+    calib = R.calib_for(a.session)                  # the session's own calibration, as plan_replay uses
     models = OnlineModels(calib, a.results, a.reliability, a.manicast_dir if have_sts else None, "logs/prepared",
                           meta["side"])
     g = OnlineGrid(meta["side"], W, H)

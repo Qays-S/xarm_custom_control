@@ -1,10 +1,10 @@
 """
 Section VI, steps 33-36: build the reliability features and labels.
 
-Runs the frozen multimodal GRU (s5_mgru.py) at every time step of every session and
+Runs the frozen multimodal GRU (fc_mgru.py) at every time step of every session and
 turns its output into one row per time step: the online features o_t, u_t, e_t
 (things the robot could know at time t) and the offline label (how good the
-forecast actually turned out to be). Used by s6_reliability.py and s8_locked_test.py.
+forecast actually turned out to be). Used by rel_train.py and eval_locked_test.py.
 """
 import json
 import math
@@ -13,9 +13,9 @@ import os
 import numpy as np
 import torch
 
-from s5_data import FORECAST_KP, load
-from s5_gru import SIZE, features
-from s5_mgru import LN100, MixtureGRU, point_logpdf, run
+from data_windows import FORECAST_KP, load
+from fc_gru import SIZE, features
+from fc_mgru import LN100, MixtureGRU, point_logpdf, run
 
 # Earlier forecasts we look back at, in 16 Hz steps: 4 = 0.25 s, 8 = 0.5 s, 16 = 1.0 s ago.
 LAGS = (4, 8, 16)
@@ -67,7 +67,7 @@ def session_table(model, s, L, K, jidx, allowed):
     pos = cur[:, None, None] + mu * 100.0 / SIZE                       # (N,M,K,J,2) normalised
     top = pos[np.arange(N), pi.argmax(1)]                               # (N,K,J,2) most likely mode
     hist_px = np.where(np.isnan(w["hist"]), np.nan, w["hist"]) * SIZE
-    from s5_gru import ffill
+    from fc_gru import ffill
     hf = ffill(w["hist"], w["hmiss"]) * SIZE           # history in px, gaps filled with the last seen point
 
     f = {}
@@ -135,7 +135,7 @@ def session_table(model, s, L, K, jidx, allowed):
     # ---- label (step 36): only from the real future, never used as an input.
     # L_future = mean error (px) of the most likely mode over the next 1.0 s, averaged over
     # elbow, wrist and hand. Defined only when the current pose and that whole future were seen.
-    # The 0/1 label is L_future <= l_max, applied in s6_reliability.py.
+    # The 0/1 label is L_future <= l_max, applied in rel_train.py.
     ok = (w["hmiss"][:, -1].sum(1) == 0) & (w["fmiss"][:, :K_LABEL].sum((1, 2)) == 0)
     err = np.linalg.norm((top[:, :K_LABEL] - w["fut"][:, :K_LABEL]) * SIZE, axis=-1)     # (N,k,J)
     f["L_future"] = np.where(ok, err.mean((1, 2)), np.nan)

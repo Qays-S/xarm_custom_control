@@ -15,8 +15,8 @@ Window keys
   q           quit (everything is autosaved after every point)
 
 Usage
-  python3 s3_collect.py calib    --out calib_session.json    [--camera 0] [--arm sdk|manual]
-  python3 s3_collect.py parallax --out parallax_session.json [--camera 0] [--arm sdk|manual]
+  python3 calib_collect.py calib    --out calib_session.json    [--camera 0] [--arm sdk|manual]
+  python3 calib_collect.py parallax --out parallax_session.json [--camera 0] [--arm sdk|manual]
 Re-running with the same --out resumes the session.
 """
 import argparse
@@ -25,7 +25,7 @@ import os
 import cv2
 import numpy as np
 
-from s3_common import ARM_IP_DEFAULT, CAM_H, CAM_W, ArmReader, load_json, open_camera, save_json, stamp
+from cam_common import ARM_IP_DEFAULT, CAM_H, CAM_W, ArmReader, load_json, open_camera, save_json, stamp
 
 click = {"pt": None, "mouse": (0, 0)}   # last click and current mouse position, set by on_mouse
 
@@ -91,13 +91,13 @@ def main():
         session = {"mode": a.mode, "created": stamp(), "camera_index": a.camera, "image_size": [w, h],
                    "arm_source": a.arm, "points": [], "current_location": 0}
         ref = os.path.splitext(a.out)[0] + "_reference_frame.png"
-        cv2.imwrite(ref, frame)  # used by s3_check_drift.py to prove the camera did not move
+        cv2.imwrite(ref, frame)  # used by calib_drift_check.py to prove the camera did not move
         session["reference_frame"] = os.path.basename(ref)
         save_json(a.out, session)
         print(f"Saved reference frame {ref}")
 
     arm = ArmReader(a.arm, a.ip)
-    win = f"s3_collect {a.mode}"
+    win = f"calib_collect {a.mode}"
     cv2.namedWindow(win)
     cv2.setMouseCallback(win, on_mouse)
     print(__doc__.split("Window keys")[1].split("Usage")[0])   # print the key list from the header

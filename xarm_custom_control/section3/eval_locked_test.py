@@ -7,7 +7,7 @@ Nothing here is tuned: every model, estimator, tau and planner setting is loaded
 C = planning replay (with and without the 0.19 s delay, plus the caution sweep).
 
 Usage
-  python3 s8_locked_test.py --manicast-dir ~/manicast
+  python3 eval_locked_test.py --manicast-dir ~/manicast
 Outputs in logs/locked_test/
 """
 import argparse
@@ -20,10 +20,10 @@ import numpy as np
 import torch
 from scipy.stats import spearmanr
 
-from s5_baselines import const_vel, current_pose
-from s5_data import FORECAST_KP, HORIZONS_S, ade_fde_px, eval_mask, load, windows
-from s5_gru import GRUForecaster, features, predict
-from s5_mgru import MixtureGRU, hpd_coverage, nll_px, run as mrun, to_positions
+from fc_baselines import const_vel, current_pose
+from data_windows import FORECAST_KP, HORIZONS_S, ade_fde_px, eval_mask, load, windows
+from fc_gru import GRUForecaster, features, predict
+from fc_mgru import MixtureGRU, hpd_coverage, nll_px, run as mrun, to_positions
 
 OUT = "logs/locked_test"
 
@@ -48,7 +48,7 @@ def part_a(manicast_dir, res="logs/forecast_results"):
     preds = {"current pose": current_pose(w, 24), f"constant velocity (n={cvn})": const_vel(w, 24, cvn),
              "GRU": predict(gru, x, cur), "multimodal GRU (most likely mode)": top}
     if manicast_dir and os.path.exists(os.path.join(manicast_dir, "model", "manicast.py")):
-        from s5_eval_e5 import StsGcn
+        from fc_eval_degraded import StsGcn
         m0, s0 = load("logs/prepared")
         sts = StsGcn(manicast_dir, m0, s0, os.path.join(res, "stsgcn", "stsgcn_finetuned_best.pt")).run(
             m, sess, "test", w)
@@ -98,8 +98,8 @@ def part_a(manicast_dir, res="logs/forecast_results"):
 
 def part_b():
     """B. The four reliability estimators on the test set (fitted on val, calibrated and tau on cal)."""
-    from s6_features import build
-    from s6_reliability import X, metrics, sub, boot_spearman, SETS
+    from rel_features import build
+    from rel_train import X, metrics, sub, boot_spearman, SETS
     model = pickle.load(open("logs/reliability/reliability_model.pkl", "rb"))
     l_max = model["l_max_px"]
     T_all = build("logs/prepared", ["test"])
@@ -149,7 +149,7 @@ def part_b():
 
 def switches(T, r_all, tau, win=1.5):
     """Delay from the physical onset of each E4 test switch to r_t first dropping below tau."""
-    from s4_dataset_summary import effector_track, load as load_session, switch_onset
+    from data_summary import effector_track, load as load_session, switch_onset
     rows, delays = [], []
     for s in [x for x in np.unique(T["session"]) if x.startswith("E4")]:
         tgrid = np.load(os.path.join("logs", "prepared", s + ".npz"))["t"]
@@ -178,9 +178,9 @@ def switches(T, r_all, tau, win=1.5):
 
 def part_c(manicast_dir):
     """C. Offline planning replay on the test set with the val settings (delay 0.19 s and 0),
-    then the caution sweep from s7_tradeoff.py."""
-    import s7_replay as R
-    import s7_tradeoff as TT
+    then the caution sweep from plan_tradeoff.py."""
+    import plan_replay as R
+    import plan_tradeoff as TT
     summ = json.load(open("logs/replay/summary.json"))
     chosen, tau, tau2 = summ["chosen_on_val"], summ["tau_from_cal"], summ["tau_smoothed_from_cal"]
     rel = json.load(open("logs/reliability/summary.json"))
@@ -211,7 +211,7 @@ def part_c(manicast_dir):
         cw.writerow(["delay_steps", "method", "cycles_per_min", "wait_share", "fallback_share", "fallback_per_min",
                      "min_sep_mm", "sep_p5_mm", "violations_per_min", "decision_loss", "regret"])
         cw.writerows(rows)
-    # caution sweep with delay, same grid as s7_tradeoff.py
+    # caution sweep with delay, same grid as plan_tradeoff.py
     R.DELAY = 3
     taus = TT.taus_from_cal(TT.BUDGETS, rel["l_max_px"])
     runs = []

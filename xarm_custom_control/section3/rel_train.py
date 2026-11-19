@@ -9,7 +9,7 @@ Data use (the test set is never touched here)
   E5    stress test only, never used for fitting or calibration
 
 Usage
-  python3 s6_reliability.py
+  python3 rel_train.py
 Outputs in logs/reliability/: estimators.csv, by_condition.csv, switch_detection.csv,
 reliability_model.pkl, summary.json, scores_*.npz, reliability_diagram.png
 """
@@ -29,7 +29,7 @@ from sklearn.metrics import average_precision_score, brier_score_loss, log_loss,
 from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import StandardScaler
 
-from s6_features import E_COLS, O_COLS, U_COLS, build
+from rel_features import E_COLS, O_COLS, U_COLS, build
 
 L_MAX = 32.0          # px, about 4 cm at the table; fixed on val before any estimator was fitted
 FTR_BUDGET = 0.10     # at most 10% of trusted moments may turn out unreliable (on cal)
@@ -131,7 +131,7 @@ def main():
     a = ap.parse_args()
     os.makedirs(a.out, exist_ok=True)
 
-    # ---- features and labels (s6_features.py); z = 1 if the next 1.0 s error <= l_max
+    # ---- features and labels (rel_features.py); z = 1 if the next 1.0 s error <= l_max
     dev = build("logs/prepared", ["val", "cal"])
     # E5 (the paper / dim-light stress test) was dropped from the live study; it is used only if prepared
     has_e5 = os.path.isdir("logs/prepared_e5")
@@ -316,7 +316,7 @@ def e5_labels(T):
 
 def switch_detection(dev, est, tau, win=1.5):
     """Delay from the physical change onset of each E4 switch (in D_val) to r_t < tau."""
-    from s4_dataset_summary import effector_track, load as load_session, switch_onset
+    from data_summary import effector_track, load as load_session, switch_onset
     mdl, cal, _, cols = est
     V = sub(dev, dev["set"] == "val")
     r_all = cal.predict(mdl.predict_proba(X(V, cols))[:, 1])

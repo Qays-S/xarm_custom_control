@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """
-Summarise s4_record_targets.py recordings (Section IV): counts and minutes per condition,
+Summarise data_record_reaches.py recordings (Section IV): counts and minutes per condition,
 frame rate, missing keypoints, reach timing, E3 reveal time, E4 switch onsets, and the schema.
 
 Usage
-  python3 s4_dataset_summary.py logs/E1_s01 logs/E2_s01 logs/E4_s01 [--out logs/summary]
+  python3 data_summary.py logs/E1_s01 logs/E2_s01 logs/E4_s01 [--out logs/summary]
 """
 import argparse
 import csv
