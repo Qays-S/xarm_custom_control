@@ -1,5 +1,5 @@
 """Live camera view with body tracking, for placing the camera. Nothing touches the arm.
-Run from section3/h3:  python3 cam_preview.py [camera index, default 0]   (q to quit)"""
+Run from reliability_hmp/h3:  python3 cam_preview.py [camera index, default 0]   (q to quit)"""
 import sys
 sys.path.insert(0, '..')
 import cv2

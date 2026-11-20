@@ -30,11 +30,11 @@ P02 never appears in Phases A or B, so their Phase C results test the method on 
 Work in a separate folder so the original (parked-arm) results are never overwritten:
 
 ```bash
-cd ~/ros2_ws/src/xarm_custom_control/xarm_custom_control/section3
+cd ~/ros2_ws/src/xarm_custom_control/xarm_custom_control/reliability_hmp
 mkdir -p h3/calib h3/logs && cd h3
 ```
 
-All commands below are run in `section3/h3`, as `python3 ../script.py`.
+All commands below are run in `reliability_hmp/h3`, as `python3 ../script.py`.
 
 1. Calibrate the camera to the table. Touch the dots **in order 1 to 12**, so that each id matches
    the dot number (6 = pick, 8 = place):
@@ -42,7 +42,7 @@ All commands below are run in `section3/h3`, as `python3 ../script.py`.
    python3 ../calib_collect.py calib --out calib/calib_live.json
    python3 ../calib_analyze.py calib/calib_live.json --holdout 4
    ```
-2. Check the code on this laptop (nothing moves). From `section3` (it uses the original data):
+2. Check the code on this laptop (nothing moves). From `reliability_hmp` (it uses the original data):
    ```bash
    cd .. && python3 live_selftest.py --manicast-dir ~/manicast && python3 live_mockarm_test.py && cd h3
    ```
@@ -91,7 +91,7 @@ driver closed (the camera should run at about 14 frames per second). If the drif
 by a small, uniform shift, `python3 ../calib_reregister.py calib/calib_live.json` fixes the calibration
 without touching the dots again (it refuses if the dots did not all move together).
 
-## B. Train and freeze (in `section3/h3`)
+## B. Train and freeze (in `reliability_hmp/h3`)
 
 ```bash
 python3 ../data_prepare.py logs/A_P01_E[1-4]_s0[12] --causal --split live

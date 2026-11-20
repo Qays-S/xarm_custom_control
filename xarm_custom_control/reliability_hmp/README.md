@@ -133,7 +133,7 @@ synthetic video of a person). Real values come only from your recordings.
 
 The robot stays **parked** for all of these; the tools only read its state. The targets are
 taped calibration dots (default #1, #4, #9, #12), so each target is known in pixels and in
-robot millimetres. Run from `section3`, with the xArm driver running and the workspace sourced
+robot millimetres. Run from `reliability_hmp`, with the xArm driver running and the workspace sourced
 (`source ~/ros2_ws/install/setup.bash`) so the robot's joint states are logged. The recorder checks this at the start: it prints "robot logging OK" or a WARNING listing the topics it can see, and the banner shows "ROBOT: NO DATA" if nothing arrives.
 
 **Before and after every session:** `python3 calib_drift_check.py calib/now_E5_median.png --camera 2 --dots calib/calib_cam3d.json` must say OK. `--dots` decides on the post-it dots themselves; the whole-scene number is printed for information only, because the parked arm in a slightly different pose can make it look as if the camera moved (this happened on 2026-10-29).
