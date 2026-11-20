@@ -3,7 +3,7 @@
 Reconstructs camera_calibration.json from the 8 points recorded in-session
 today (2026-09-28), after calibrate_camera.py was killed before 's' was
 pressed. Run this on the lab laptop from the same directory calibrate_camera.py
-normally saves into (~/ros2_ws/src/xarm_custom_control/xarm_custom_control/).
+normally saves into (~/ros2_ws/src/xarm_custom_control/xarm_custom_control/vision_pick_place/).
 
 This does NOT move the arm or touch the camera - it's a pure offline fit
 from the pixel/world pairs you already collected and confirmed on-screen.
