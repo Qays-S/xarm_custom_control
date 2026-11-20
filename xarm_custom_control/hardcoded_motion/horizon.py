@@ -3,7 +3,7 @@ import math
 import rclpy
 from rclpy.executors import ExternalShutdownException
 
-from xarm_custom_control.move_to_pose import MoveToPose
+from xarm_custom_control.hardcoded_motion.move_to_pose import MoveToPose
 
 
 def generate_rainbow_waypoints(x, y_center, z_base, radius, num_steps):

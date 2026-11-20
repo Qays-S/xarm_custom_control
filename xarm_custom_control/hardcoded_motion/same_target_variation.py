@@ -2,7 +2,7 @@ import time
 
 import rclpy
 from sensor_msgs.msg import JointState
-from xarm_custom_control.move_to_pose import MoveToPose
+from xarm_custom_control.hardcoded_motion.move_to_pose import MoveToPose
 
 
 def get_joint_positions(node, timeout=2.0):

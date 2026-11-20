@@ -1,7 +1,7 @@
 import rclpy
 from xarm_msgs.srv import PlanSingleStraight
 from geometry_msgs.msg import Pose
-from xarm_custom_control.move_to_pose import MoveToPose
+from xarm_custom_control.hardcoded_motion.move_to_pose import MoveToPose
 
 
 def main():
