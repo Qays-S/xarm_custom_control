@@ -1,0 +1,45 @@
+frame,t,event,reach,target,detail
+8,2573.525359,setup_touch,,1,
+22,2574.599618,cue,1,9,comfortable speed
+61,2577.576301,depart,1,1,
+66,2577.935489,arrive,1,9,auto
+76,2578.660175,cue,2,1,comfortable speed
+78,2578.8048,depart,2,9,
+83,2579.164871,switch_cue,2,12,new target
+125,2582.282657,arrive,2,12,auto
+138,2583.3326,cue,3,9,comfortable speed
+169,2585.645297,depart,3,12,
+173,2585.934653,arrive,3,9,auto
+182,2586.64752,cue,4,4,comfortable speed
+211,2588.78546,depart,4,9,
+214,2589.014754,switch_cue,4,1,new target
+250,2591.667674,arrive,4,1,auto
+263,2592.619472,cue,5,4,comfortable speed
+293,2594.850665,depart,5,1,
+300,2595.358342,arrive,5,4,auto
+312,2596.215355,cue,6,1,comfortable speed
+344,2598.535257,depart,6,4,
+349,2598.913184,switch_cue,6,4,reversal
+391,2601.958199,arrive,6,4,auto
+405,2602.959502,cue,7,9,comfortable speed
+432,2604.915859,depart,7,4,
+436,2605.21829,switch_cue,7,4,reversal
+481,2608.591559,arrive,7,4,auto
+498,2609.827145,cue,8,9,comfortable speed
+524,2611.697717,depart,8,4,
+529,2612.084156,switch_cue,8,4,reversal
+569,2615.00538,arrive,8,4,auto
+586,2616.229162,cue,9,1,comfortable speed
+612,2618.118835,depart,9,4,
+619,2618.639045,arrive,9,1,auto
+634,2619.722952,cue,10,4,comfortable speed
+661,2621.680492,depart,10,1,
+668,2622.188828,arrive,10,4,auto
+679,2622.984804,cue,11,9,comfortable speed
+726,2626.40274,depart,11,4,
+759,2629.025422,timeout,11,9,
+766,2629.575986,cue,12,12,comfortable speed
+802,2632.410649,depart,12,4,
+805,2632.631563,arrive,12,12,auto
+817,2633.525775,cue,13,1,comfortable speed
+817,2633.525775,robot_stopped,,,controller error 31
