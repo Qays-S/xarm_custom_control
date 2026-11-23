@@ -1,0 +1,39 @@
+frame,t,event,reach,target,detail
+117,929.162242,setup_touch,,1,
+135,930.215104,cue,1,9,comfortable speed
+210,934.551148,depart,1,1,
+218,935.004109,arrive,1,9,auto
+232,935.804048,cue,2,1,comfortable speed
+271,938.212992,depart,2,9,
+276,938.500921,switch_cue,2,12,new target
+334,941.850438,timeout,2,12,
+345,942.376984,cue,3,1,comfortable speed
+356,942.911798,depart,3,9,
+362,943.280746,switch_cue,3,9,reversal
+450,948.379078,timeout,3,9,
+461,948.917594,cue,4,12,comfortable speed
+514,951.430836,depart,4,9,
+517,951.603529,switch_cue,4,9,reversal
+575,954.934206,timeout,4,9,
+587,955.474121,cue,5,1,comfortable speed
+631,957.909798,depart,5,9,
+637,958.251603,switch_cue,5,9,reversal
+684,960.951669,arrive,5,9,auto
+696,961.681096,cue,6,4,comfortable speed
+708,962.366617,depart,6,9,
+750,964.593819,arrive,6,4,auto
+769,965.677257,cue,7,12,comfortable speed
+810,968.011871,depart,7,4,
+818,968.492921,arrive,7,12,auto
+828,969.108959,cue,8,4,comfortable speed
+857,971.452222,depart,8,12,
+861,971.779033,switch_cue,8,1,new target
+902,975.154783,timeout,8,1,
+909,975.716378,cue,9,9,comfortable speed
+910,975.794585,depart,9,12,
+964,979.837487,arrive,9,9,auto
+972,980.498617,cue,10,4,comfortable speed
+1001,982.792536,depart,10,9,
+1003,982.948216,switch_cue,10,9,reversal
+1046,986.293612,arrive,10,9,auto
+1058,987.238707,session_complete,,,

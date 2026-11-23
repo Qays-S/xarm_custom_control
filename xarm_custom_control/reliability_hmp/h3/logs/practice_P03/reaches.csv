@@ -1,0 +1,11 @@
+reach,mode,start,goal_cued,decoy,instruction,t_cue,t_depart,t_resolve,switch_to,t_switch_cue,goal_final,t_arrive,arrival,valid,note,perturb,lighting
+1,E4,1,9,,comfortable speed,930.215104,934.551148,,,,9,935.004109,auto,1,,,
+2,E4,9,1,,comfortable speed,935.804048,938.212992,,12,938.500921,12,,timeout,0,timeout,,
+3,E4,9,1,,comfortable speed,942.376984,942.911798,,9,943.280746,9,,timeout,0,timeout,,
+4,E4,9,12,,comfortable speed,948.917594,951.430836,,9,951.603529,9,,timeout,0,timeout,,
+5,E4,9,1,,comfortable speed,955.474121,957.909798,,9,958.251603,9,960.951669,auto,1,,,
+6,E4,9,4,,comfortable speed,961.681096,962.366617,,,,4,964.593819,auto,1,,,
+7,E4,4,12,,comfortable speed,965.677257,968.011871,,,,12,968.492921,auto,1,,,
+8,E4,12,4,,comfortable speed,969.108959,971.452222,,1,971.779033,1,,timeout,0,timeout,,
+9,E4,12,9,,comfortable speed,975.716378,975.794585,,,,9,979.837487,auto,1,,,
+10,E4,9,4,,comfortable speed,980.498617,982.792536,,9,982.948216,9,986.293612,auto,1,,,
