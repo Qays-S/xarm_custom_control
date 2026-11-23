@@ -1,14 +1,14 @@
 {
-  "started_wall": "2026-11-16 15:56:31",
+  "started_wall": "2026-11-20 13:39:11",
   "mode": "E4",
   "participant": "P02",
   "side": "R",
-  "seed": 62581,
+  "seed": 99940,
   "targets": {
     "1": {
       "px": [
-        731.0,
-        435.0
+        840.96,
+        324.77
       ],
       "robot_mm": [
         681.459,
@@ -18,8 +18,8 @@
     },
     "4": {
       "px": [
-        555.0,
-        545.0
+        707.15,
+        480.9
       ],
       "robot_mm": [
         674.132,
@@ -29,8 +29,8 @@
     },
     "9": {
       "px": [
-        649.0,
-        303.0
+        724.09,
+        229.19
       ],
       "robot_mm": [
         457.316,
@@ -40,8 +40,8 @@
     },
     "12": {
       "px": [
-        469.0,
-        401.0
+        585.13,
+        374.17
       ],
       "robot_mm": [
         441.431,
@@ -50,7 +50,7 @@
       ]
     }
   },
-  "calib_session": "calib/calib_live2.json",
+  "calib_session": "calib/calib_live3.json",
   "radius_px": 30.0,
   "dwell_s": 0.2,
   "timeout_s": 6.0,
@@ -78,16 +78,17 @@
     "cycle_mm": 1010.0,
     "ik_ok": 1.0,
     "models": true,
-    "ticks": 3025,
-    "cycles": 19.811
+    "ticks": 5967,
+    "cycles": 33.09
   },
-  "frames": 2855,
+  "frames": 4908,
   "detect_width": 640,
-  "duration_s": 189.416,
+  "duration_s": 373.264,
   "valid_reaches": 40,
-  "reaches_cued": 46,
+  "reaches_cued": 69,
   "actual_size": [
     1280,
     720
-  ]
+  ],
+  "relabelled": "Recorded as P03 on 2026-11-20; renumbered P02 so IDs follow the order of live runs."
 }
