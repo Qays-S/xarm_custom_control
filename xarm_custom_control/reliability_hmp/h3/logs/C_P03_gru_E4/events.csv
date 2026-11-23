@@ -1,0 +1,299 @@
+frame,t,event,reach,target,detail
+54,2220.82803,setup_touch,,1,
+72,2221.889078,cue,1,4,comfortable speed
+108,2224.066175,depart,1,1,
+111,2224.240404,switch_cue,1,12,new target
+176,2227.890694,timeout,1,12,
+187,2228.418544,cue,2,12,comfortable speed
+307,2234.433043,timeout,2,12,
+319,2234.971068,cue,3,4,comfortable speed
+380,2237.772889,depart,3,1,
+384,2237.997786,switch_cue,3,12,new target
+435,2241.006055,timeout,3,12,
+443,2241.530477,cue,4,4,comfortable speed
+444,2241.59909,depart,4,1,
+495,2244.643786,arrive,4,4,auto
+513,2245.680288,cue,5,9,comfortable speed
+564,2248.637756,depart,5,4,
+570,2248.972525,switch_cue,5,12,new target
+629,2251.720518,timeout,5,12,
+639,2252.253706,cue,6,9,comfortable speed
+648,2252.770299,depart,6,4,
+742,2257.878135,arrive,6,9,auto
+760,2258.917097,cue,7,12,comfortable speed
+857,2264.98025,timeout,7,12,
+865,2265.480627,cue,8,4,comfortable speed
+866,2265.538095,depart,8,9,
+926,2269.357491,arrive,8,4,auto
+937,2269.997088,cue,9,12,comfortable speed
+982,2272.628336,depart,9,4,
+986,2272.861648,switch_cue,9,4,reversal
+1037,2276.058447,timeout,9,4,
+1046,2276.581291,cue,10,1,comfortable speed
+1089,2279.138184,depart,10,4,
+1094,2279.468513,switch_cue,10,12,new target
+1148,2282.607614,timeout,10,12,
+1159,2283.130972,cue,11,1,comfortable speed
+1176,2284.111789,depart,11,4,
+1229,2287.149835,arrive,11,1,auto
+1249,2288.3107,cue,12,12,comfortable speed
+1294,2291.187018,depart,12,1,
+1298,2291.4502,switch_cue,12,9,new target
+1342,2294.327603,timeout,12,9,
+1350,2294.882171,cue,13,9,comfortable speed
+1399,2297.583492,depart,13,1,
+1403,2297.826736,arrive,13,9,auto
+1422,2298.95071,cue,14,12,comfortable speed
+1467,2301.555198,depart,14,9,
+1470,2301.737336,switch_cue,14,9,reversal
+1527,2304.966815,timeout,14,9,
+1536,2305.477843,cue,15,12,comfortable speed
+1642,2311.525117,timeout,15,12,
+1651,2312.066711,cue,16,4,comfortable speed
+1694,2314.53812,depart,16,9,
+1710,2315.492783,arrive,16,4,auto
+1728,2316.517889,cue,17,9,comfortable speed
+1789,2320.023636,depart,17,4,
+1793,2320.254928,switch_cue,17,4,reversal
+1841,2322.535688,timeout,17,4,
+1850,2323.048194,cue,18,1,comfortable speed
+1851,2323.107434,depart,18,4,
+1919,2326.996899,arrive,18,1,auto
+1938,2328.103709,cue,19,9,comfortable speed
+1984,2330.851822,depart,19,1,
+1990,2331.194217,switch_cue,19,4,new target
+2035,2334.108539,timeout,19,4,
+2043,2334.651184,cue,20,4,comfortable speed
+2044,2334.719718,depart,20,1,
+2059,2335.591027,arrive,20,4,auto
+2079,2336.826994,cue,21,12,comfortable speed
+2120,2339.352704,depart,21,4,
+2181,2342.878592,timeout,21,12,
+2190,2343.403171,cue,22,1,comfortable speed
+2209,2344.484007,depart,22,4,
+2211,2344.596669,switch_cue,22,9,new target
+2295,2349.452147,timeout,22,9,
+2304,2350.016368,cue,23,1,comfortable speed
+2324,2351.410286,depart,23,4,
+2342,2352.892771,arrive,23,1,auto
+2353,2353.835726,cue,24,4,comfortable speed
+2387,2356.778196,depart,24,1,
+2394,2357.342427,arrive,24,4,auto
+2404,2358.162646,cue,25,9,comfortable speed
+2438,2360.891609,depart,25,4,
+2440,2361.059058,switch_cue,25,12,new target
+2486,2364.209785,timeout,25,12,
+2494,2364.778033,cue,26,9,comfortable speed
+2495,2364.856473,depart,26,4,
+2499,2365.166224,switch_cue,26,1,new target
+2559,2369.436757,arrive,26,1,auto
+2573,2370.553113,cue,27,9,comfortable speed
+2610,2373.789479,depart,27,1,
+2616,2374.273396,arrive,27,9,auto
+2629,2375.393389,cue,28,12,comfortable speed
+2668,2378.494252,depart,28,9,
+2671,2378.738178,switch_cue,28,4,new target
+2703,2381.418629,timeout,28,4,
+2710,2381.986831,cue,29,4,comfortable speed
+2715,2382.399078,depart,29,9,
+2718,2382.640242,switch_cue,29,9,reversal
+2784,2387.784428,arrive,29,9,auto
+2795,2388.697299,cue,30,1,comfortable speed
+2827,2391.235083,depart,30,9,
+2833,2391.719018,arrive,30,1,auto
+2846,2392.707959,cue,31,9,comfortable speed
+2876,2395.110643,depart,31,1,
+2879,2395.383605,switch_cue,31,1,reversal
+2926,2398.730791,timeout,31,1,
+2932,2399.244874,cue,32,9,comfortable speed
+2977,2402.826948,depart,32,1,
+2981,2403.147236,switch_cue,32,12,new target
+3007,2405.248129,timeout,32,12,
+3014,2405.786108,cue,33,4,comfortable speed
+3069,2409.777562,depart,33,1,
+3072,2410.023256,switch_cue,33,12,new target
+3092,2411.883076,timeout,33,12,
+3099,2412.449196,cue,34,12,comfortable speed
+3100,2412.53061,depart,34,1,
+3176,2418.524098,timeout,34,12,
+3183,2419.0844,cue,35,4,comfortable speed
+3202,2420.584681,depart,35,1,
+3221,2422.112284,arrive,35,4,auto
+3232,2422.977482,cue,36,9,comfortable speed
+3272,2426.200571,depart,36,4,
+3275,2426.412171,switch_cue,36,1,new target
+3312,2429.01896,timeout,36,1,
+3319,2429.566498,cue,37,12,comfortable speed
+3320,2429.66307,depart,37,4,
+3323,2429.890861,switch_cue,37,4,reversal
+3365,2433.305818,arrive,37,4,auto
+3380,2434.491946,cue,38,12,comfortable speed
+3405,2436.517864,depart,38,4,
+3410,2436.909318,switch_cue,38,4,reversal
+3453,2440.511844,timeout,38,4,
+3460,2441.093226,cue,39,12,comfortable speed
+3498,2444.267887,depart,39,4,
+3538,2447.105616,timeout,39,12,
+3545,2447.640637,cue,40,12,comfortable speed
+3600,2451.612807,depart,40,4,
+3603,2451.867337,arrive,40,12,auto
+3612,2452.658561,cue,41,1,comfortable speed
+3638,2454.983244,depart,41,12,
+3651,2456.10654,arrive,41,1,auto
+3664,2457.277968,cue,42,12,comfortable speed
+3694,2459.652451,depart,42,1,
+3699,2460.008929,switch_cue,42,1,reversal
+3742,2463.282508,timeout,42,1,
+3749,2463.833103,cue,43,12,comfortable speed
+3787,2466.883662,depart,43,1,
+3789,2467.04061,switch_cue,43,4,new target
+3825,2469.879524,timeout,43,4,
+3832,2470.426595,cue,44,4,comfortable speed
+3833,2470.508732,depart,44,1,
+3835,2470.672547,switch_cue,44,1,reversal
+3883,2474.518879,arrive,44,1,auto
+3892,2475.29082,cue,45,9,comfortable speed
+3928,2478.206085,depart,45,1,
+3932,2478.544709,switch_cue,45,1,reversal
+3967,2481.31744,timeout,45,1,
+3974,2481.876336,cue,46,12,comfortable speed
+4016,2485.348595,depart,46,1,
+4045,2487.949437,timeout,46,12,
+4050,2488.457565,cue,47,4,comfortable speed
+4051,2488.514734,depart,47,1,
+4084,2491.38845,arrive,47,4,auto
+4098,2492.501285,cue,48,12,comfortable speed
+4135,2495.657417,depart,48,4,
+4138,2495.889125,switch_cue,48,9,new target
+4179,2498.524699,timeout,48,9,
+4186,2499.035046,cue,49,12,comfortable speed
+4194,2499.542774,depart,49,4,
+4230,2502.495917,arrive,49,12,auto
+4240,2503.684024,cue,50,9,comfortable speed
+4275,2506.965663,depart,50,12,
+4277,2507.114782,switch_cue,50,12,reversal
+4310,2509.691852,timeout,50,12,
+4317,2510.238809,cue,51,1,comfortable speed
+4318,2510.315911,depart,51,12,
+4322,2510.646736,switch_cue,51,9,new target
+4396,2516.261595,timeout,51,9,
+4404,2516.823732,cue,52,9,comfortable speed
+4442,2520.007781,depart,52,12,
+4470,2522.823753,timeout,52,9,
+4476,2523.390863,cue,53,9,comfortable speed
+4550,2529.414049,timeout,53,9,
+4556,2529.924117,cue,54,9,comfortable speed
+4646,2535.978951,timeout,54,9,
+4654,2536.502721,cue,55,9,comfortable speed
+4749,2542.533015,timeout,55,9,
+4757,2543.053815,cue,56,9,comfortable speed
+4830,2547.674023,depart,56,12,
+4834,2547.999256,arrive,56,9,auto
+4847,2549.044121,cue,57,4,comfortable speed
+4885,2552.072105,depart,57,9,
+4888,2552.328791,switch_cue,57,9,reversal
+4923,2555.115592,timeout,57,9,
+4930,2555.682091,cue,58,1,comfortable speed
+4952,2557.474136,depart,58,9,
+4955,2557.725867,switch_cue,58,4,new target
+5003,2561.757936,timeout,58,4,
+5010,2562.287414,cue,59,1,comfortable speed
+5011,2562.364735,depart,59,9,
+5015,2562.702692,switch_cue,59,4,new target
+5018,2562.962054,arrive,59,4,auto
+5026,2563.732082,cue,60,12,comfortable speed
+5048,2565.619152,depart,60,4,
+5051,2565.888696,switch_cue,60,1,new target
+5093,2569.649773,arrive,60,1,auto
+5104,2570.541625,cue,61,4,comfortable speed
+5138,2573.336928,depart,61,1,
+5140,2573.490593,switch_cue,61,12,new target
+5179,2576.549776,timeout,61,12,
+5186,2577.10503,cue,62,12,comfortable speed
+5187,2577.186138,depart,62,1,
+5193,2577.670329,arrive,62,12,auto
+5202,2578.480845,cue,63,1,comfortable speed
+5232,2581.285614,depart,63,12,
+5239,2581.921768,arrive,63,1,auto
+5251,2582.872541,cue,64,4,comfortable speed
+5282,2585.34294,depart,64,1,
+5289,2585.884268,arrive,64,4,auto
+5300,2586.752145,cue,65,1,comfortable speed
+5327,2588.929983,depart,65,4,
+5333,2589.428577,arrive,65,1,auto
+5343,2590.279773,cue,66,9,comfortable speed
+5378,2593.138381,depart,66,1,
+5388,2593.955178,arrive,66,9,auto
+5401,2594.983748,cue,67,1,comfortable speed
+5434,2597.601482,depart,67,9,
+5440,2598.09055,arrive,67,1,auto
+5449,2598.826217,cue,68,12,comfortable speed
+5484,2601.631244,depart,68,1,
+5487,2601.844119,switch_cue,68,9,new target
+5525,2604.897349,timeout,68,9,
+5532,2605.442476,cue,69,12,comfortable speed
+5533,2605.526325,depart,69,1,
+5618,2611.454463,timeout,69,12,
+5625,2612.029288,cue,70,12,comfortable speed
+5626,2612.111155,depart,70,1,
+5632,2612.583302,arrive,70,12,auto
+5644,2613.721184,cue,71,1,comfortable speed
+5677,2616.805373,depart,71,12,
+5681,2617.117223,arrive,71,1,auto
+5691,2617.977795,cue,72,4,comfortable speed
+5725,2620.812743,depart,72,1,
+5732,2621.39847,arrive,72,4,auto
+5743,2622.442384,cue,73,1,comfortable speed
+5771,2625.099972,depart,73,4,
+5774,2625.335226,switch_cue,73,4,reversal
+5811,2628.461988,timeout,73,4,
+5817,2629.0342,cue,74,12,comfortable speed
+5818,2629.140212,depart,74,4,
+5822,2629.455446,switch_cue,74,4,reversal
+5825,2629.705677,arrive,74,4,auto
+5834,2630.431799,cue,75,1,comfortable speed
+5867,2633.042559,depart,75,4,
+5874,2633.618259,arrive,75,1,auto
+5888,2634.732848,cue,76,9,comfortable speed
+5922,2637.531366,depart,76,1,
+5924,2637.68653,switch_cue,76,12,new target
+5963,2640.740832,timeout,76,12,
+5970,2641.283341,cue,77,4,comfortable speed
+5971,2641.361462,depart,77,1,
+5975,2641.755605,switch_cue,77,1,reversal
+6015,2645.470806,arrive,77,1,auto
+6028,2646.495327,cue,78,12,comfortable speed
+6062,2649.146543,depart,78,1,
+6107,2652.505082,timeout,78,12,
+6114,2653.054199,cue,79,4,comfortable speed
+6118,2653.380169,depart,79,1,
+6121,2653.614788,switch_cue,79,9,new target
+6194,2659.059556,timeout,79,9,
+6201,2659.612299,cue,80,4,comfortable speed
+6202,2659.691079,depart,80,1,
+6240,2662.725611,arrive,80,4,auto
+6249,2663.504242,cue,81,12,comfortable speed
+6277,2665.826667,depart,81,4,
+6282,2666.221116,arrive,81,12,auto
+6293,2667.115634,cue,82,9,comfortable speed
+6331,2670.495333,depart,82,12,
+6368,2673.181809,timeout,82,9,
+6375,2673.734867,cue,83,1,comfortable speed
+6376,2673.830484,depart,83,12,
+6378,2673.999206,switch_cue,83,12,reversal
+6458,2679.760267,timeout,83,12,
+6466,2680.276665,cue,84,1,comfortable speed
+6507,2683.157417,depart,84,12,
+6513,2683.739997,arrive,84,1,auto
+6524,2684.600811,cue,85,9,comfortable speed
+6557,2687.292592,depart,85,1,
+6559,2687.452119,switch_cue,85,1,reversal
+6604,2690.649662,timeout,85,1,
+6611,2691.207199,cue,86,9,comfortable speed
+6645,2693.948214,depart,86,1,
+6648,2694.236682,switch_cue,86,1,reversal
+6694,2697.239724,timeout,86,1,
+6701,2697.830336,cue,87,4,comfortable speed
+6737,2700.758165,depart,87,1,
+6745,2701.390645,arrive,87,4,auto
+6756,2702.258423,session_complete,,,
